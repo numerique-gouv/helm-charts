@@ -4,10 +4,13 @@ stages:
   - release
 
 variables:
+  TERRAFORM_REGISTRY_MODULE_NAME: tools-k8s
+  TERRAFORM_REGISTRY_SYSTEM_NAME: grist
   HELM_CHART_NAME: grist
 
 include:
   - project: vigigloo/gitlab-pipeline-fragments
     ref: v1
     file:
+      - registry/terraform.auto.yml
       - registry/helm.auto.yml
