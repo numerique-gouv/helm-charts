@@ -1,0 +1,6 @@
+dependencies:
+- name: common
+  repository: https://gitlab.com/api/v4/projects/29298733/packages/helm/stable
+  version: 0.1.1
+digest: sha256:36bf90c44fc553673d5abcdda233f24e6f030673a1bd26f10ef3b6da97f88150
+generated: "2022-04-14T13:52:26.014550547+02:00"

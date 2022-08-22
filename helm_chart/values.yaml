@@ -1,0 +1,90 @@
+# Default values for grist.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+persistence:
+  size: 8Gi
+
+image:
+  repository: gristlabs/grist
+  pullPolicy: IfNotPresent
+#  credentials:
+#    name: foo
+#    registry: "gitlab.com"
+#    username: "user"
+#    password: "pass"
+  tag: "0.7.9"
+
+nameOverride: ""
+fullnameOverride: ""
+
+envVars: {}
+
+podAnnotations: {}
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8484
+  annotations: {}
+
+probes:
+  liveness:
+    path: /
+  readiness:
+    path: /
+
+ingress:
+  className: null
+  enabled: false
+  certManagerClusterIssuer: letsencrypt-prod
+  host: null
+  path: /
+  annotations:
+    acme.cert-manager.io/http01-edit-in-place: "true"
+  hosts: []
+  #  - host: chart-example.local
+  #    paths: []
+  tls:
+    enabled: true
+    additional: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
+monitoring:
+  namespace: monitoring
+  exporter:
+    enabled: false
+    port: 9091
+    targetPort: 9091
+  dashboard:
+    deploy: false
+    sidecarLabel: grafana-dashboard
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""

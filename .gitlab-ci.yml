@@ -1,0 +1,13 @@
+stages:
+  - test
+  - build
+  - release
+
+variables:
+  HELM_CHART_NAME: grist
+
+include:
+  - project: vigigloo/gitlab-pipeline-fragments
+    ref: v1
+    file:
+      - registry/helm.auto.yml
