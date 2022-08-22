@@ -30,9 +30,11 @@ service:
 
 probes:
   liveness:
-    path: /
+    tcpSocket:
+      port: 8484
   readiness:
-    path: /
+    tcpSocket:
+      port: 8484
 
 ingress:
   className: null
