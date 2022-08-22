@@ -97,8 +97,6 @@ spec:
     kind: PersistentVolumeClaim
     metadata:
       name: {{ $fullName }}
-      labels:
-        {{- include "common.labels" . | nindent 8 }}
     spec:
       accessModes:
       - ReadWriteOnce
