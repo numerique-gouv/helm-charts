@@ -10,7 +10,20 @@ variables:
 
 include:
   - project: vigigloo/gitlab-pipeline-fragments
-    ref: v1
+    ref: feat/specify-different-docker-context
     file:
+      - docker.yml
+
       - registry/terraform.auto.yml
       - registry/helm.auto.yml
+
+docker:kaniko:build:backup:
+  extends: .vigigloo:docker:kaniko:build
+  variables:
+    CI_APPLICATION_REPOSITORY: $CI_REGISTRY_IMAGE/backup
+    DOCKERFILE: $CI_PROJECT_DIR/backup/Dockerfile
+    DOCKER_CONTEXT: $CI_PROJECT_DIR/backup/
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: on_success
+    - when: never
