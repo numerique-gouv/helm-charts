@@ -34,4 +34,4 @@ aws_access_key_id=$S3_ACCESS_KEY
 aws_secret_access_key=$S3_SECRET_KEY
 EOF
 
-aws s3 cp /tmp/$DATE.tar.gz s3://$S3_BUCKET
+aws s3 cp /tmp/backup/$DATE.tar.gz s3://$S3_BUCKET
