@@ -52,9 +52,84 @@ resource "helm_release" "grist" {
       value = set.value
     }
   }
+  dynamic "set" {
+    for_each = compact([var.backup_limits_cpu])
+    content {
+      name  = "backup.resources.limits.cpu"
+      value = set.value
+    }
+  }
+  dynamic "set" {
+    for_each = compact([var.backup_limits_memory])
+    content {
+      name  = "backup.resources.limits.memory"
+      value = set.value
+    }
+  }
+  dynamic "set" {
+    for_each = compact([var.backup_requests_cpu])
+    content {
+      name  = "backup.resources.requests.cpu"
+      value = set.value
+    }
+  }
+  dynamic "set" {
+    for_each = compact([var.backup_requests_memory])
+    content {
+      name  = "backup.resources.requests.memory"
+      value = set.value
+    }
+  }
 
   set {
     name  = "persistence.size"
     value = var.grist_persistence_size
+  }
+
+  set {
+    name  = "backup.enabled"
+    value = var.grist_backup_schedule != null && var.grist_backup_schedule != ""
+  }
+  dynamic "set" {
+    for_each = compact([var.grist_backup_schedule])
+    content {
+      name  = "backup.schedule"
+      value = set.value
+    }
+  }
+  dynamic "set" {
+    for_each = compact([var.grist_backup_s3_endpoint])
+    content {
+      name  = "backup.s3.endpoint"
+      value = set.value
+    }
+  }
+  dynamic "set" {
+    for_each = compact([var.grist_backup_s3_region])
+    content {
+      name  = "backup.s3.region"
+      value = set.value
+    }
+  }
+  dynamic "set" {
+    for_each = compact([var.grist_backup_s3_bucket])
+    content {
+      name  = "backup.s3.bucket"
+      value = set.value
+    }
+  }
+  dynamic "set" {
+    for_each = compact([var.grist_backup_s3_access_key])
+    content {
+      name  = "backup.s3.accessKey"
+      value = set.value
+    }
+  }
+  dynamic "set" {
+    for_each = compact([var.grist_backup_s3_secret_key])
+    content {
+      name  = "backup.s3.secretKey"
+      value = set.value
+    }
   }
 }

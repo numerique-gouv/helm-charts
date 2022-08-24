@@ -6,7 +6,7 @@ variable "chart_name" {
 }
 variable "chart_version" {
   type    = string
-  default = "0.1.2"
+  default = "1.0.0"
 }
 variable "values" {
   type    = list(string)
@@ -55,6 +55,23 @@ variable "requests_cpu" {
   default = null
 }
 variable "requests_memory" {
+  type    = string
+  default = null
+}
+
+variable "backup_limits_cpu" {
+  type    = string
+  default = null
+}
+variable "backup_limits_memory" {
+  type    = string
+  default = null
+}
+variable "backup_requests_cpu" {
+  type    = string
+  default = null
+}
+variable "backup_requests_memory" {
   type    = string
   default = null
 }

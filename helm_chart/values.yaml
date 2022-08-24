@@ -54,6 +54,21 @@ ingress:
     #    hosts:
     #      - chart-example.local
 
+backup:
+  enabled: false
+  schedule: "0 0 * * 1"
+  image:
+    repository: registry.gitlab.com/vigigloo/tools/grist/backup
+    pullPolicy: IfNotPresent
+    tag: latest
+  s3: {}
+    # endpoint: ""
+    # region: ""
+    # bucket: ""
+    # accessKey: ""
+    # secretKey: ""
+  resources: {}
+
 monitoring:
   namespace: monitoring
   exporter:
