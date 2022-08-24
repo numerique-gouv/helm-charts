@@ -10,7 +10,7 @@ variables:
 
 include:
   - project: vigigloo/gitlab-pipeline-fragments
-    ref: feat/specify-different-docker-context
+    ref: v1
     file:
       - docker.yml
 
