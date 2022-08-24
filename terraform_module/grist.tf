@@ -126,10 +126,10 @@ resource "helm_release" "grist" {
     }
   }
   dynamic "set" {
-    for_each = compact([var.grist_backup_s3_secret_key])
+    for_each = var.grist_backup_s3_secret_key == null ? [] : [1]
     content {
       name  = "backup.s3.secretKey"
-      value = set.value
+      value = var.grist_backup_s3_secret_key
     }
   }
 }

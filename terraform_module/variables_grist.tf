@@ -25,6 +25,7 @@ variable "grist_backup_s3_access_key" {
   default = null
 }
 variable "grist_backup_s3_secret_key" {
-  type    = string
-  default = null
+  type      = string
+  default   = null
+  sensitive = true
 }
