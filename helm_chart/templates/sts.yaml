@@ -79,7 +79,7 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
             - mountPath: /persist
-              name: {{ $fullName }}
+              name: data
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -96,7 +96,7 @@ spec:
   - apiVersion: v1
     kind: PersistentVolumeClaim
     metadata:
-      name: {{ $fullName }}
+      name: data
     spec:
       accessModes:
       - ReadWriteOnce
