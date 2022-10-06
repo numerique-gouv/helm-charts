@@ -1,0 +1,11 @@
+{{- range $index, $value := .Values.mountFiles -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ include "common.fullname" $ }}-files-{{ $index }}"
+  labels:
+    {{- include "common.labels" $ | nindent 4 }}
+binaryData:
+  content: {{ .content }}
+---
+{{- end -}}
