@@ -6,6 +6,8 @@ metadata:
   name: {{ $fullName }}
   labels:
     {{- include "common.labels" . | nindent 4 }}
+  annotations:
+    filesChecksum: {{ .Values.mountFiles | toJson | sha256sum }}
 spec:
   replicas: 1
   selector:
@@ -14,10 +16,11 @@ spec:
   serviceName: {{ $fullName }}
   template:
     metadata:
-    {{- with .Values.podAnnotations }}
       annotations:
+        filesChecksum: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
-    {{- end }}
+        {{- end }}
       labels:
         {{- include "common.selectorLabels" . | nindent 8 }}
     spec:
@@ -80,6 +83,11 @@ spec:
           volumeMounts:
             - mountPath: /persist
               name: data
+            {{- range $index, $value := .Values.mountFiles }}
+            - name: "files-{{ $index }}"
+              mountPath: {{ $value.path }}
+              subPath: content
+            {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -92,6 +100,12 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+        {{- range $index, $value := .Values.mountFiles }}
+        - name: "files-{{ $index }}"
+          configMap:
+            name: "{{ $fullName }}-files-{{ $index }}"
+        {{- end }}
   volumeClaimTemplates:
   - apiVersion: v1
     kind: PersistentVolumeClaim

@@ -29,3 +29,11 @@ variable "grist_backup_s3_secret_key" {
   default   = null
   sensitive = true
 }
+
+variable "grist_mount_files" {
+  type = list(object({
+    path    = string
+    content = string
+  }))
+  default = []
+}

@@ -132,4 +132,18 @@ resource "helm_release" "grist" {
       value = var.grist_backup_s3_secret_key
     }
   }
+  dynamic "set" {
+    for_each = var.grist_mount_files
+    content {
+      name  = "mountFiles[${set.key}].path"
+      value = set.value.path
+    }
+  }
+  dynamic "set" {
+    for_each = var.grist_mount_files
+    content {
+      name  = "mountFiles[${set.key}].content"
+      value = set.value.content
+    }
+  }
 }

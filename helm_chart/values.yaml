@@ -20,6 +20,12 @@ fullnameOverride: ""
 
 envVars: {}
 
+# Allows mounting any file anywhere on the pod
+mountFiles: []
+  # - path: /path/to/file/on/pod.txt
+  #   # base64 encoded file content
+  #   content: YmFzZTY0IGVuY29kZWQgY29udGVudAp3aXRoIG11bHRpbGluZSBzdXBwb3J0Cg==
+
 podAnnotations: {}
 
 service:
