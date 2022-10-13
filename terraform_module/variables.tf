@@ -6,7 +6,7 @@ variable "chart_name" {
 }
 variable "chart_version" {
   type    = string
-  default = "1.0.0"
+  default = "1.1.0"
 }
 variable "values" {
   type    = list(string)
