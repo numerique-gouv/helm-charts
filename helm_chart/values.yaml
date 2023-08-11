@@ -15,6 +15,12 @@ image:
 #    password: "pass"
   tag: "0.7.9"
 
+# Override container command
+command: null
+  # - sleep
+args: null
+  # - infinity
+
 nameOverride: ""
 fullnameOverride: ""
 
