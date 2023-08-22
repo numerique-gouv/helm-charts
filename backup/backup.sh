@@ -6,7 +6,7 @@ DATE=$(date +'%Y%m%d%H%M')
 
 mkdir -p /tmp/backup/
 
-tar vf - -C /data/ . | pigz > /tmp/backup/$DATE.tar.gz
+tar cvf - -C /data/ . | pigz > /tmp/backup/$DATE.tar.gz
 tar -tzf /tmp/backup/$DATE.tar.gz >/dev/null
 
 aws configure set plugins.endpoint awscli_plugin_endpoint
