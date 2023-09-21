@@ -21,6 +21,8 @@ command: null
 args: null
   # - infinity
 
+securityContext: null
+
 nameOverride: ""
 fullnameOverride: ""
 
