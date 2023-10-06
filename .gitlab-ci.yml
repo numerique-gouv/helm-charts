@@ -27,3 +27,8 @@ docker:kaniko:build:backup:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       when: on_success
     - when: never
+
+".vigigloo:terraform":
+  image:
+    name: hashicorp/terraform:1.5
+
