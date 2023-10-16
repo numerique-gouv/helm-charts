@@ -18,7 +18,7 @@ fi
 if [ "${RESULT[0]}" -ne 0 ]
 then
     # Check if tar failure is important or not
-    if ! cat tar.log | grep '^tar: ' | grep -v '^tar: .: file changed as we read it$' | grep -v '^tar: ./docs: file changed as we read it$' >/dev/null
+    if ! cat /tmp/tar.log | grep '^tar: ' | grep -v '^tar: .: file changed as we read it$' | grep -v '^tar: ./docs: file changed as we read it$' >/dev/null
     then
         echo "tar failed"
         exit "${RESULT[0]}"
