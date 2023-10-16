@@ -20,7 +20,7 @@ fi
 if [ "${RESULT[0]}" -neq 0 ]
 then
     # Check if tar failure is important or not
-    if ! cat tar$idx.log | grep '^tar: ' | grep -v '^tar: .: file changed as we read it$' >/dev/null
+    if ! cat tar.log | grep '^tar: ' | grep -v '^tar: .: file changed as we read it$' >/dev/null
     then
         echo "tar failed"
         exit "${RESULT[0]}"
