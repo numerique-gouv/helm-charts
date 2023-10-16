@@ -6,7 +6,27 @@ DATE=$(date +'%Y%m%d%H%M')
 
 mkdir -p /tmp/backup/
 
-tar cvf - -C /data/ . | pigz > /tmp/backup/$DATE.tar.gz
+set +eo pipefail
+# need to manually handle tar failure
+tar cvf - -C /data/ . 2>/tmp/tar.log | pigz > /tmp/backup/$DATE.tar.gz
+RESULT=("${PIPESTATUS[@]}")
+# output tar logs nonetheless
+cat /tmp/tar.log
+if [ "${RESULT[1]}" -neq 0 ]
+then
+    echo "pigz failed"
+    exit "${RESULT[1]}"
+fi
+if [ "${RESULT[0]}" -neq 0 ]
+then
+    # Check if tar failure is important or not
+    if ! cat tar$idx.log | grep '^tar: ' | grep -v '^tar: .: file changed as we read it$' >/dev/null
+    then
+        echo "tar failed"
+        exit "${RESULT[0]}"
+    fi
+fi
+set -o pipefail
 tar -tzf /tmp/backup/$DATE.tar.gz >/dev/null
 
 aws configure set plugins.endpoint awscli_plugin_endpoint
