@@ -10,12 +10,12 @@ set +eo pipefail
 # need to manually handle tar failure
 tar cvf - -C /data/ . 2> >(tee /tmp/tar.log >&2) | pigz > /tmp/backup/$DATE.tar.gz
 RESULT=("${PIPESTATUS[@]}")
-if [ "${RESULT[1]}" -neq 0 ]
+if [ "${RESULT[1]}" -ne 0 ]
 then
     echo "pigz failed"
     exit "${RESULT[1]}"
 fi
-if [ "${RESULT[0]}" -neq 0 ]
+if [ "${RESULT[0]}" -ne 0 ]
 then
     # Check if tar failure is important or not
     if ! cat tar.log | grep '^tar: ' | grep -v '^tar: .: file changed as we read it$' >/dev/null
