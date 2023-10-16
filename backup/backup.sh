@@ -8,10 +8,8 @@ mkdir -p /tmp/backup/
 
 set +eo pipefail
 # need to manually handle tar failure
-tar cvf - -C /data/ . 2>/tmp/tar.log | pigz > /tmp/backup/$DATE.tar.gz
+tar cvf - -C /data/ . 2> >(tee /tmp/tar.log >&2) | pigz > /tmp/backup/$DATE.tar.gz
 RESULT=("${PIPESTATUS[@]}")
-# output tar logs nonetheless
-cat /tmp/tar.log
 if [ "${RESULT[1]}" -neq 0 ]
 then
     echo "pigz failed"
