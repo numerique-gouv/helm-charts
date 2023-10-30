@@ -44,11 +44,11 @@ service:
 
 probes:
   liveness:
-    tcpSocket:
-      port: 8484
+    path: /status
+    initialDelaySeconds: 10
   readiness:
-    tcpSocket:
-      port: 8484
+    path: /status
+    initialDelaySeconds: 10
 
 ingress:
   className: null
