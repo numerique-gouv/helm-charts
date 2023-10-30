@@ -60,35 +60,15 @@ spec:
             {{- end }}
           {{- if .Values.probes.liveness }}
           livenessProbe:
-            {{- if .Values.probes.liveness.exec }}
-            exec:
-            {{- toYaml .Values.probes.liveness.exec | nindent 14 }}
-            {{- else if .Values.probes.liveness.tcpSocket }}
-            tcpSocket:
-            {{- toYaml .Values.probes.liveness.tcpSocket | nindent 14 }}
-            {{- else }}
-            httpGet:
-              path: {{ .Values.probes.liveness.path }}
-              port: {{ .Values.service.targetPort }}
-            {{- end }}
-            initialDelaySeconds: 10
-            timeoutSeconds: 10
+            {{- include "common.probes.abstract" (merge .Values.probes.liveness (dict "targetPort" .Values.service.targetPort )) | nindent 12 }}
           {{- end }}
           {{- if .Values.probes.readiness }}
           readinessProbe:
-            {{- if .Values.probes.readiness.exec }}
-            exec:
-              {{- toYaml .Values.probes.readiness.exec | nindent 14 }}
-            {{- else if .Values.probes.readiness.tcpSocket }}
-            tcpSocket:
-            {{- toYaml .Values.probes.readiness.tcpSocket | nindent 14 }}
-            {{- else }}
-            httpGet:
-              path: {{ .Values.probes.readiness.path }}
-              port: {{ .Values.service.targetPort }}
-            {{- end }}
-            initialDelaySeconds: 10
-            timeoutSeconds: 10
+            {{- include "common.probes.abstract" (merge .Values.probes.readiness (dict "targetPort" .Values.service.targetPort )) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.probes.startup }}
+          startupProbe:
+            {{- include "common.probes.abstract" (merge .Values.probes.startup (dict "targetPort" .Values.service.targetPort )) | nindent 12 }}
           {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
