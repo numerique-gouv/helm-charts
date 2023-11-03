@@ -2,9 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-persistence:
-  size: 8Gi
-
+# Image to use for grist workers, can be overridden individually
 image:
   repository: gristlabs/grist
   pullPolicy: IfNotPresent
@@ -13,51 +11,130 @@ image:
 #    registry: "gitlab.com"
 #    username: "user"
 #    password: "pass"
-  tag: "0.7.9"
-
-# Override container command
-command: null
-  # - sleep
-args: null
-  # - infinity
-
-securityContext: null
+  tag: "1.1.6"
 
 nameOverride: ""
 fullnameOverride: ""
 
-envVars: {}
+homeWorker:
+  # image:
+  #   repository: gristlabs/grist
+  #   pullPolicy: IfNotPresent
+  #   tag: "1.1.6"
 
-# Allows mounting any file anywhere on the pod
+  # Override container command
+  command:
+    - "docker-entrypoint.sh"
+  args:
+    - "/bin/sh"
+    - "-c"
+    - "./sandbox/run.sh"
+
+  replicas: 1
+
+  securityContext: null
+
+  envVars: {}
+
+  podAnnotations: {}
+
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 8484
+    annotations: {}
+
+  probes:
+    liveness:
+      path: /status
+      initialDelaySeconds: 10
+    readiness:
+      path: /status
+      initialDelaySeconds: 10
+
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+docWorker:
+  # image:
+  #   repository: gristlabs/grist
+  #   pullPolicy: IfNotPresent
+  #   tag: "1.1.6"
+
+  # Override container command
+  command:
+    - "docker-entrypoint.sh"
+  args:
+    - "/bin/sh"
+    - "-c"
+    - "./sandbox/run.sh"
+
+  replicas: 3
+
+  securityContext: null
+
+  envVars: {}
+
+  podAnnotations: {}
+
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 8484
+    annotations: {}
+
+  probes:
+    liveness:
+      path: /status
+      initialDelaySeconds: 10
+    readiness:
+      path: /status
+      initialDelaySeconds: 10
+
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+# Allows mounting any file anywhere on the worker pods
 mountFiles: []
   # - path: /path/to/file/on/pod.txt
   #   # base64 encoded file content
   #   content: YmFzZTY0IGVuY29kZWQgY29udGVudAp3aXRoIG11bHRpbGluZSBzdXBwb3J0Cg==
 
-podAnnotations: {}
-
-service:
-  type: ClusterIP
-  port: 80
-  targetPort: 8484
-  annotations: {}
-
-probes:
-  liveness:
-    path: /status
-    initialDelaySeconds: 10
-  readiness:
-    path: /status
-    initialDelaySeconds: 10
-
 ingress:
   className: null
   enabled: false
-  certManagerClusterIssuer: letsencrypt-prod
   host: null
   path: /
-  annotations:
-    acme.cert-manager.io/http01-edit-in-place: "true"
   hosts: []
   #  - host: chart-example.local
   #    paths: []
@@ -68,54 +145,107 @@ ingress:
     #    hosts:
     #      - chart-example.local
 
-backup:
-  enabled: false
-  schedule: "0 0 * * 1"
+loadBalancer:
   image:
-    repository: registry.gitlab.com/vigigloo/tools/grist/backup
+    repository: traefik
     pullPolicy: IfNotPresent
-    tag: latest
-  s3: {}
-    # endpoint: ""
-    # region: ""
-    # bucket: ""
-    # accessKey: ""
-    # secretKey: ""
+    tag: "2.10"
+
+  # Override container command
+  command: null
+    # - sleep
+  args:
+    - --providers.file.filename=/etc/traefik/fileConfig.yml
+
+  replicas: 1
+
+  securityContext: null
+
+  envVars: {}
+
+  podAnnotations: {}
+
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 80
+    annotations: {}
+
+  healthPort: 8081
+
+  probes:
+    liveness:
+      path: /ping
+      targetPort: 8081
+    readiness:
+      path: /ping
+      targetPort: 8081
+
   resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
 
-monitoring:
-  namespace: monitoring
-  exporter:
-    enabled: false
-    port: 9091
-    targetPort: 9091
-  dashboard:
-    deploy: false
-    sidecarLabel: grafana-dashboard
+  nodeSelector: {}
 
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
+  tolerations: []
 
-nodeSelector: {}
+  affinity: {}
 
-tolerations: []
+forwardAuth:
+  enabled: false
+  image:
+    repository: thomseddon/traefik-forward-auth
+    pullPolicy: IfNotPresent
+    tag: "2.2"
 
-affinity: {}
+  # Add environment variables to grist deployment to take into account forward auth
+  # Can be disabled if the environment variables need to be set manually for more control
+  configureHeaderEnvVars: true
 
-serviceAccount:
-  # Specifies whether a service account should be created
-  create: true
-  # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
+  # Override container command
+  command: null
+    # - sleep
+  args: null
+    # - infinity
+
+  replicas: 1
+
+  securityContext: null
+
+  envVars: {}
+
+  podAnnotations: {}
+
+  probes:
+    liveness:
+      path: /status
+      initialDelaySeconds: 10
+    readiness:
+      path: /status
+      initialDelaySeconds: 10
+
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}

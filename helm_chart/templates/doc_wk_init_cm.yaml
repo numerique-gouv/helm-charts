@@ -1,0 +1,20 @@
+{{- $component := "doc-worker" -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "grist.doc.init" . }}
+  labels:
+    {{- include "grist.common.labels" (list . $component) | nindent 4 }}
+data:
+  dw-init.sh: |
+    #!/bin/sh
+
+    set -e
+
+    POD_ORDINAL=$(echo $FULL_POD_NAME | sed 's/.*-\([0-9]\+\)$/\1/')
+
+    export APP_DOC_INTERNAL_URL="http://{{ include "grist.docworker.uniquename" (list $ "$POD_ORDINAL") }}:{{ .Values.docWorker.service.port }}"
+    export APP_DOC_URL="https://{{ .Values.ingress.host }}/dw/dw-$POD_ORDINAL"
+    export GRIST_DOC_WORKER_ID="dw-$POD_ORDINAL"
+
+    {{ range .Values.docWorker.command }}{{ . | quote }}{{ end }} "$@"

@@ -1,0 +1,92 @@
+{{- $envVars := include "grist.common.env" (list . .Values.homeWorker) -}}
+{{- $fullName := include "common.fullname" . -}}
+{{- $component := "home-worker" -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "grist.home.fullname" . }}
+  labels:
+    {{- include "grist.common.labels" (list . $component) | nindent 4 }}
+spec:
+  replicas: {{ .Values.homeWorker.replicas }}
+  selector:
+    matchLabels:
+      {{- include "grist.common.selectorLabels" (list . $component) | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        fileChecksum: {{ include (print $.Template.BasePath "/file_cm.yaml") . | sha256sum }}
+        {{- with .Values.homeWorker.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "grist.common.selectorLabels" (list . $component) | nindent 8 }}
+    spec:
+      {{- if $.Values.image.credentials }}
+      imagePullSecrets:
+        - name: {{ include "common.secret.dockerconfigjson.name" (dict "fullname" (include "common.fullname" .) "imageCredentials" $.Values.image.credentials) }}
+      {{- end}}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ (.Values.homeWorker.image | default dict).repository | default .Values.image.repository }}:{{ (.Values.homeWorker.image | default dict).tag | default .Values.image.tag }}"
+          imagePullPolicy: {{ (.Values.homeWorker.image | default dict).pullPolicy | default .Values.image.pullPolicy }}
+          {{- with .Values.homeWorker.command }}
+          command:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.homeWorker.args }}
+          args:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- if $envVars}}
+          env:
+            {{- $envVars | indent 12 }}
+          {{- end }}
+          {{- with .Values.homeWorker.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.homeWorker.service.targetPort }}
+              protocol: TCP
+          {{- if .Values.homeWorker.probes.liveness }}
+          livenessProbe:
+            {{- include "common.probes.abstract" (merge .Values.homeWorker.probes.liveness (dict "targetPort" .Values.homeWorker.service.targetPort )) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.homeWorker.probes.readiness }}
+          readinessProbe:
+            {{- include "common.probes.abstract" (merge .Values.homeWorker.probes.readiness (dict "targetPort" .Values.homeWorker.service.targetPort )) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.homeWorker.probes.startup }}
+          startupProbe:
+            {{- include "common.probes.abstract" (merge .Values.homeWorker.probes.startup (dict "targetPort" .Values.homeWorker.service.targetPort )) | nindent 12 }}
+          {{- end }}
+          {{- with .Values.homeWorker.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            {{- range $index, $value := .Values.mountFiles }}
+            - name: "files-{{ $index }}"
+              mountPath: {{ $value.path }}
+              subPath: content
+            {{- end }}
+      {{- with .Values.homeWorker.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.homeWorker.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.homeWorker.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        {{- range $index, $value := .Values.mountFiles }}
+        - name: "files-{{ $index }}"
+          configMap:
+            name: "{{ $fullName }}-files-{{ $index }}"
+        {{- end }}

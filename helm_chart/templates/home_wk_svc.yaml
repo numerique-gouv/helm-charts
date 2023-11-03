@@ -1,0 +1,18 @@
+{{- $component := "home-worker" -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "grist.home.fullname" . }}
+  labels:
+    {{- include "grist.common.labels" (list . $component) | nindent 4 }}
+  annotations:
+    {{- toYaml .Values.homeWorker.service.annotations | nindent 4 }}
+spec:
+  type: {{ .Values.homeWorker.service.type }}
+  ports:
+    - port: {{ .Values.homeWorker.service.port }}
+      targetPort: {{ .Values.homeWorker.service.targetPort }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "grist.common.selectorLabels" (list . $component) | nindent 4 }}

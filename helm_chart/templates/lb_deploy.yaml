@@ -1,0 +1,133 @@
+{{- $envVars := include "common.env.transformDict" .Values.loadBalancer.envVars -}}
+{{- $fullName := include "grist.lb.fullname" . -}}
+{{- $component := "lb" -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "grist.common.labels" (list . $component) | nindent 4 }}
+spec:
+  replicas: {{ .Values.loadBalancer.replicas }}
+  selector:
+    matchLabels:
+      {{- include "grist.common.selectorLabels" (list . $component) | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        configChecksum: {{ include (print $.Template.BasePath "/lb_cm.yaml") . | sha256sum }}
+        {{- with .Values.loadBalancer.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "grist.common.selectorLabels" (list . $component) | nindent 8 }}
+    spec:
+      {{- if $.Values.image.credentials }}
+      imagePullSecrets:
+        - name: {{ include "common.secret.dockerconfigjson.name" (dict "fullname" (include "common.fullname" .) "imageCredentials" $.Values.image.credentials) }}
+      {{- end}}
+      containers:
+        - name: {{ $fullName }}
+          image: "{{ .Values.loadBalancer.image.repository }}:{{ .Values.loadBalancer.image.tag }}"
+          imagePullPolicy: {{ .Values.loadBalancer.image.pullPolicy }}
+          {{- with .Values.loadBalancer.command }}
+          command:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.loadBalancer.args }}
+          args:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- if $envVars}}
+          env:
+            {{- $envVars | indent 12 }}
+          {{- end }}
+          {{- with .Values.loadBalancer.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.loadBalancer.service.targetPort }}
+              protocol: TCP
+          {{- if .Values.loadBalancer.probes.liveness }}
+          livenessProbe:
+            {{- include "common.probes.abstract" (merge .Values.loadBalancer.probes.liveness (dict "targetPort" .Values.loadBalancer.service.targetPort )) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.loadBalancer.probes.readiness }}
+          readinessProbe:
+            {{- include "common.probes.abstract" (merge .Values.loadBalancer.probes.readiness (dict "targetPort" .Values.loadBalancer.service.targetPort )) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.loadBalancer.probes.startup }}
+          startupProbe:
+            {{- include "common.probes.abstract" (merge .Values.loadBalancer.probes.startup (dict "targetPort" .Values.loadBalancer.service.targetPort )) | nindent 12 }}
+          {{- end }}
+          {{- with .Values.loadBalancer.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: config
+              mountPath: /etc/traefik/fileConfig.yml
+              subPath: fileConfig.yml
+            - name: config
+              mountPath: /etc/traefik/traefik.yml
+              subPath: traefik.yml
+        {{- if .Values.forwardAuth.enabled }}
+        - name: {{ .Chart.Name }}-auth
+          image: "{{ .Values.forwardAuth.image.repository }}:{{ .Values.forwardAuth.image.tag }}"
+          imagePullPolicy: {{ .Values.forwardAuth.image.pullPolicy }}
+          {{- with .Values.forwardAuth.command }}
+          command:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.forwardAuth.args }}
+          args:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- $authEnvVars := include "common.env.transformDict" .Values.forwardAuth.envVars -}}
+          {{- if $authEnvVars}}
+          env:
+            {{- $authEnvVars | indent 12 }}
+          {{- end }}
+          {{- with .Values.forwardAuth.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: 4181
+              protocol: TCP
+          {{- if .Values.forwardAuth.probes.liveness }}
+          livenessProbe:
+            {{- include "common.probes.abstract" (merge .Values.forwardAuth.probes.liveness (dict "targetPort" 4181 )) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.forwardAuth.probes.readiness }}
+          readinessProbe:
+            {{- include "common.probes.abstract" (merge .Values.forwardAuth.probes.readiness (dict "targetPort" 4181 )) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.forwardAuth.probes.startup }}
+          startupProbe:
+            {{- include "common.probes.abstract" (merge .Values.forwardAuth.probes.startup (dict "targetPort" 4181 )) | nindent 12 }}
+          {{- end }}
+          {{- with .Values.forwardAuth.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        {{- end }}
+      {{- with .Values.loadBalancer.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.loadBalancer.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.loadBalancer.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: "{{ include "grist.lb.config" . }}"
