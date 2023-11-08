@@ -1,0 +1,101 @@
+version: "3"
+services:
+  debug:
+    image: alpine
+    command:
+      - sleep
+      - infinity
+  grist:
+    extends:
+      file: grist.yaml
+      service: grist
+    environment:
+      GRIST_SERVERS: home,static
+      GRIST_HOME_INCLUDE_STATIC: true
+  grist-dw-0:
+    environment:
+      APP_DOC_INTERNAL_URL: http://grist-dw-0:8484
+      APP_DOC_URL: http://grist.docker.localhost:8080/dw/dw-0
+      GRIST_DOC_WORKER_ID: dw-0
+    extends:
+      file: grist.yaml
+      service: grist-wk
+  grist-dw-1:
+    environment:
+      APP_DOC_INTERNAL_URL: http://grist-dw-1:8484
+      APP_DOC_URL: http://grist.docker.localhost:8080/dw/dw-1
+      GRIST_DOC_WORKER_ID: dw-1
+    extends:
+      file: grist.yaml
+      service: grist-wk
+  grist-dw-2:
+    environment:
+      APP_DOC_INTERNAL_URL: http://grist-dw-2:8484
+      APP_DOC_URL: http://grist.docker.localhost:8080/dw/dw-2
+      GRIST_DOC_WORKER_ID: dw-2
+    extends:
+      file: grist.yaml
+      service: grist-wk
+  traefik:
+    image: traefik:v2.6
+    volumes:
+    - ./fileConfig.yml:/etc/traefik/fileConfig.yml
+    ports:
+    - 127.0.0.1:8080:8000
+    command:
+      - --entrypoints.web.address=:8000
+      - --entryPoints.web.forwardedHeaders.insecure
+      - --providers.file.filename=/etc/traefik/fileConfig.yml
+  forwardauth:
+    image: thomseddon/traefik-forward-auth:2
+    environment:
+      DEFAULT_PROVIDER: generic-oauth
+      INSECURE_COOKIE: "true"
+      LOGOUT_REDIRECT: http://grist.docker.localhost:8080/signed-out
+      PROVIDERS_GENERIC_OAUTH_AUTH_URL: http://localhost:8081/realms/grist/protocol/openid-connect/auth
+      PROVIDERS_GENERIC_OAUTH_CLIENT_ID: grist
+      PROVIDERS_GENERIC_OAUTH_CLIENT_SECRET: yT00LmUDppwn3s4cFCNPV3Qg95pU14ZQ
+      PROVIDERS_GENERIC_OAUTH_SCOPE: openid email organizations
+      PROVIDERS_GENERIC_OAUTH_TOKEN_URL: http://keycloak:8080/realms/grist/protocol/openid-connect/token
+      PROVIDERS_GENERIC_OAUTH_USER_URL: http://keycloak:8080/realms/grist/protocol/openid-connect/userinfo
+      SECRET: changeme
+  postgresql-grist:
+    image: postgres
+    environment:
+      POSTGRES_USER: grist
+      POSTGRES_PASSWORD: grist
+    healthcheck:
+      test: ["CMD", "echo"]
+      start_period: 2s
+      interval: 1s
+  redis:
+    image: redis
+  minio:
+    image: quay.io/minio/minio
+    command:
+      - server
+      - /data
+      - --console-address
+      - :9090
+    ports:
+    - 127.0.0.1:9090:9090
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: adminadmin
+    volumes:
+      - ./data_minio:/data
+  keycloak:
+    image: quay.io/keycloak/keycloak:22.0
+    entrypoint:
+      - sh
+    command:
+      - -c
+      - '/opt/keycloak/bin/kc.sh import --file /opt/keycloak/import/grist.json && /opt/keycloak/bin/kc.sh start-dev'
+    environment:
+      KEYCLOAK_ADMIN: su
+      KEYCLOAK_ADMIN_PASSWORD: su
+      KC_HOSTNAME_URL: http://localhost:8081/
+    ports:
+      - 127.0.0.1:8081:8080
+    volumes:
+      - ./grist.json:/opt/keycloak/import/grist.json
