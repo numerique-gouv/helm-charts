@@ -7,9 +7,9 @@ Requires array with top level scope and docWorker or homeWorker scopes
 {{- $topLevelScope := index . 0 -}}
 {{- $workerScope := index . 1 -}}
 {{- if $topLevelScope.Values.forwardAuth.enabled | and $topLevelScope.Values.forwardAuth.enabled }}
-{{- $envVars := include "common.env.transformDict" (merge (deepCopy $workerScope.envVars) (dict "GRIST_FORWARD_AUTH_HEADER" "X-Forwarded-User")) -}}
+{{- include "common.env.transformDict" (merge (deepCopy $workerScope.envVars) (dict "GRIST_FORWARD_AUTH_HEADER" "X-Forwarded-User")) -}}
 {{- else -}}
-{{- $envVars := include "common.env.transformDict" $workerScope.envVars -}}
+{{- include "common.env.transformDict" $workerScope.envVars -}}
 {{- end }}
 {{- end }}
 
