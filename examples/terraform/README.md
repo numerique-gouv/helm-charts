@@ -9,7 +9,7 @@ You're advised to configure you own Redis/PostgreSQL/S3/OpenIDC if you want to u
 This example relies on a self-signed TLS Cert and CA to allow using HTTPS when browsing the service deployed on minikube.
 To set this up on your own:
 - Download [mkcert](https://github.com/FiloSottile/mkcert)
-- Run `mkcert -install` and `mkcert minikube.local`
+- Run `mkcert -install` and `mkcert minikube.local "*.minikube.local"`
 - Run `minikube addons enable ingress`
 - Create a secret on minikube with this certificate using `kubectl -n kube-system create secret tls mkcert --key minikube.local+1-key.pem --cert minikube.local+1.pem;`
 - Edit `$HOME/.minikube/profiles/minikube/config.json` to set the key `.KubernetesConfig.CustomIngressCert` to the secret's name `kube-system/mkcert`
@@ -21,7 +21,7 @@ To set this up on your own:
 ```bash
 export KUBE_CONFIG_PATH=/path/to/your/minikube/kubeconfig # Usually $HOME/.kube/config
 terraform plan -out=plan.tfplan
-# check that the plan looks right
+# check that the plan looks right before continuing
 terraform apply plan.tfplan
 ```
 Grist will be availabe at [https://grist.minikube.local](https://grist.minikube.local).
