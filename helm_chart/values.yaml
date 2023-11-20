@@ -102,7 +102,7 @@ docWorker:
     liveness:
       path: /status
       initialDelaySeconds: 10
-    readiness:
+    startup:
       path: /status
       initialDelaySeconds: 10
 
@@ -177,7 +177,7 @@ loadBalancer:
     liveness:
       path: /ping
       targetPort: 8081
-    readiness:
+    startup:
       path: /ping
       targetPort: 8081
 
@@ -228,7 +228,7 @@ forwardAuth:
     liveness:
       path: /status
       initialDelaySeconds: 10
-    readiness:
+    startup:
       path: /status
       initialDelaySeconds: 10
 
