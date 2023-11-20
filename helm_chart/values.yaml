@@ -48,7 +48,7 @@ homeWorker:
     liveness:
       path: /status
       initialDelaySeconds: 10
-    readiness:
+    startup:
       path: /status
       initialDelaySeconds: 10
 
