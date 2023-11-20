@@ -11,7 +11,7 @@ image:
 #    registry: "gitlab.com"
 #    username: "user"
 #    password: "pass"
-  tag: "1.1.6"
+  tag: "1.1.7"
 
 nameOverride: ""
 fullnameOverride: ""
@@ -20,7 +20,7 @@ homeWorker:
   # image:
   #   repository: gristlabs/grist
   #   pullPolicy: IfNotPresent
-  #   tag: "1.1.6"
+  #   tag: "1.1.7"
 
   # Override container command
   command:
@@ -74,7 +74,7 @@ docWorker:
   # image:
   #   repository: gristlabs/grist
   #   pullPolicy: IfNotPresent
-  #   tag: "1.1.6"
+  #   tag: "1.1.7"
 
   # Override container command
   command:
