@@ -1,0 +1,23 @@
+{{- $component := "doc-worker" -}}
+{{- range until (.Values.docWorker.replicas | int) -}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "grist.docworker.uniquename" (list $ .) }}
+  labels:
+    {{- include "grist.common.labels" (list $ $component) | nindent 4 }}
+    app.kubernetes.io/index: {{ . | quote }}
+  annotations:
+    {{- toYaml $.Values.docWorker.service.annotations | nindent 4 }}
+spec:
+  type: {{ $.Values.docWorker.service.type }}
+  ports:
+    - port: {{ $.Values.docWorker.service.port }}
+      targetPort: {{ $.Values.docWorker.service.targetPort }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "grist.common.selectorLabels" (list $ $component) | nindent 4 }}
+    statefulset.kubernetes.io/pod-name: {{ include "grist.docworker.uniquename" (list $ .) }}
+{{- end }}

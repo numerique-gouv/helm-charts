@@ -1,0 +1,73 @@
+{{- $component := "lb" -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "grist.lb.config" . }}
+  labels:
+    {{- include "grist.common.labels" (list . $component) | nindent 4 }}
+data:
+  traefik.yml: |
+    ping: {}
+    entryPoints:
+      traefik:
+        address: ":{{ .Values.loadBalancer.healthPort }}"
+      web:
+        address: ":{{ .Values.loadBalancer.service.targetPort }}"
+        forwardedHeaders:
+          insecure: true # Required to let forward auth correctly process scheme
+    providers:
+      file:
+        filename: "/etc/traefik/fileConfig.yml"
+  fileConfig.yml: |
+    http:
+      middlewares:
+        no-x-fwd-user-header:
+          headers:
+            customRequestHeaders:
+              X-Forwarded-User: ""
+        {{- if .Values.forwardAuth.enabled }}
+        traefik-forward-auth:
+          forwardAuth:
+            address: http://localhost:4181
+            trustForwardHeader: true # Required to let forward auth correctly process scheme
+            authResponseHeaders:
+            - X-Forwarded-User
+        {{- end }}
+      routers:
+        default:
+          middlewares:
+          - no-x-fwd-user-header
+          rule: Host(`{{ .Values.ingress.host }}`)
+          service: default
+        {{- if .Values.forwardAuth.enabled }}
+        login:
+          middlewares:
+          - no-x-fwd-user-header
+          - traefik-forward-auth
+          rule: Host(`{{ .Values.ingress.host }}`) && PathPrefix(`/auth/login`)
+          service: default
+        auth:
+          middlewares:
+          - no-x-fwd-user-header
+          - traefik-forward-auth
+          rule: Host(`{{ .Values.ingress.host }}`) && PathPrefix(`/_oauth`)
+          service: default
+        {{- end }}
+        {{- range until (int .Values.docWorker.replicas) }}
+        dw-{{ . }}:
+          middlewares:
+          - no-x-fwd-user-header
+          rule: Host(`{{ $.Values.ingress.host }}`) && PathPrefix(`/dw/dw-{{ . }}`)
+          service: dw-{{ . }}
+        {{- end }}
+      services:
+        default:
+          loadBalancer:
+            servers:
+            - url: http://{{ include "grist.home.fullname" . }}:{{ .Values.homeWorker.service.port }}
+        {{- range until (int .Values.docWorker.replicas) }}
+        dw-{{ . }}:
+          loadBalancer:
+            servers:
+            - url: http://{{ include "grist.docworker.uniquename" (list $ .) }}:{{ $.Values.docWorker.service.port }}
+        {{- end }}

@@ -3,4 +3,4 @@ dependencies:
   repository: https://gitlab.com/api/v4/projects/29298733/packages/helm/stable
   version: 0.2.2
 digest: sha256:8bf910aaa7da1397b11274b79c85d23b2979607c1164fc5fe7c1f0b8cf11730b
-generated: "2023-10-30T15:47:10.291102805+01:00"
+generated: "2023-11-02T06:04:32.158193604+01:00"

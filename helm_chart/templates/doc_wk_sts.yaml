@@ -1,0 +1,103 @@
+{{- $envVars := include "grist.common.env" (list . .Values.docWorker) -}}
+{{- $fullName := include "grist.doc.fullname" . -}}
+{{- $component := "doc-worker" -}}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "grist.common.labels" (list . $component) | nindent 4 }}
+spec:
+  replicas: {{ .Values.docWorker.replicas }}
+  selector:
+    matchLabels:
+      {{- include "grist.common.selectorLabels" (list . $component) | nindent 6 }}
+  serviceName: {{ $fullName }}
+  template:
+    metadata:
+      annotations:
+        fileChecksum: {{ include (print $.Template.BasePath "/file_cm.yaml") . | sha256sum }}
+        initChecksum: {{ include (print $.Template.BasePath "/doc_wk_init_cm.yaml") . | sha256sum }}
+        {{- with .Values.docWorker.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "grist.common.selectorLabels" (list . $component) | nindent 8 }}
+    spec:
+      {{- if $.Values.image.credentials }}
+      imagePullSecrets:
+        - name: {{ include "common.secret.dockerconfigjson.name" (dict "fullname" (include "common.fullname" .) "imageCredentials" $.Values.image.credentials) }}
+      {{- end}}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ (.Values.docWorker.image | default dict).repository | default .Values.image.repository }}:{{ (.Values.docWorker.image | default dict).tag | default .Values.image.tag }}"
+          imagePullPolicy: {{ (.Values.docWorker.image | default dict).pullPolicy | default .Values.image.pullPolicy }}
+          command:
+            - /dw-init.sh
+          {{- with .Values.docWorker.args }}
+          args:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          env:
+            - name: FULL_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            {{- if $envVars}}
+            {{- $envVars | indent 12 }}
+            {{- end }}
+          {{- with .Values.docWorker.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.docWorker.service.targetPort }}
+              protocol: TCP
+          {{- if .Values.docWorker.probes.liveness }}
+          livenessProbe:
+            {{- include "common.probes.abstract" (merge .Values.docWorker.probes.liveness (dict "targetPort" .Values.docWorker.service.targetPort )) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.docWorker.probes.readiness }}
+          readinessProbe:
+            {{- include "common.probes.abstract" (merge .Values.docWorker.probes.readiness (dict "targetPort" .Values.docWorker.service.targetPort )) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.docWorker.probes.startup }}
+          startupProbe:
+            {{- include "common.probes.abstract" (merge .Values.docWorker.probes.startup (dict "targetPort" .Values.docWorker.service.targetPort )) | nindent 12 }}
+          {{- end }}
+          {{- with .Values.docWorker.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            {{- range $index, $value := .Values.mountFiles }}
+            - name: "files-{{ $index }}"
+              mountPath: {{ $value.path }}
+              subPath: content
+            {{- end }}
+            - name: init
+              mountPath: /dw-init.sh
+              subPath: dw-init.sh
+      {{- with .Values.docWorker.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.docWorker.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.docWorker.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        {{- range $index, $value := .Values.mountFiles }}
+        - name: "files-{{ $index }}"
+          configMap:
+            name: "{{ include "common.fullname" $ }}-files-{{ $index }}"
+        {{- end }}
+        - name: init
+          configMap:
+            name: {{ include "grist.doc.init" . }}
+            defaultMode: 0555
