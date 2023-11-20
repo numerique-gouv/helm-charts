@@ -37,7 +37,7 @@ services:
       file: grist.yaml
       service: grist-wk
   traefik:
-    image: traefik:v2.6
+    image: traefik:v2.10
     volumes:
     - ./fileConfig.yml:/etc/traefik/fileConfig.yml
     ports:
