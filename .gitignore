@@ -4,3 +4,4 @@ examples/docker_compose/data_minio
 examples/terraform/.terraform
 examples/terraform/terraform.tfstate
 examples/terraform/terraform.tfstate.backup
+helm_chart/charts
