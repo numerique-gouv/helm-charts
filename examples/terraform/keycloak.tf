@@ -6,13 +6,15 @@ resource "kubernetes_deployment_v1" "keycloak" {
   spec {
     selector {
       match_labels = {
-        "lkj" = "keycloak"
+        "app.kubernetes.io/name"     = "keycloak"
+        "app.kubernetes.io/instance" = "keycloak"
       }
     }
     template {
       metadata {
         labels = {
-          "lkj" = "keycloak"
+          "app.kubernetes.io/name"     = "keycloak"
+          "app.kubernetes.io/instance" = "keycloak"
         }
       }
       spec {
@@ -76,7 +78,8 @@ resource "kubernetes_service_v1" "keycloak" {
   }
   spec {
     selector = {
-      "lkj" = "keycloak"
+      "app.kubernetes.io/name"     = "keycloak"
+      "app.kubernetes.io/instance" = "keycloak"
     }
     port {
       port        = 80
