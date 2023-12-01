@@ -1,0 +1,25 @@
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+    namespace: {{ .Release.Namespace }}
+    name: {{ .Release.Name }}-space-hscale
+spec:
+  minReplicas: {{ .Values.space.hscale.minReplicas | default 3 }}
+  maxReplicas: {{ .Values.space.hscale.maxReplicas | default 10 }}
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Release.Name }}-space-wl
+  metrics:
+    - resource:
+        name: memory
+        target:
+          averageUtilization: {{ .Values.space.hscale.precentMemoryUtilization | default 80}}
+          type: Utilization
+      type: Resource
+    - resource:
+        name: cpu
+        target:
+          averageUtilization: {{ .Values.space.hscale.percentCpuUtilization | default 60}}
+          type: Utilization
+      type: Resource

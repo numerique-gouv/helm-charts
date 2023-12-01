@@ -1,0 +1,19 @@
+
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: {{ .Release.Name }}-openai-secrets
+data:
+  OPENAI_API_KEY: {{ .Values.openai.api_key | default "" | b64enc | quote }}
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: {{ .Release.Name }}-openai-vars
+data:
+  OPENAI_API_BASE: {{ .Values.openai.api_base | default "https://api.openai.com/v1"}}
+  GPT_ENGINE: {{ .Values.openai.model | default "gpt-3.5-turbo"}}

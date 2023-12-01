@@ -1,0 +1,74 @@
+
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: {{ .Release.Name }}-api
+  labels:
+    app.name: {{ .Release.Namespace }}-{{ .Release.Name }}-api
+spec:
+  clusterIP: None
+  ports:
+  - name: api-8000
+    port: 8000
+    protocol: TCP
+    targetPort: 8000
+  selector:
+    app.name: {{ .Release.Namespace }}-{{ .Release.Name }}-api
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: {{ .Release.Name }}-api-wl
+spec:
+  replicas: {{ .Values.api.replicas | default 3}}
+  selector:
+    matchLabels:
+      app.name: {{ .Release.Namespace }}-{{ .Release.Name }}-api
+  template:
+    metadata:
+      namespace: {{ .Release.Namespace }}
+      labels:
+        app.name: {{ .Release.Namespace }}-{{ .Release.Name }}-api
+    spec:
+      containers:
+      - name: {{ .Release.Name }}-api
+        imagePullPolicy: Always
+        image: {{ .Values.dockerhub.images.backend | default "makeplane/plane-backend" }}:{{ .Values.planeVersion }}
+        stdin: true
+        tty: true
+        command:
+          - ./bin/takeoff
+        envFrom:
+          - configMapRef:
+              name: {{ .Release.Name }}-app-vars
+              optional: false
+          - secretRef:
+              name: {{ .Release.Name }}-app-secrets
+              optional: false
+          - configMapRef:
+              name: {{ .Release.Name }}-smtp-vars
+              optional: false
+          - secretRef:
+              name: {{ .Release.Name }}-smtp-secrets
+              optional: false
+          - configMapRef:
+              name: {{ .Release.Name }}-openai-vars
+              optional: false
+          - secretRef:
+              name: {{ .Release.Name }}-openai-secrets
+              optional: false
+          - configMapRef:
+              name: {{ .Release.Name }}-doc-store-vars
+              optional: false
+          - secretRef:
+              name: {{ .Release.Name }}-doc-store-secrets
+              optional: false
+
+      serviceAccount: {{ .Release.Name }}-srv-account
+      serviceAccountName: {{ .Release.Name }}-srv-account
+
+---

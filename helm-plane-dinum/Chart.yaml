@@ -1,0 +1,10 @@
+apiVersion: v2
+appVersion: 0.14.0
+description: Plane DINUM avec modification des images pour fonctionner avec OVH
+home: https://plane.so
+icon: https://plane.so/favicon/favicon-32x32.png
+name: plane-dinum-helm
+sources:
+- https://github.com/numerique-gouv/plane-dinum
+type: application
+version: 1.0.4

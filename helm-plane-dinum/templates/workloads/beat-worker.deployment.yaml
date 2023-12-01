@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: {{ .Release.Name }}-beat-worker-wl
+spec:
+  replicas: {{ .Values.beatworker.replicas | default 1 }}
+  selector:
+    matchLabels:
+      app.name: {{ .Release.Namespace }}-{{ .Release.Name }}-beat-worker
+  template:
+    metadata:
+      namespace: {{ .Release.Namespace }}
+      labels:
+        app.name: {{ .Release.Namespace }}-{{ .Release.Name }}-beat-worker
+    spec:
+      containers:
+      - name: {{ .Release.Name }}-beat-worker
+        imagePullPolicy: Always
+        image: {{ .Values.dockerhub.images.backend | default "makeplane/plane-backend" }}:{{ .Values.planeVersion }}
+        stdin: true
+        tty: true
+        command:
+          - ./bin/beat
+        envFrom:
+          - configMapRef:
+              name: {{ .Release.Name }}-app-vars
+              optional: false
+          - secretRef:
+              name: {{ .Release.Name }}-app-secrets
+              optional: false
+          - configMapRef:
+              name: {{ .Release.Name }}-smtp-vars
+              optional: false
+          - secretRef:
+              name: {{ .Release.Name }}-smtp-secrets
+              optional: false
+          - configMapRef:
+              name: {{ .Release.Name }}-openai-vars
+              optional: false
+          - secretRef:
+              name: {{ .Release.Name }}-openai-secrets
+              optional: false
+          - configMapRef:
+              name: {{ .Release.Name }}-doc-store-vars
+              optional: false
+          - secretRef:
+              name: {{ .Release.Name }}-doc-store-secrets
+              optional: false
+
+      serviceAccount: {{ .Release.Name }}-srv-account
+      serviceAccountName: {{ .Release.Name }}-srv-account
+
+---

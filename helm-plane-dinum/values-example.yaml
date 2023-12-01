@@ -1,0 +1,138 @@
+planeVersion: latest
+
+dockerhub:
+  enabled: false
+  loginid: makeplane
+  password: makeplane
+  images:
+    frontend: awychowaniak/plane-web
+    space: awychowaniak/plane-space
+    backend: awychowaniak/plane-api
+
+ingress:
+  appHost: 'planehost.example.com'
+  minioHost: ''
+  ingressClass: 'nginx'
+  clientMaxBodySize: 10m
+ssl:
+  useOwnCert: true
+
+redis:
+  local_setup: true
+  image: redis:6.2.7-alpine
+  servicePort: 6379
+  storageClass: bsu-sc
+  volumeSize: 1Gi
+
+postgres:
+  local_setup: true
+  image: postgres:15.2-alpine
+  servicePort: 5432
+  cliConnectPort: 30000
+  storageClass: bsu-sc
+  volumeSize: 5Gi
+
+minio:
+  local_setup: false
+  image: minio/minio:RELEASE.2023-10-25T06-33-25Z
+  storageClass: bsu-sc
+  volumeSize: 5Gi
+  root_user: admin
+  root_password: password
+
+web:
+  replicas: 3
+  memoryLimit: 300Mi
+  cpuLimit: 200m
+  hscale:
+    minReplicas: 2
+    maxReplicas: 15
+    precentMemoryUtilization: 80
+    percentCpuUtilization: 60
+
+space:
+  replicas: 3
+  memoryLimit: 300Mi
+  cpuLimit: 200m
+  hscale:
+    minReplicas: 2
+    maxReplicas: 10
+    precentMemoryUtilization: 80
+    percentCpuUtilization: 60
+
+api:
+  replicas: 3
+  memoryLimit: 300Mi
+  cpuLimit: 200m
+
+worker:
+  replicas: 1
+  memoryLimit: 300Mi
+  cpuLimit: 200m
+
+beatworker:
+  replicas: 1
+  memoryLimit: 300Mi
+  cpuLimit: 200m
+
+smtp:
+  host: ""
+  user: ""
+  password:  ""
+  port: 587
+  from:  ""
+  use_tls: 1
+  use_ssl: 0
+
+openai:
+  api_base: "https://api.openai.com/v1"
+  api_key: "" #looks like => sk-xxxxxxx
+  model: "gpt-3.5-turbo"
+
+
+oauth:
+  enabled: 0
+  google_client_id: ""
+  github_client_id: ""
+  github_client_secret: ""
+
+cert-manager:
+  enabled: false
+  installCRDs: true
+  startupapicheck:
+    enabled: false
+
+env:
+  pgdb_username: plane
+  pgdb_password: plane
+  pgdb_name: plane
+  pgdb_remote_url: "" #INCASE OF REMOTE PG DB URL ONLY
+
+  # NEXT_PUBLIC_DEPLOY_URL:  ""
+  # REDIS
+  remote_redis_url: "" #INCASE OF REMOTE REDIS ONLY
+  # POSTGRES DB VALUES
+
+  # DATA STORE
+  docstore_bucket: ""
+  doc_upload_size_limit: "5242880" # 5MB
+
+  # REQUIRED FOR OVH S3
+  aws_access_key: ""
+  aws_secret_access_key: ""
+  aws_region: ""
+  aws_s3_endpoint_url: ""
+  
+  # # LOGIN/SIGNUP SETTINGS
+  enable_signup: 1
+  enable_email_password: 1
+  enable_magic_link_login: 1
+  secret_key: ""
+
+  sentry_dsn: ""
+  sentry_environment: ""
+
+  gunicorn_api_workers: 1
+  admin_email: "admin@example.com"
+  license_engine_base_url: "https://control-center.plane.so"
+  
