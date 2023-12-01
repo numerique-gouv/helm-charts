@@ -1,0 +1,55 @@
+
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: {{ .Release.Name }}-space
+  labels:
+    app.name: {{ .Release.Namespace }}-{{ .Release.Name }}-space
+spec:
+  clusterIP: None
+  ports:
+  - name: space-3000
+    port: 3000
+    protocol: TCP
+    targetPort: 3000
+  selector:
+    app.name: {{ .Release.Namespace }}-{{ .Release.Name }}-space
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: {{ .Release.Name }}-space-wl
+spec:
+  replicas: {{ .Values.space.replicas }}
+  selector:
+    matchLabels:
+      app.name: {{ .Release.Namespace }}-{{ .Release.Name }}-space
+  template:
+    metadata:
+      namespace: {{ .Release.Namespace }}
+      labels:
+        app.name: {{ .Release.Namespace }}-{{ .Release.Name }}-space
+    spec:
+      containers:
+      - name: {{ .Release.Name }}-space
+        imagePullPolicy: Always
+        image: {{ .Values.dockerhub.images.space | default "makeplane/plane-space" }}:{{ .Values.planeVersion }}
+        stdin: true
+        tty: true
+        resources:
+          limits:
+            memory: {{ .Values.web.memoryLimit  | default "100Mi" | quote }}
+            cpu: {{ .Values.web.cpuLimit | default "200m" | quote}}
+        command:
+          - /usr/local/bin/start.sh
+        args:
+          - space/server.js
+          - space
+      serviceAccount: {{ .Release.Name }}-srv-account
+      serviceAccountName: {{ .Release.Name }}-srv-account
+
+---

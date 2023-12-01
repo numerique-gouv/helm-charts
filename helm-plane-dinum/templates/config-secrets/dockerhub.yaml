@@ -1,0 +1,12 @@
+{{- if .Values.dockerhub.enabled }}
+
+apiVersion: v1
+kind: Secret
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: {{ .Release.Name }}-dockerhub-credentials
+data:
+  .dockerconfigjson: {{ include "imagePullSecret" .}}
+type: kubernetes.io/dockerconfigjson
+
+{{- end }}

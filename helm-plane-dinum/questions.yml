@@ -1,0 +1,472 @@
+questions:
+
+- variable: dockerhub.enabled
+  label: Docker Hub Enabled
+  type: boolean
+  default: false
+  group: "Docker Hub"
+  show_subquestion_if: true
+  subquestions:
+  - variable: dockerhub.loginid
+    label: "Login ID"
+    type: string
+    default: ""
+  - variable: dockerhub.password
+    label: "Password/Token"
+    type: password
+    default: ""
+
+- variable: planeVersion
+  label: Plane Version (Docker Image Tag)
+  type: string
+  default: latest
+  required: true
+  group: "Docker Hub"
+  subquestions:
+  - variable: dockerhub.images.frontend
+    label: Frontend Docker Image
+    type: string
+    required: true
+    default: "makeplane/plane-frontend"
+  - variable: dockerhub.images.space
+    label: Space Docker Image
+    type: string
+    required: true
+    default: "makeplane/plane-space"
+  - variable: dockerhub.images.backend
+    label: Backend Docker Image
+    type: string
+    required: true
+    default: "makeplane/plane-backend"
+    description: "Used by API, Worker, Beat-Worker"
+
+- variable: env.admin_email
+  label: "Admin Email"
+  type: string
+  default: "admin@example.com"
+  required: true
+  group: "App Auth"
+  subquestions:
+  - variable: env.enable_signup
+    label: "Enable Signup"
+    type: int
+    default: 1
+  - variable: env.enable_email_password
+    label: "Enable Login with Email/Password"
+    type: int
+    default: 1
+  - variable: env.enable_magic_link_login
+    label: "Enable Magic Link"
+    type: int
+    default: 0
+    description: "(SMTP is required)"
+
+- variable: oauth.enabled
+  label: "OAuth Enabled"
+  type: boolean
+  default: false
+  group: "App Auth"
+  show_subquestion_if: true
+  subquestions:
+  - variable: oauth.google_client_id
+    label: "Google Client ID"
+    type: string
+    default: ""
+  - variable: oauth.github_client_id
+    label: "Github Client ID"
+    type: string
+    default: ""
+  - variable: oauth.github_client_secret
+    label: "Github Client Secret"
+    type: password
+    default: ""
+
+- variable: web.replicas
+  label: "Default Replica Count"
+  type: int
+  default: 3
+  group: "Web Setup"
+  subquestions:
+  - variable: web.memoryLimit
+    label: "Memory Limit"
+    type: string
+    default: 300Mi
+  - variable: web.cpuLimit
+    label: "CPU Limit"
+    type: string
+    default: 200m
+  - variable: web.hscale.minReplicas
+    label: "Scale Min. Replicas"
+    type: int
+    default: 2
+  - variable: web.hscale.maxReplicas
+    label: "Scale Max. Replicas"
+    type: int
+    default: 10
+  - variable: web.hscale.precentMemoryUtilization
+    label: "Memory Utilization %"
+    type: int
+    default: 80
+  - variable: web.hscale.percentCpuUtilization
+    label: "CPU Utilization %"
+    type: int
+    default: 60
+  
+- variable: space.replicas
+  label: "Default Replica Count"
+  type: int
+  default: 3
+  group: "Spaces Setup"
+  subquestions:
+  - variable: space.memoryLimit
+    label: "Memory Limit"
+    type: string
+    default: 300Mi
+  - variable: space.cpuLimit
+    label: "CPU Limit"
+    type: string
+    default: 200m
+  - variable: space.hscale.minReplicas
+    label: "Scale Min. Replicas"
+    type: int
+    default: 2
+  - variable: space.hscale.maxReplicas
+    label: "Scale Max. Replicas"
+    type: int
+    default: 10
+  - variable: space.hscale.precentMemoryUtilization
+    label: "Memory Utilization %"
+    type: int
+    default: 80
+  - variable: space.hscale.percentCpuUtilization
+    label: "CPU Utilization %"
+    type: int
+    default: 60
+
+- variable: api.replicas
+  label: "Default Replica Count"
+  type: int
+  default: 3
+  group: "API Setup"
+  subquestions:
+  - variable: api.memoryLimit
+    label: "Memory Limit"
+    type: string
+    default: 300Mi
+  - variable: api.cpuLimit
+    label: "CPU Limit"
+    type: string
+    default: 200m
+  - variable: env.gunicorn_api_workers
+    label: "Workers"
+    type: int
+    default: 1
+
+- variable: worker.replicas
+  label: "Default Replica Count"
+  type: int
+  default: 1
+  group: "Worker Setup"
+  subquestions:
+  - variable: worker.memoryLimit
+    label: "Memory Limit"
+    type: string
+    default: 300Mi
+  - variable: worker.cpuLimit
+    label: "CPU Limit"
+    type: string
+    default: 200m
+
+- variable: beatworker.replicas
+  label: "Default Replica Count"
+  type: int
+  default: 1
+  group: "Beat Worker Setup"
+  subquestions:
+  - variable: beatworker.memoryLimit
+    label: "Memory Limit"
+    type: string
+    default: 300Mi
+  - variable: beatworker.cpuLimit
+    label: "CPU Limit"
+    type: string
+    default: 200m
+
+- variable: redis.local_setup
+  label: "Install Redis"
+  type: boolean
+  default: true
+  group: "Redis Setup"
+  subquestions:
+  - variable: redis.image
+    label: "Docker Image"
+    type: string
+    default: "redis:6.2.7-alpine"
+    show_if: "redis.local_setup=true"
+  - variable: redis.servicePort
+    label: Port
+    type: int
+    default: 6379
+    show_if: "redis.local_setup=true"
+  - variable: redis.storageClass
+    label: "Storage Class"
+    type: string
+    default: "longhorn"
+    show_if: "redis.local_setup=true"
+  - variable: redis.volumeSize
+    label: "Volume Size"
+    type: string
+    default: "1Gi"
+    show_if: "redis.local_setup=true"
+  - variable: env.remote_redis_url
+    label: "Remote Redis URL"
+    type: string
+    default: "redis://"
+    show_if: "redis.local_setup=false"
+
+- variable: postgres.local_setup
+  label: "Install Postgres"
+  type: boolean
+  default: true
+  group: "Postgres Setup"
+  # show_subquestion_if: true
+  subquestions:
+  - variable: postgres.image
+    label: "Docker Image"
+    type: string
+    default: "postgres:15.2-alpine"
+    show_if: "postgres.local_setup=true"
+  - variable: postgres.servicePort
+    label: Service Port
+    type: int
+    default: 5432
+    show_if: "postgres.local_setup=true"
+  - variable: postgres.cliConnectPort
+    label: CLI Connect Port
+    type: int
+    default: 30000
+    show_if: "postgres.local_setup=true"
+  - variable: postgres.storageClass
+    label: "Storage Class"
+    type: string
+    default: "longhorn"
+    show_if: "postgres.local_setup=true"
+  - variable: postgres.volumeSize
+    label: "Volume Size"
+    type: string
+    default: "5Gi"
+    show_if: "postgres.local_setup=true"
+  - variable: env.pgdb_username
+    label: "Username"
+    type: string
+    default: "plane"
+    show_if: "postgres.local_setup=true"
+  - variable: env.pgdb_password
+    label: "Password"
+    type: password
+    default: "plane"
+    show_if: "postgres.local_setup=true"
+  - variable: env.pgdb_name
+    label: "DB Name"
+    type: string
+    default: "plane"
+    show_if: "postgres.local_setup=true"
+  - variable: env.pgdb_remote_url
+    label: "Remote URL"
+    type: string
+    default: "postrgres://"
+    show_if: "postgres.local_setup=false"
+
+- variable: minio.local_setup
+  label: "Install Minio"
+  type: boolean
+  default: true
+  group: "Storage Setup"
+  subquestions:
+  - variable: minio.image
+    label: "Docker Image"
+    type: string
+    default: "minio/minio:RELEASE.2023-10-25T06-33-25Z"
+    show_if: "minio.local_setup=true"
+  - variable: minio.root_user
+    label: "Root User"
+    type: string
+    default: "admin"
+    show_if: "minio.local_setup=true"
+  - variable: minio.root_password
+    label: "Root Password"
+    type: password
+    default: "password"
+    show_if: "minio.local_setup=true"
+  - variable: minio.storageClass
+    label: "Storage Class"
+    type: string
+    default: "longhorn"
+    show_if: "minio.local_setup=true"
+  - variable: minio.volumeSize
+    label: "Volume Size"
+    type: string
+    default: "5Gi"
+    show_if: "minio.local_setup=true"
+  - variable: env.aws_access_key
+    label: "AWS Access Key"
+    type: string
+    default: ""
+    show_if: "minio.local_setup=false"
+  - variable: env.aws_secret_access_key
+    label: "AWS Secret Key"
+    type: password
+    default: ""
+    show_if: "minio.local_setup=false"
+  - variable: env.aws_region
+    label: "AWS Region"
+    type: string
+    default: ""
+    show_if: "minio.local_setup=false"
+  - variable: env.docstore_bucket
+    label: "Bucket Name"
+    type: string
+    default: "uploads"
+  - variable: env.doc_upload_size_limit
+    label: "FIle Upload Size Limit"
+    type: string
+    default: "5242880"
+
+- variable: smtp.enabled
+  label: "SMTP Enabled"
+  type: boolean
+  default: false
+  group: "SMTP"
+  show_subquestion_if: true
+  subquestions:
+  - variable: smtp.host
+    label: "Host Name"
+    type: string
+    default: ""
+  - variable: smtp.port
+    label: "Port"
+    type: int
+    default: 587
+  - variable: smtp.user
+    label: "User Name"
+    type: string
+    default: ""
+  - variable: smtp.password
+    label: "Password"
+    type: password
+    default: ""
+  - variable: smtp.from
+    label: "Sender"
+    type: string
+    default: "Plane Mailer <team@mailer.example.com>"
+  - variable: smtp.use_tls
+    label: "Use TLS"
+    description: "Use 0 or 1"
+    type: number
+    default: 1
+  - variable: smtp.use_ssl
+    label: "Use SSL"
+    description: "Use 0 or 1"
+    type: number
+    default: 0
+
+- variable: openai.enabled
+  label: "Open AI Enabled"
+  type: boolean
+  default: ""
+  group: "OpenAI"
+  show_subquestion_if: true
+  subquestions:
+  - variable: openai.api_key
+    label: "API Key"
+    type: password
+    default: ""
+  - variable: openai.model
+    label: "Model Name"
+    type: string
+    default: "gpt-3.5-turbo"
+  - variable: openai.api_base
+    label: "API Base"
+    type: string
+    default: "https://api.openai.com/v1"
+
+- variable: ingress.appHost
+  label: "App. Host"
+  type: string
+  default: "plane.example.com"
+  required: true
+  group: "Ingress"
+  subquestions:
+  - variable: ingress.minioHost
+    label: "Minio Host"
+    type: string
+    default: "plane-minio.example.com"
+    show_if: "minio.local_setup=true"
+  - variable: ingress.ingressClass
+    label: "Ingress Classname"
+    type: string
+    required: true
+    default: "nginx"
+  - variable: ingress.clientMaxBodySize
+    label: "Max Body Size"
+    type: string
+    required: true
+    default: "10m"
+
+- variable: ssl.createIssuer
+  label: "Create Issuer"
+  type: boolean
+  default: false
+  group: "Ingress"
+  show_subquestion_if: true
+  subquestions:
+  - variable: ssl.issuer
+    label: "SSL Issuer"
+    type: enum
+    options:
+      - "http"
+      - "cloudflare"
+      - "digitalocean"
+    default: "http"
+  - variable: ssl.server
+    label: "Let's Encrypt Server URL"
+    type: string
+    default: "https://acme-staging-v02.api.letsencrypt.org/directory"
+  - variable: ssl.email
+    label: "Let's Encrypt Reg. Email"
+    type: string
+    default: "plane@example.com"
+  - variable: ssl.token
+    label: "Provider API Token"
+    type: password
+    default: ""
+    description: "Not required for 'http' issuer"
+  - variable: ssl.generateCerts
+    label: "Enable to generate certificates"
+    type: boolean
+    default: false
+    
+- variable: env.sentry_dsn
+  label: "Sentry DSN"
+  type: string
+  default: ""
+  group: "Misc."
+  subquestions:
+  - variable: env.sentry_environment
+    label: "Sentry Environment"
+    type: enum
+    options:
+      - "Development"
+      - "QA"
+      - "Release"
+      - "Production"
+  - variable: env.secret_key
+    label: "Random Secret Key"
+    type: string
+    required: true
+    default: "60gp0byfz2dvffa45cxl20p1scy9xbpf6d8c5y0geejgkyp1b5"
+  - variable: env.license_engine_base_url
+    label: "License Engine Base Url"
+    type: string
+    required: true
+    default: "https://control-center.plane.so"
