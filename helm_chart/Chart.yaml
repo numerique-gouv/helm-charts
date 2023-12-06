@@ -1,7 +1,7 @@
 apiVersion: v2
 type: application
 name: grist
-version: 3.0.1
+version: 3.0.2
 
 dependencies:
   - name: common

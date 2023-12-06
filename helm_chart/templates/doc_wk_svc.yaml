@@ -1,5 +1,6 @@
 {{- $component := "doc-worker" -}}
-{{- range until (.Values.docWorker.replicas | int) -}}
+{{- range until (.Values.docWorker.replicas | int) }}
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -19,5 +20,4 @@ spec:
   selector:
     {{- include "grist.common.selectorLabels" (list $ $component) | nindent 4 }}
     statefulset.kubernetes.io/pod-name: {{ include "grist.docworker.uniquename" (list $ .) }}
----
 {{- end }}
