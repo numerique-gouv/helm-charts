@@ -1,0 +1,26 @@
+apiVersion: "acid.zalan.do/v1"
+kind: "postgresql"
+metadata:
+  name: "plane-db"
+  namespace: {{ .Release.Namespace }}
+spec:
+  teamId: "plane"
+  volume:
+    size: {{ .Values.postgres.volumeSize | default "5Gi" }}
+    storageClass: {{ .Values.postgres.storageClass }}
+  numberOfInstances: 1
+  dockerImage: "registry.opensource.zalan.do/acid/spilo-14:2.1-p5"
+  users:
+    plane:
+      - superuser
+      - createdb
+  databases:
+    plane: plane
+  postgresql:
+    version: "14"
+  env:
+    - name: POSTGRES_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: postgres.plane-pgdb.credentials.postgresql.acid.zalan.do
+          key: password
