@@ -1,5 +1,5 @@
 {{- $envVars := include "grist.common.env" (list . .Values.homeWorker) -}}
-{{- $fullName := include "common.fullname" . -}}
+{{- $fullName := include "grist.fullname" . -}}
 {{- $component := "home-worker" -}}
 apiVersion: apps/v1
 kind: Deployment
@@ -24,7 +24,7 @@ spec:
     spec:
       {{- if $.Values.image.credentials }}
       imagePullSecrets:
-        - name: {{ include "common.secret.dockerconfigjson.name" (dict "fullname" (include "common.fullname" .) "imageCredentials" $.Values.image.credentials) }}
+        - name: {{ include "grist.secret.dockerconfigjson.name" (dict "fullname" (include "grist.fullname" .) "imageCredentials" $.Values.image.credentials) }}
       {{- end}}
       containers:
         - name: {{ .Chart.Name }}
@@ -52,15 +52,15 @@ spec:
               protocol: TCP
           {{- if .Values.homeWorker.probes.liveness }}
           livenessProbe:
-            {{- include "common.probes.abstract" (merge .Values.homeWorker.probes.liveness (dict "targetPort" .Values.homeWorker.service.targetPort )) | nindent 12 }}
+            {{- include "grist.probes.abstract" (merge .Values.homeWorker.probes.liveness (dict "targetPort" .Values.homeWorker.service.targetPort )) | nindent 12 }}
           {{- end }}
           {{- if .Values.homeWorker.probes.readiness }}
           readinessProbe:
-            {{- include "common.probes.abstract" (merge .Values.homeWorker.probes.readiness (dict "targetPort" .Values.homeWorker.service.targetPort )) | nindent 12 }}
+            {{- include "grist.probes.abstract" (merge .Values.homeWorker.probes.readiness (dict "targetPort" .Values.homeWorker.service.targetPort )) | nindent 12 }}
           {{- end }}
           {{- if .Values.homeWorker.probes.startup }}
           startupProbe:
-            {{- include "common.probes.abstract" (merge .Values.homeWorker.probes.startup (dict "targetPort" .Values.homeWorker.service.targetPort )) | nindent 12 }}
+            {{- include "grist.probes.abstract" (merge .Values.homeWorker.probes.startup (dict "targetPort" .Values.homeWorker.service.targetPort )) | nindent 12 }}
           {{- end }}
           {{- with .Values.homeWorker.resources }}
           resources:

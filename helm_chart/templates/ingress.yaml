@@ -1,5 +1,5 @@
 {{- if .Values.ingress.enabled -}}
-{{- $fullName := include "common.fullname" . -}}
+{{- $fullName := include "grist.fullname" . -}}
 {{- $lbFullName := include "grist.lb.fullname" . -}}
 {{- $svcPort := .Values.loadBalancer.service.port -}}
 {{- if and .Values.ingress.className (not (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion)) }}
@@ -18,7 +18,7 @@ kind: Ingress
 metadata:
   name: {{ $fullName }}
   labels:
-    {{- include "common.labels" . | nindent 4 }}
+    {{- include "grist.labels" . | nindent 4 }}
   {{- with .Values.ingress.annotations }}
   annotations:
     {{- if $.Values.ingress.certManagerClusterIssuer }}

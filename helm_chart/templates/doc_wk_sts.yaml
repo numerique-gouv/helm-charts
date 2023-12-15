@@ -26,7 +26,7 @@ spec:
     spec:
       {{- if $.Values.image.credentials }}
       imagePullSecrets:
-        - name: {{ include "common.secret.dockerconfigjson.name" (dict "fullname" (include "common.fullname" .) "imageCredentials" $.Values.image.credentials) }}
+        - name: {{ include "grist.secret.dockerconfigjson.name" (dict "fullname" (include "grist.fullname" .) "imageCredentials" $.Values.image.credentials) }}
       {{- end}}
       containers:
         - name: {{ .Chart.Name }}
@@ -56,15 +56,15 @@ spec:
               protocol: TCP
           {{- if .Values.docWorker.probes.liveness }}
           livenessProbe:
-            {{- include "common.probes.abstract" (merge .Values.docWorker.probes.liveness (dict "targetPort" .Values.docWorker.service.targetPort )) | nindent 12 }}
+            {{- include "grist.probes.abstract" (merge .Values.docWorker.probes.liveness (dict "targetPort" .Values.docWorker.service.targetPort )) | nindent 12 }}
           {{- end }}
           {{- if .Values.docWorker.probes.readiness }}
           readinessProbe:
-            {{- include "common.probes.abstract" (merge .Values.docWorker.probes.readiness (dict "targetPort" .Values.docWorker.service.targetPort )) | nindent 12 }}
+            {{- include "grist.probes.abstract" (merge .Values.docWorker.probes.readiness (dict "targetPort" .Values.docWorker.service.targetPort )) | nindent 12 }}
           {{- end }}
           {{- if .Values.docWorker.probes.startup }}
           startupProbe:
-            {{- include "common.probes.abstract" (merge .Values.docWorker.probes.startup (dict "targetPort" .Values.docWorker.service.targetPort )) | nindent 12 }}
+            {{- include "grist.probes.abstract" (merge .Values.docWorker.probes.startup (dict "targetPort" .Values.docWorker.service.targetPort )) | nindent 12 }}
           {{- end }}
           {{- with .Values.docWorker.resources }}
           resources:
@@ -95,7 +95,7 @@ spec:
         {{- range $index, $value := .Values.mountFiles }}
         - name: "files-{{ $index }}"
           configMap:
-            name: "{{ include "common.fullname" $ }}-files-{{ $index }}"
+            name: "{{ include "grist.fullname" $ }}-files-{{ $index }}"
         {{- end }}
         - name: init
           configMap:

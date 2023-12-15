@@ -3,7 +3,3 @@ type: application
 name: grist
 version: 3.0.2
 
-dependencies:
-  - name: common
-    version: "0.2.2"
-    repository: "https://gitlab.com/api/v4/projects/29298733/packages/helm/stable"
