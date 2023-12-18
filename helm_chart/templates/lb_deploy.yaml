@@ -1,4 +1,4 @@
-{{- $envVars := include "common.env.transformDict" .Values.loadBalancer.envVars -}}
+{{- $envVars := include "grist.env.transformDict" .Values.loadBalancer.envVars -}}
 {{- $fullName := include "grist.lb.fullname" . -}}
 {{- $component := "lb" -}}
 apiVersion: apps/v1
@@ -24,7 +24,7 @@ spec:
     spec:
       {{- if $.Values.image.credentials }}
       imagePullSecrets:
-        - name: {{ include "common.secret.dockerconfigjson.name" (dict "fullname" (include "common.fullname" .) "imageCredentials" $.Values.image.credentials) }}
+        - name: {{ include "grist.secret.dockerconfigjson.name" (dict "fullname" (include "grist.fullname" .) "imageCredentials" $.Values.image.credentials) }}
       {{- end}}
       containers:
         - name: {{ $fullName }}
@@ -52,15 +52,15 @@ spec:
               protocol: TCP
           {{- if .Values.loadBalancer.probes.liveness }}
           livenessProbe:
-            {{- include "common.probes.abstract" (merge .Values.loadBalancer.probes.liveness (dict "targetPort" .Values.loadBalancer.service.targetPort )) | nindent 12 }}
+            {{- include "grist.probes.abstract" (merge .Values.loadBalancer.probes.liveness (dict "targetPort" .Values.loadBalancer.service.targetPort )) | nindent 12 }}
           {{- end }}
           {{- if .Values.loadBalancer.probes.readiness }}
           readinessProbe:
-            {{- include "common.probes.abstract" (merge .Values.loadBalancer.probes.readiness (dict "targetPort" .Values.loadBalancer.service.targetPort )) | nindent 12 }}
+            {{- include "grist.probes.abstract" (merge .Values.loadBalancer.probes.readiness (dict "targetPort" .Values.loadBalancer.service.targetPort )) | nindent 12 }}
           {{- end }}
           {{- if .Values.loadBalancer.probes.startup }}
           startupProbe:
-            {{- include "common.probes.abstract" (merge .Values.loadBalancer.probes.startup (dict "targetPort" .Values.loadBalancer.service.targetPort )) | nindent 12 }}
+            {{- include "grist.probes.abstract" (merge .Values.loadBalancer.probes.startup (dict "targetPort" .Values.loadBalancer.service.targetPort )) | nindent 12 }}
           {{- end }}
           {{- with .Values.loadBalancer.resources }}
           resources:
@@ -85,7 +85,7 @@ spec:
           args:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- $authEnvVars := include "common.env.transformDict" .Values.forwardAuth.envVars -}}
+          {{- $authEnvVars := include "grist.env.transformDict" .Values.forwardAuth.envVars -}}
           {{- if $authEnvVars}}
           env:
             {{- $authEnvVars | indent 12 }}
@@ -100,15 +100,15 @@ spec:
               protocol: TCP
           {{- if .Values.forwardAuth.probes.liveness }}
           livenessProbe:
-            {{- include "common.probes.abstract" (merge .Values.forwardAuth.probes.liveness (dict "targetPort" 4181 )) | nindent 12 }}
+            {{- include "grist.probes.abstract" (merge .Values.forwardAuth.probes.liveness (dict "targetPort" 4181 )) | nindent 12 }}
           {{- end }}
           {{- if .Values.forwardAuth.probes.readiness }}
           readinessProbe:
-            {{- include "common.probes.abstract" (merge .Values.forwardAuth.probes.readiness (dict "targetPort" 4181 )) | nindent 12 }}
+            {{- include "grist.probes.abstract" (merge .Values.forwardAuth.probes.readiness (dict "targetPort" 4181 )) | nindent 12 }}
           {{- end }}
           {{- if .Values.forwardAuth.probes.startup }}
           startupProbe:
-            {{- include "common.probes.abstract" (merge .Values.forwardAuth.probes.startup (dict "targetPort" 4181 )) | nindent 12 }}
+            {{- include "grist.probes.abstract" (merge .Values.forwardAuth.probes.startup (dict "targetPort" 4181 )) | nindent 12 }}
           {{- end }}
           {{- with .Values.forwardAuth.resources }}
           resources:

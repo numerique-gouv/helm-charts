@@ -2,9 +2,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: "{{ include "common.fullname" $ }}-files-{{ $index }}"
+  name: "{{ include "grist.fullname" $ }}-files-{{ $index }}"
   labels:
-    {{- include "common.labels" $ | nindent 4 }}
+    {{- include "grist.labels" $ | nindent 4 }}
 binaryData:
   content: {{ .content }}
 ---
