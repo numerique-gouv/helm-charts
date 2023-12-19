@@ -46,19 +46,6 @@ services:
       - --entrypoints.web.address=:8000
       - --entryPoints.web.forwardedHeaders.insecure
       - --providers.file.filename=/etc/traefik/fileConfig.yml
-  forwardauth:
-    image: thomseddon/traefik-forward-auth:2
-    environment:
-      DEFAULT_PROVIDER: generic-oauth
-      INSECURE_COOKIE: "true"
-      LOGOUT_REDIRECT: http://grist.docker.localhost:8080/signed-out
-      PROVIDERS_GENERIC_OAUTH_AUTH_URL: http://localhost:8081/realms/grist/protocol/openid-connect/auth
-      PROVIDERS_GENERIC_OAUTH_CLIENT_ID: grist
-      PROVIDERS_GENERIC_OAUTH_CLIENT_SECRET: yT00LmUDppwn3s4cFCNPV3Qg95pU14ZQ
-      PROVIDERS_GENERIC_OAUTH_SCOPE: openid email organizations
-      PROVIDERS_GENERIC_OAUTH_TOKEN_URL: http://keycloak:8080/realms/grist/protocol/openid-connect/token
-      PROVIDERS_GENERIC_OAUTH_USER_URL: http://keycloak:8080/realms/grist/protocol/openid-connect/userinfo
-      SECRET: changeme
   postgresql-grist:
     image: postgres
     environment:
@@ -85,9 +72,14 @@ services:
     volumes:
       - ./data_minio:/data
   keycloak:
+    healthcheck:
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/localhost/8080"]
+      interval: 5s
+      timeout: 2s
+      retries: 30
     image: quay.io/keycloak/keycloak:22.0
     entrypoint:
-      - sh
+      - bash
     command:
       - -c
       - '/opt/keycloak/bin/kc.sh import --file /opt/keycloak/import/grist.json && /opt/keycloak/bin/kc.sh start-dev'

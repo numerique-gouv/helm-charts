@@ -4,11 +4,6 @@ http:
       headers:
         customRequestHeaders:
           X-Forwarded-User: ""
-    traefik-forward-auth:
-      forwardAuth:
-        address: http://forwardauth:4181
-        authResponseHeaders:
-        - X-Forwarded-User
   routers:
     default:
       middlewares:
@@ -30,18 +25,6 @@ http:
       - no-x-fwd-user-header
       rule: Host(`grist.docker.localhost`) && PathPrefix(`/dw/dw-2`)
       service: dw-2
-    login0:
-      middlewares:
-      - no-x-fwd-user-header
-      - traefik-forward-auth
-      rule: Host(`grist.docker.localhost`) && PathPrefix(`/auth/login`)
-      service: default
-    login1:
-      middlewares:
-      - no-x-fwd-user-header
-      - traefik-forward-auth
-      rule: Host(`grist.docker.localhost`) && PathPrefix(`/_oauth`)
-      service: default
   services:
     default:
       loadBalancer:

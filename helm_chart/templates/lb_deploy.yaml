@@ -73,48 +73,6 @@ spec:
             - name: config
               mountPath: /etc/traefik/traefik.yml
               subPath: traefik.yml
-        {{- if .Values.forwardAuth.enabled }}
-        - name: {{ .Chart.Name }}-auth
-          image: "{{ .Values.forwardAuth.image.repository }}:{{ .Values.forwardAuth.image.tag }}"
-          imagePullPolicy: {{ .Values.forwardAuth.image.pullPolicy }}
-          {{- with .Values.forwardAuth.command }}
-          command:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with .Values.forwardAuth.args }}
-          args:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- $authEnvVars := include "grist.env.transformDict" .Values.forwardAuth.envVars -}}
-          {{- if $authEnvVars}}
-          env:
-            {{- $authEnvVars | indent 12 }}
-          {{- end }}
-          {{- with .Values.forwardAuth.securityContext }}
-          securityContext:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          ports:
-            - name: http
-              containerPort: 4181
-              protocol: TCP
-          {{- if .Values.forwardAuth.probes.liveness }}
-          livenessProbe:
-            {{- include "grist.probes.abstract" (merge .Values.forwardAuth.probes.liveness (dict "targetPort" 4181 )) | nindent 12 }}
-          {{- end }}
-          {{- if .Values.forwardAuth.probes.readiness }}
-          readinessProbe:
-            {{- include "grist.probes.abstract" (merge .Values.forwardAuth.probes.readiness (dict "targetPort" 4181 )) | nindent 12 }}
-          {{- end }}
-          {{- if .Values.forwardAuth.probes.startup }}
-          startupProbe:
-            {{- include "grist.probes.abstract" (merge .Values.forwardAuth.probes.startup (dict "targetPort" 4181 )) | nindent 12 }}
-          {{- end }}
-          {{- with .Values.forwardAuth.resources }}
-          resources:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-        {{- end }}
       {{- with .Values.loadBalancer.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

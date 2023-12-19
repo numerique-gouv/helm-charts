@@ -89,11 +89,7 @@ Requires array with top level scope and docWorker or homeWorker scopes
 {{- define "grist.common.env" -}}
 {{- $topLevelScope := index . 0 -}}
 {{- $workerScope := index . 1 -}}
-{{- if $topLevelScope.Values.forwardAuth.enabled | and $topLevelScope.Values.forwardAuth.enabled }}
-{{- include "grist.env.transformDict" (merge (deepCopy $workerScope.envVars) (dict "GRIST_FORWARD_AUTH_HEADER" "X-Forwarded-User")) -}}
-{{- else -}}
 {{- include "grist.env.transformDict" $workerScope.envVars -}}
-{{- end }}
 {{- end }}
 
 {{/*

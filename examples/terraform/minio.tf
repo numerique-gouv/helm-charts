@@ -6,17 +6,14 @@ resource "helm_release" "minio" {
   name       = "minio"
   values = [
     <<-EOT
+    mode: distributed
     auth:
       rootUser: gristgristgrist
       rootPassword: gristgristgrist
-    provisionning:
-      config:
-        - name: region
-          options:
-            name: local
+    provisioning:
+      enabled: true
       buckets:
         - name: grist
-          region: local
           versioning: true
     EOT
   ]
