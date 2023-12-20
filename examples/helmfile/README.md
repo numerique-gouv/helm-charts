@@ -17,9 +17,8 @@ helmfile sync .
 ### Make a diff
 
 ```
-export PASSWORD=$(kubectl get secret --namespace "grist" keycloak-postgresql -o jsonpath="{.data.password}" | base64 -d)
-helmfile diff . --set global.postgresql.auth.password=$password
+helmfile diff .
 # To sync 
-helmfile sync . --set global.postgresql.auth.password=$PASSWORD
+helmfile sync .
 ```
 

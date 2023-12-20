@@ -178,14 +178,6 @@ Requires top level scope
 {{ include "grist.fullname" . }}-doc-wk
 {{- end }}
 
-{{/*
-Full name for the doc worker init
-
-Requires top level scope
-*/}}
-{{- define "grist.doc.init" -}}
-{{ include "grist.doc.fullname" . }}-init
-{{- end }}
 
 {{- define "grist.secret.dockerconfigjson.data" }}
 {{- printf "{\"auths\":{\"%s\":{\"username\":\"%s\",\"password\":\"%s\",\"auth\":\"%s\"}}}" .registry .username .password (printf "%s:%s" .username .password | b64enc) | b64enc }}

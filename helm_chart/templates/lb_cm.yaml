@@ -1,3 +1,4 @@
+{{- $svcName := include "grist.doc.fullname" . -}}
 {{- $component := "lb" -}}
 apiVersion: v1
 kind: ConfigMap
@@ -6,46 +7,41 @@ metadata:
   labels:
     {{- include "grist.common.labels" (list . $component) | nindent 4 }}
 data:
-  traefik.yml: |
-    ping: {}
-    entryPoints:
-      traefik:
-        address: ":{{ .Values.loadBalancer.healthPort }}"
-      web:
-        address: ":{{ .Values.loadBalancer.service.targetPort }}"
-        forwardedHeaders:
-          insecure: true # Required to let forward auth correctly process scheme
-    providers:
-      file:
-        filename: "/etc/traefik/fileConfig.yml"
-  fileConfig.yml: |
-    http:
-      middlewares:
-        no-x-fwd-user-header:
-          headers:
-            customRequestHeaders:
-              X-Forwarded-User: ""
-      routers:
-        default:
-          middlewares:
-          - no-x-fwd-user-header
-          rule: Host(`{{ .Values.ingress.host }}`)
-          service: default
-        {{- range until (int .Values.docWorker.replicas) }}
-        dw-{{ . }}:
-          middlewares:
-          - no-x-fwd-user-header
-          rule: Host(`{{ $.Values.ingress.host }}`) && PathPrefix(`/dw/dw-{{ . }}`)
-          service: dw-{{ . }}
-        {{- end }}
-      services:
-        default:
-          loadBalancer:
-            servers:
-            - url: http://{{ include "grist.home.fullname" . }}:{{ .Values.homeWorker.service.port }}
-        {{- range until (int .Values.docWorker.replicas) }}
-        dw-{{ . }}:
-          loadBalancer:
-            servers:
-            - url: http://{{ include "grist.docworker.uniquename" (list $ .) }}:{{ $.Values.docWorker.service.port }}
-        {{- end }}
+  nginx.conf: |
+    user  nginx;
+    worker_processes  1;
+    error_log  /dev/stderr warn;
+    pid        /var/run/nginx.pid;
+    events {
+        worker_connections  1024;
+    }
+    http {
+      include       /etc/nginx/mime.types;
+      default_type  application/octet-stream;
+      log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                          '$status $body_bytes_sent "$http_referer" '
+                          '"$http_user_agent" "$http_x_forwarded_for"';
+      access_log  /dev/stdout  main;
+      sendfile        on;
+      keepalive_timeout  65;
+      server {
+        listen 8080;
+
+        resolver kube-dns.kube-system.svc.cluster.local valid=5s;
+
+        location /health {
+          return 200;
+        }
+
+        location ~ /dw/([0-9]*).([0-9]*).([0-9]*).([0-9]*)/(.*)$ {
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-Proto $scheme;
+          proxy_set_header Host $host;
+          proxy_pass http://$1-$2-$3-$4.{{ $svcName }}.{{ .Release.Namespace }}.svc.cluster.local:8484/$5;
+          proxy_http_version 1.1;
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "upgrade";
+        }
+      }
+    }

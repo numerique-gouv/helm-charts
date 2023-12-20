@@ -68,11 +68,11 @@ spec:
           {{- end }}
           volumeMounts:
             - name: config
-              mountPath: /etc/traefik/fileConfig.yml
-              subPath: fileConfig.yml
-            - name: config
-              mountPath: /etc/traefik/traefik.yml
-              subPath: traefik.yml
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+            {{- with .Values.loadBalancer.volumeMounts }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
       {{- with .Values.loadBalancer.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -89,3 +89,6 @@ spec:
         - name: config
           configMap:
             name: "{{ include "grist.lb.config" . }}"
+        {{- with .Values.loadBalancer.volumes }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
