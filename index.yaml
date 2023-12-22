@@ -1,0 +1,18 @@
+apiVersion: v1
+entries:
+  plane-dinum-helm:
+  - apiVersion: v2
+    appVersion: 0.14.0
+    created: "2023-12-22T08:41:47.192157436Z"
+    description: Plane DINUM avec modification des images pour fonctionner avec OVH
+    digest: 0643ac1125d3a173ff12ef8d73ce25c8cd325ab91bb6c32da764bb9a96c7645b
+    home: https://plane.so
+    icon: https://plane.so/favicon/favicon-32x32.png
+    name: plane-dinum-helm
+    sources:
+    - https://github.com/numerique-gouv/plane-dinum
+    type: application
+    urls:
+    - https://github.com/numerique-gouv/helm-charts/releases/download/plane-dinum-helm-1.0.4/plane-dinum-helm-1.0.4.tgz
+    version: 1.0.4
+generated: "2023-12-22T08:41:47.192166564Z"
