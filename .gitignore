@@ -5,3 +5,4 @@ examples/terraform/.terraform
 examples/terraform/terraform.tfstate
 examples/terraform/terraform.tfstate.backup
 helm_chart/charts
+n8n/.values.yaml

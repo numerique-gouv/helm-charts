@@ -18,9 +18,3 @@ spec:
     plane: plane
   postgresql:
     version: "14"
-  env:
-    - name: POSTGRES_PASSWORD
-      valueFrom:
-        secretKeyRef:
-          name: postgres.plane-pgdb.credentials.postgresql.acid.zalan.do
-          key: password
