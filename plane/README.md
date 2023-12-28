@@ -37,3 +37,8 @@ Customise SMTP using
 ```
 
 
+helm install \
+    --create-namespace \
+    --namespace plane-test \
+    --set ingress.host="test.example.com" \
+    plane-test ./plane-charts -f ./plane-charts/values.yaml
