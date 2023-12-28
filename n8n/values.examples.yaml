@@ -39,6 +39,6 @@ extraEnv:
   N8N_SMTP_HOST: "smtp-relay.brevo.com"
   N8N_SMTP_PORT: "587"                     
   N8N_SMTP_USER: ""  
-  N8N_SMTP_PASS: "U8zgwENOF34QJY5h"    
+  N8N_SMTP_PASS: ""    
   N8N_SMTP_SSL: "false"                     
   N8N_SMTP_SENDER: ""
