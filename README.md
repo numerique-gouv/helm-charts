@@ -1,9 +1,9 @@
 # Helm-charts
-Helm charts utilisé au sein de la DINUM
+This repository contains Helm charts used at DINUM.
 
 ## Repository
 
-Les charts de ce repos sont cronstruits et déployés automatiquement sur les githubs pages. Pour utiliser ces charts directement, vous pouvez faire :
+These charts are built and deployed automatically on githubs pages. In order to use them, you can do :
 
 ```
 helm repo add dinum https://numerique-gouv.github.io/helm-charts/
