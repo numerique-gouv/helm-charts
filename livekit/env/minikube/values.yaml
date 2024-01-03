@@ -22,7 +22,7 @@ loadBalancer:
   tls:
     - hosts:
         - livekit.beta.numerique.gouv.fr
-      secretName: livekit-n8n-cert
+      secretName: livekit-dinum-cert
 
 autoscaling:
   enabled: false
