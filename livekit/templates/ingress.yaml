@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: livekit-dinum-ingress
+  namespace: livekit
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  tls:
+  - hosts:
+    - livekit.beta.numerique.gouv.fr
+    secretName: livekit-n8n-cert
+  rules:
+  - host: livekit.beta.numerique.gouv.fr
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ include "livekit-server.fullname" . }}
+            port:
+              number: {{ .Values.livekit.port | default 7880 }}
