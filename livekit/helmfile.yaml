@@ -1,0 +1,25 @@
+repositories:
+  - name: livekit
+    url: https://helm.livekit.io
+
+releases:
+  - name: livekit
+    namespace: livekit
+    chart: livekit/livekit-server
+    version: {{ .Values.livekit.version }}
+    values:
+      - env/common.yaml
+      - env/{{ .Environment.Name }}/values.yaml
+    secrets:
+      - env/common.enc.yaml
+      - env/{{ .Environment.Name }}/secrets.enc.yaml
+
+environments:
+  minikube:
+    values:
+      - livekit:
+          version: 1.5.1
+  outscale:
+    values:
+      - livekit:
+          version: 1.5.1
