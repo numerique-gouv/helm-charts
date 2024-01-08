@@ -49,6 +49,11 @@ releases:
     chart: bitnami/keycloak
     version: 17.3.6
     values:
+      - postgresql:
+          auth:
+            username: keycloak
+            password: keycloak
+            databaese: keycloak
       - extraEnvVars:
           - name: KEYCLOAK_EXTRA_ARGS
             value: "--import-realm"

@@ -1,13 +1,16 @@
 services:
   grist:
-    image: gristlabs/grist:1.1.7
+    image: gristlabs/grist:1.1.9
     environment:
       DEBUG: 1
       GRIST_DOMAIN: grist.docker.localhost
-      APP_HOME_URL: http://grist.docker.localhost:8080
-      GRIST_FORWARD_AUTH_HEADER: X-Forwarded-User
-      GRIST_FORWARD_AUTH_LOGOUT_PATH: _oauth/logout
       GRIST_ORG_IN_PATH: "true"
+      APP_HOME_URL: http://grist.docker.localhost:8080
+      GRIST_OIDC_SP_HOST: http://grist.docker.localhost:8080/
+      GRIST_OIDC_IDP_ISSUER: http://keycloak:8080/realms/grist
+      GRIST_OIDC_IDP_SCOPES: openid email organizations
+      GRIST_OIDC_IDP_CLIENT_ID: grist
+      GRIST_OIDC_IDP_CLIENT_SECRET: yT00LmUDppwn3s4cFCNPV3Qg95pU14ZQ
       GRIST_DEFAULT_EMAIL: admin@example.org
       GRIST_SANDBOX_FLAVOR: gvisor
       GRIST_HIDE_UI_ELEMENTS: billing
@@ -20,6 +23,8 @@ services:
       TYPEORM_USERNAME: grist
       TYPEORM_PASSWORD: grist
     depends_on:
+      keycloak:
+        condition: service_healthy
       redis:
         condition: service_started
       postgresql-grist:
@@ -42,6 +47,8 @@ services:
       GRIST_DOCS_MINIO_ACCESS_KEY: admin
       GRIST_DOCS_MINIO_SECRET_KEY: adminadmin
     depends_on:
+      keycloak:
+        condition: service_healthy
       grist:
         condition: service_healthy
       minio:

@@ -591,7 +591,7 @@
     "alwaysDisplayInConsole" : false,
     "clientAuthenticatorType" : "client-secret",
     "secret" : "yT00LmUDppwn3s4cFCNPV3Qg95pU14ZQ",
-    "redirectUris" : [ "http://grist.docker.localhost:8080/_oauth" ],
+    "redirectUris" : [ "http://grist.docker.localhost:8080/oauth2/callback" ],
     "webOrigins" : [ "http://grist.docker.localhost:8080" ],
     "notBefore" : 0,
     "bearerOnly" : false,
@@ -607,7 +607,7 @@
       "oidc.ciba.grant.enabled" : "false",
       "client.secret.creation.time" : "1698389787",
       "backchannel.logout.session.required" : "true",
-      "post.logout.redirect.uris" : "http://grist.docker.localhost:8080/_oauth/logout",
+      "post.logout.redirect.uris" : "http://grist.docker.localhost:8080/o/docs/signed-out",
       "oauth2.device.authorization.grant.enabled" : "false",
       "display.on.consent.screen" : "false",
       "backchannel.logout.revoke.offline.tokens" : "false"
