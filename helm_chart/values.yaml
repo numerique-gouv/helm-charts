@@ -11,7 +11,7 @@ image:
 #    registry: "gitlab.com"
 #    username: "user"
 #    password: "pass"
-  tag: "1.1.7"
+  tag: "1.1.9"
 
 nameOverride: ""
 fullnameOverride: ""
