@@ -72,6 +72,10 @@ spec:
               mountPath: {{ $value.path }}
               subPath: content
             {{- end }}
+            {{- range $name, $volume := .Values.homeWorker.persistence }}
+            - name: "{{ $name }}"
+              mountPath: "{{ $volume.mountPath }}"
+            {{- end }}
       {{- with .Values.homeWorker.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -89,4 +93,13 @@ spec:
         - name: "files-{{ $index }}"
           configMap:
             name: "{{ $fullName }}-files-{{ $index }}"
+        {{- end }}
+        {{- range $name, $volume := .Values.homeWorker.persistence }}
+        - name: "{{ $name }}"
+          {{- if eq $volume.type "emptyDir" }}
+          emptyDir: { }
+          {{- else }}
+          persistentVolumeClaim:
+            claimName: "{{ $fullName }}-{{ $name }}"
+          {{- end }}
         {{- end }}
