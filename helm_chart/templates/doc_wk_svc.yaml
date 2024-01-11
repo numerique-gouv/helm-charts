@@ -8,9 +8,7 @@ metadata:
   labels:
     {{- include "grist.common.labels" (list . $component) | nindent 4 }}
   annotations:
-    {{- with .Values.docWorker.podAnnotations }}
-    {{- toYaml . | nindent 4 }}
-    {{- end }}
+    {{- toYaml $.Values.docWorker.service.annotations | nindent 4 }}
 spec:
   type: {{ .Values.docWorker.service.type }}
   ports:
