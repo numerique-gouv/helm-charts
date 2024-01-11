@@ -149,7 +149,7 @@ loadBalancer:
   image:
     repository: nginx
     pullPolicy: IfNotPresent
-    tag: 1.24.0
+    tag: 1.25.3
 
   replicas: 2
 
@@ -190,9 +190,13 @@ loadBalancer:
       mountPath: /var/cache/nginx/
     - name: run
       mountPath: /var/run
+    - name: conf
+      mountPath: /etc/nginx/conf.d
 
   volumes:
     - name: cache
       emptyDir: {}
     - name: run
-      emptyDir: {}
+      emptydir: {}
+    - name: conf
+      emptydir: {}

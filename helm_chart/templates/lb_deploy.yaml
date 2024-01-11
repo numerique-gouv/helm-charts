@@ -38,8 +38,10 @@ spec:
           args:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- if $envVars}}
           env:
+            - name: NGINX_ENTRYPOINT_LOCAL_RESOLVERS
+              value: "1"
+          {{- if $envVars}}
             {{- $envVars | indent 12 }}
           {{- end }}
           {{- with .Values.loadBalancer.securityContext }}
@@ -68,8 +70,8 @@ spec:
           {{- end }}
           volumeMounts:
             - name: config
-              mountPath: /etc/nginx/nginx.conf
-              subPath: nginx.conf
+              mountPath: /etc/nginx/templates/nginx.conf.template
+              subPath: nginx.conf.template
             {{- with .Values.loadBalancer.volumeMounts }}
               {{- toYaml . | nindent 12 }}
             {{- end }}
