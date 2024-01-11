@@ -2,7 +2,7 @@
 {{- $fullName := include "grist.doc.fullname" . -}}
 {{- $component := "doc-worker" -}}
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   name: {{ $fullName }}
   labels:
@@ -12,12 +12,10 @@ spec:
   selector:
     matchLabels:
       {{- include "grist.common.selectorLabels" (list . $component) | nindent 6 }}
-  serviceName: {{ $fullName }}
   template:
     metadata:
       annotations:
         fileChecksum: {{ include (print $.Template.BasePath "/file_cm.yaml") . | sha256sum }}
-        initChecksum: {{ include (print $.Template.BasePath "/doc_wk_init_cm.yaml") . | sha256sum }}
         {{- with .Values.docWorker.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -32,17 +30,26 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ (.Values.docWorker.image | default dict).repository | default .Values.image.repository }}:{{ (.Values.docWorker.image | default dict).tag | default .Values.image.tag }}"
           imagePullPolicy: {{ (.Values.docWorker.image | default dict).pullPolicy | default .Values.image.pullPolicy }}
-          command:
-            - /dw-init.sh
+          {{- with .Values.docWorker.command }}
+          command: 
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{- with .Values.docWorker.args }}
           args:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           env:
-            - name: FULL_POD_NAME
+            - name: POD_IP
               valueFrom:
                 fieldRef:
-                  fieldPath: metadata.name
+                  apiVersion: v1
+                  fieldPath: status.podIP
+            - name: APP_DOC_URL
+              value: https://{{ .Values.ingress.host }}/dw/$(POD_IP)
+            - name: GRIST_DOC_WORKER_ID
+              value: $(POD_IP)
+            - name: APP_DOC_INTERNAL_URL
+              value: http://$(POD_IP):8484
             {{- if $envVars}}
             {{- $envVars | indent 12 }}
             {{- end }}
@@ -76,9 +83,6 @@ spec:
               mountPath: {{ $value.path }}
               subPath: content
             {{- end }}
-            - name: init
-              mountPath: /dw-init.sh
-              subPath: dw-init.sh
       {{- with .Values.docWorker.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -97,7 +101,3 @@ spec:
           configMap:
             name: "{{ include "grist.fullname" $ }}-files-{{ $index }}"
         {{- end }}
-        - name: init
-          configMap:
-            name: {{ include "grist.doc.init" . }}
-            defaultMode: 0555

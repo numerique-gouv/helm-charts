@@ -57,11 +57,25 @@ spec:
             backend:
               {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
               service:
-                name: {{ $lbFullName }}
+                name: {{ include "grist.home.fullname" . }}
                 port:
                   number: {{ $svcPort }}
               {{- else }}
-              serviceName: {{ $lbFullName }}
+              serviceName: {{ include "grist.home.fullname" . }}
+              servicePort: {{ $svcPort }}
+            {{- end }}
+          - path: /dw
+            {{- if semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion }}
+            pathType: Prefix
+            {{- end }}
+            backend:
+              {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: {{ include "grist.lb.fullname" . }}
+                port:
+                  number: {{ $svcPort }}
+              {{- else }}
+              serviceName: {{ include "grist.lb.fullname" . }}
               servicePort: {{ $svcPort }}
             {{- end }}
     {{- end }}
@@ -69,6 +83,20 @@ spec:
     - host: {{ .host | quote }}
       http:
         paths:
+          - path: /dw
+            {{- if semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion }}
+            pathType: Prefix
+            {{- end }}
+            backend:
+              {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: {{ include "grist.lb.fullname" . }}
+                port:
+                  number: {{ $svcPort }}
+              {{- else }}
+              serviceName: {{ include "grist.lb.fullname" . }}
+              servicePort: {{ $svcPort }}
+            {{- end }}
           {{- range .paths }}
           - path: {{ .path }}
             {{- if and .pathType (semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion) }}
@@ -77,11 +105,11 @@ spec:
             backend:
               {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
               service:
-                name: {{ $lbFullName }}
+                name: {{ include "grist.home.fullname" . }}
                 port:
                   number: {{ $svcPort }}
               {{- else }}
-              serviceName: {{ $lbFullName }}
+              serviceName: {{ include "grist.home.fullname" . }}
               servicePort: {{ $svcPort }}
               {{- end }}
           {{- end }}

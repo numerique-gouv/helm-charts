@@ -38,8 +38,10 @@ spec:
           args:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- if $envVars}}
           env:
+            - name: NGINX_ENTRYPOINT_LOCAL_RESOLVERS
+              value: "1"
+          {{- if $envVars}}
             {{- $envVars | indent 12 }}
           {{- end }}
           {{- with .Values.loadBalancer.securityContext }}
@@ -68,11 +70,11 @@ spec:
           {{- end }}
           volumeMounts:
             - name: config
-              mountPath: /etc/traefik/fileConfig.yml
-              subPath: fileConfig.yml
-            - name: config
-              mountPath: /etc/traefik/traefik.yml
-              subPath: traefik.yml
+              mountPath: /etc/nginx/templates/nginx.conf.template
+              subPath: nginx.conf.template
+            {{- with .Values.loadBalancer.volumeMounts }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
       {{- with .Values.loadBalancer.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -89,3 +91,6 @@ spec:
         - name: config
           configMap:
             name: "{{ include "grist.lb.config" . }}"
+        {{- with .Values.loadBalancer.volumes }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
