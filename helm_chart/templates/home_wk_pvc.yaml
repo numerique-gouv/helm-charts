@@ -1,0 +1,30 @@
+{{- range $name, $volume := .Values.homeWorker.persistence }}
+{{- if eq ($volume.type | default "persistentVolumeClaim") "persistentVolumeClaim" }}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: "{{ include "grist.fullname" $ }}-{{ $name }}"
+  labels:
+    {{- include "grist.labels" $ | nindent 4 }}
+  {{- if $volume.annotations }}
+  annotations:
+  {{- range $key, $value := $volume.annotations }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- end }}
+spec:
+  accessModes:
+  - {{ $volume.accessMode | default "ReadWriteOnce" | quote }}
+  resources:
+    requests:
+      storage: {{ $volume.size | quote }}
+{{- if $volume.storageClass }}
+{{- if (eq "-" $volume.storageClass) }}
+  storageClassName: ""
+{{- else }}
+  storageClassName: "{{ $volume.storageClass }}"
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

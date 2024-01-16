@@ -11,7 +11,7 @@ image:
 #    registry: "gitlab.com"
 #    username: "user"
 #    password: "pass"
-  tag: "1.1.7"
+  tag: "1.1.9"
 
 nameOverride: ""
 fullnameOverride: ""
@@ -70,6 +70,13 @@ homeWorker:
 
   affinity: {}
 
+  persistence: { }
+#     volume-name:
+#       size: 8Gi
+#       type: persistentVolumeClaim
+#       mountPath: /data
+
+
 docWorker:
   # image:
   #   repository: gristlabs/grist
@@ -123,6 +130,12 @@ docWorker:
   tolerations: []
 
   affinity: {}
+
+  persistence: { }
+  #   volume-name:
+  #     type: persistentVolumeClaim
+  #     size: 8Gi
+  #     mountPath: /data
 
 # Allows mounting any file anywhere on the worker pods
 mountFiles: []

@@ -31,7 +31,7 @@ spec:
           image: "{{ (.Values.docWorker.image | default dict).repository | default .Values.image.repository }}:{{ (.Values.docWorker.image | default dict).tag | default .Values.image.tag }}"
           imagePullPolicy: {{ (.Values.docWorker.image | default dict).pullPolicy | default .Values.image.pullPolicy }}
           {{- with .Values.docWorker.command }}
-          command: 
+          command:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           {{- with .Values.docWorker.args }}
@@ -83,6 +83,10 @@ spec:
               mountPath: {{ $value.path }}
               subPath: content
             {{- end }}
+            {{- range $name, $volume := .Values.docWorker.persistence }}
+            - name: "{{ $name }}"
+              mountPath: "{{ $volume.mountPath }}"
+            {{- end }}
       {{- with .Values.docWorker.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -100,4 +104,13 @@ spec:
         - name: "files-{{ $index }}"
           configMap:
             name: "{{ include "grist.fullname" $ }}-files-{{ $index }}"
+        {{- end }}
+        {{- range $name, $volume := .Values.docWorker.persistence }}
+        - name: "{{ $name }}"
+          {{- if eq $volume.type "emptyDir" }}
+          emptyDir: {}
+          {{- else }}
+          persistentVolumeClaim:
+            claimName: "{{ $fullName }}-{{ $name }}"
+          {{- end }}
         {{- end }}
