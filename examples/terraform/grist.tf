@@ -29,7 +29,7 @@ resource "helm_release" "grist" {
       TYPEORM_USERNAME: grist
       TYPEORM_PASSWORD: grist
       GRIST_SINGLE_PORT: 0
-      GRIST_ALLOWED_HOSTS: grist.minikube.local
+      GRIST_ALLOWED_HOSTS: grist.minikube.local,*.grist-lb.grist.svc.cluster.local
 
     docWorker:
       replicas: 2

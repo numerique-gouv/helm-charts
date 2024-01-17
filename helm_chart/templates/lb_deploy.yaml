@@ -72,6 +72,9 @@ spec:
             - name: config
               mountPath: /etc/nginx/templates/nginx.conf.template
               subPath: nginx.conf.template
+            - name: config
+              mountPath: /usr/share/nginx/html/404.html
+              subPath: 404.html
             {{- with .Values.loadBalancer.volumeMounts }}
               {{- toYaml . | nindent 12 }}
             {{- end }}

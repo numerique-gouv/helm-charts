@@ -49,7 +49,7 @@ spec:
             - name: GRIST_DOC_WORKER_ID
               value: $(POD_IP)
             - name: APP_DOC_INTERNAL_URL
-              value: http://$(POD_IP):8484
+              value: http://{{ include "grist.lb.fullname" . }}/status/$(POD_IP)
             {{- if $envVars}}
             {{- $envVars | indent 12 }}
             {{- end }}
