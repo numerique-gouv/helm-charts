@@ -210,6 +210,6 @@ loadBalancer:
     - name: cache
       emptyDir: {}
     - name: run
-      emptydir: {}
+      emptyDir: {}
     - name: conf
-      emptydir: {}
+      emptyDir: {}

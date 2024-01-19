@@ -10,6 +10,8 @@ resource "helm_release" "redis" {
     auth:
       enabled: true
       password: grist
+    master:
+      disableCommands: []
     EOT
   ]
 }
