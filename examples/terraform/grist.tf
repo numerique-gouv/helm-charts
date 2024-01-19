@@ -29,10 +29,10 @@ resource "helm_release" "grist" {
       TYPEORM_USERNAME: grist
       TYPEORM_PASSWORD: grist
       GRIST_SINGLE_PORT: 0
-      GRIST_ALLOWED_HOSTS: grist.minikube.local,*.grist-lb.grist.svc.cluster.local
+      GRIST_ALLOWED_HOSTS: grist.minikube.local
 
     docWorker:
-      replicas: 2
+      replicas: 1
       envVars:
         <<: *commonEnvVars
 
@@ -46,11 +46,14 @@ resource "helm_release" "grist" {
         GRIST_DOCS_MINIO_SECRET_KEY: gristgristgrist
 
     homeWorker:
-      replicas: 2
+      replicas: 1
       envVars:
         <<: *commonEnvVars
 
         GRIST_SERVERS: home,static
+
+    loadBalancer:
+      replicas: 1
 
     ingress:
       enabled: true
