@@ -25,6 +25,8 @@ releases:
     - auth:
         enabled: true
         password: grist
+    - master:
+        disableCommands: []
   - name: minio
     namespace: grist
     chart: bitnami/minio

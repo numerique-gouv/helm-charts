@@ -32,7 +32,7 @@ resource "helm_release" "grist" {
       GRIST_ALLOWED_HOSTS: grist.minikube.local
 
     docWorker:
-      replicas: 2
+      replicas: 1
       envVars:
         <<: *commonEnvVars
 
@@ -46,11 +46,14 @@ resource "helm_release" "grist" {
         GRIST_DOCS_MINIO_SECRET_KEY: gristgristgrist
 
     homeWorker:
-      replicas: 2
+      replicas: 1
       envVars:
         <<: *commonEnvVars
 
         GRIST_SERVERS: home,static
+
+    loadBalancer:
+      replicas: 1
 
     ingress:
       enabled: true
