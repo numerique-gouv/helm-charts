@@ -29,7 +29,9 @@ docker:kaniko:build:backup:
     - when: never
 
 helm.readme.generator:
-  image: registry.gitlab.com/vigigloo/tools/helm-readme-generator:2.6.0.0
+  image:
+    name: registry.gitlab.com/vigigloo/tools/helm-readme-generator:2.6.0.0
+    entrypoint: [""]
   script:
     - cd helm_chart
     - sha256sum README.md > checksum.sha256
