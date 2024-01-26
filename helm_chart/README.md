@@ -44,6 +44,8 @@ helm repo update
 | `homeWorker.args`                                        | Override the home worker container args                                                 | `["/bin/sh","-c","./sandbox/run.sh"]` |
 | `homeWorker.replicas`                                    | Amount of home worker replicas                                                          | `1`                                   |
 | `homeWorker.securityContext`                             | Configure home worker Pod security context                                              | `nil`                                 |
+| `homeWorker.shareProcessNamespace`                       | Enable share process namespace between containers                                       | `false`                               |
+| `homeWorker.sidecars`                                    | Add sidecars containers to homeWorker deployment                                        | `[]`                                  |
 | `homeWorker.envVars`                                     | Configure home worker container environment variables                                   | `{}`                                  |
 | `homeWorker.envVars.BY_VALUE`                            | Example environment variable by setting value directly                                  |                                       |
 | `homeWorker.envVars.FROM_CONFIGMAP.configMapKeyRef.name` | Name of a ConfigMap when configuring env vars from a ConfigMap                          |                                       |
@@ -86,6 +88,8 @@ helm repo update
 | `docWorker.command`                                     | Override the doc worker container command                                              | `["docker-entrypoint.sh"]`            |
 | `docWorker.args`                                        | Override the doc worker container args                                                 | `["/bin/sh","-c","./sandbox/run.sh"]` |
 | `docWorker.replicas`                                    | Amount of doc worker replicas                                                          | `3`                                   |
+| `docWorker.shareProcessNamespace`                       | Enable share process namespace between containers                                      | `false`                               |
+| `docWorker.sidecars`                                    | Add sidecars containers to docWorker deployment                                        | `[]`                                  |
 | `docWorker.securityContext`                             | Configure doc worker Pod security context                                              | `nil`                                 |
 | `docWorker.envVars`                                     | Configure doc worker container environment variables                                   | `{}`                                  |
 | `docWorker.envVars.BY_VALUE`                            | Example environment variable by setting value directly                                 |                                       |
@@ -127,6 +131,8 @@ helm repo update
 | `loadBalancer.image.tag`                                   | Load balancer container tag                                                                          | `1.25.3`       |
 | `loadBalancer.image.pullPolicy`                            | Load balancer container image pull policy                                                            | `IfNotPresent` |
 | `loadBalancer.replicas`                                    | Amount of load balancer replicas                                                                     | `2`            |
+| `loadBalancer.shareProcessNamespace`                       | Enable share process namespace between containers                                                    | `false`        |
+| `loadBalancer.sidecars`                                    | Add sidecars containers to loadBalancer deployment                                                   | `[]`           |
 | `loadBalancer.securityContext`                             | Configure load balancer Pod security context                                                         |                |
 | `loadBalancer.envVars`                                     | Configure load balancer container environment variables                                              | `{}`           |
 | `loadBalancer.envVars.BY_VALUE`                            | Example environment variable by setting value directly                                               |                |
