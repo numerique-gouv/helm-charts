@@ -28,9 +28,9 @@ docker:kaniko:build:backup:
       when: on_success
     - when: never
 
-helm.readme.generator:
+helm:readme:generator:
   image:
-    name: registry.gitlab.com/vigigloo/tools/helm-readme-generator:2.6.0.0
+    name: registry.gitlab.com/vigigloo/tools/helm-readme-generator:2.6.0.1
     entrypoint: [""]
   script:
     - cd helm_chart
