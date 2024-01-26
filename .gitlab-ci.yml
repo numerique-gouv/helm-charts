@@ -28,7 +28,14 @@ docker:kaniko:build:backup:
       when: on_success
     - when: never
 
+helm.readme.generator:
+  image: registry.gitlab.com/vigigloo/tools/helm-readme-generator:2.6.0.0
+  script:
+    - cd helm_chart
+    - sha256sum README.md > checksum.sha256
+    - readme-generator -r README.md -v values.yaml
+    - sha256sum --check checksum.sha256 || (echo "Helm README not in sync" && exit 1)
+
 ".vigigloo:terraform":
   image:
     name: hashicorp/terraform:1.5
-
