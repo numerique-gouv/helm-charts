@@ -26,7 +26,11 @@ spec:
       imagePullSecrets:
         - name: {{ include "grist.secret.dockerconfigjson.name" (dict "fullname" (include "grist.fullname" .) "imageCredentials" $.Values.image.credentials) }}
       {{- end}}
+      shareProcessNamespace: {{ .Values.homeWorker.shareProcessNamespace }}
       containers:
+        {{- with .Values.homeWorker.sidecars }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
         - name: {{ .Chart.Name }}
           image: "{{ (.Values.homeWorker.image | default dict).repository | default .Values.image.repository }}:{{ (.Values.homeWorker.image | default dict).tag | default .Values.image.tag }}"
           imagePullPolicy: {{ (.Values.homeWorker.image | default dict).pullPolicy | default .Values.image.pullPolicy }}

@@ -84,6 +84,12 @@ homeWorker:
   ## @param homeWorker.securityContext Configure home worker Pod security context
   securityContext: null
 
+  ## @param homeWorker.shareProcessNamespace Enable share process namespace between containers
+  shareProcessNamespace: false
+
+  ## @param homeWorker.sidecars Add sidecars containers to homeWorker deployment
+  sidecars: []
+
   ## @param homeWorker.envVars Configure home worker container environment variables
   ## @extra homeWorker.envVars.BY_VALUE Example environment variable by setting value directly
   ## @extra homeWorker.envVars.FROM_CONFIGMAP.configMapKeyRef.name Name of a ConfigMap when configuring env vars from a ConfigMap
@@ -170,6 +176,12 @@ docWorker:
   ## @param docWorker.replicas Amount of doc worker replicas
   replicas: 3
 
+  ## @param docWorker.shareProcessNamespace Enable share process namespace between containers
+  shareProcessNamespace: false
+
+  ## @param docWorker.sidecars Add sidecars containers to docWorker deployment
+  sidecars: []
+
   ## @param docWorker.securityContext Configure doc worker Pod security context
   securityContext: null
 
@@ -249,6 +261,12 @@ loadBalancer:
 
   ## @param loadBalancer.replicas Amount of load balancer replicas
   replicas: 2
+
+  ## @param loadBalancer.shareProcessNamespace Enable share process namespace between containers
+  shareProcessNamespace: false
+
+  ## @param loadBalancer.sidecars Add sidecars containers to loadBalancer deployment
+  sidecars: []
 
   ## @skip loadBalancer.securityContext
   ## @extra loadBalancer.securityContext Configure load balancer Pod security context
