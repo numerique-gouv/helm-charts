@@ -71,12 +71,8 @@ homeWorker:
 
   ## @param homeWorker.command Override the home worker container command
   ## @param homeWorker.args Override the home worker container args
-  command:
-    - "docker-entrypoint.sh"
-  args:
-    - "/bin/sh"
-    - "-c"
-    - "./sandbox/run.sh"
+  command: []
+  args: []
 
   ## @param homeWorker.replicas Amount of home worker replicas
   replicas: 1
@@ -85,7 +81,7 @@ homeWorker:
   securityContext: null
 
   ## @param homeWorker.shareProcessNamespace Enable share process namespace between containers
-  shareProcessNamespace: false
+  shareProcessNamespace: true
 
   ## @param homeWorker.sidecars Add sidecars containers to homeWorker deployment
   sidecars: []
@@ -166,18 +162,14 @@ docWorker:
 
   ## @param docWorker.command Override the doc worker container command
   ## @param docWorker.args Override the doc worker container args
-  command:
-    - "docker-entrypoint.sh"
-  args:
-    - "/bin/sh"
-    - "-c"
-    - "./sandbox/run.sh"
+  command: []
+  args: []
 
   ## @param docWorker.replicas Amount of doc worker replicas
   replicas: 3
 
   ## @param docWorker.shareProcessNamespace Enable share process namespace between containers
-  shareProcessNamespace: false
+  shareProcessNamespace: true
 
   ## @param docWorker.sidecars Add sidecars containers to docWorker deployment
   sidecars: []

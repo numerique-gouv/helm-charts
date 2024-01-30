@@ -35,93 +35,93 @@ helm repo update
 
 ### Home worker
 
-| Name                                                     | Description                                                                             | Value                                 |
-| -------------------------------------------------------- | --------------------------------------------------------------------------------------- | ------------------------------------- |
-| `homeWorker.image.repository`                            | Repository to use to pull Grist's home worker container image                           |                                       |
-| `homeWorker.image.tag`                                   | Grist's home worker container tag                                                       |                                       |
-| `homeWorker.image.pullPolicy`                            | Home worker container image pull policy                                                 |                                       |
-| `homeWorker.command`                                     | Override the home worker container command                                              | `["docker-entrypoint.sh"]`            |
-| `homeWorker.args`                                        | Override the home worker container args                                                 | `["/bin/sh","-c","./sandbox/run.sh"]` |
-| `homeWorker.replicas`                                    | Amount of home worker replicas                                                          | `1`                                   |
-| `homeWorker.securityContext`                             | Configure home worker Pod security context                                              | `nil`                                 |
-| `homeWorker.shareProcessNamespace`                       | Enable share process namespace between containers                                       | `false`                               |
-| `homeWorker.sidecars`                                    | Add sidecars containers to homeWorker deployment                                        | `[]`                                  |
-| `homeWorker.envVars`                                     | Configure home worker container environment variables                                   | `{}`                                  |
-| `homeWorker.envVars.BY_VALUE`                            | Example environment variable by setting value directly                                  |                                       |
-| `homeWorker.envVars.FROM_CONFIGMAP.configMapKeyRef.name` | Name of a ConfigMap when configuring env vars from a ConfigMap                          |                                       |
-| `homeWorker.envVars.FROM_CONFIGMAP.configMapKeyRef.key`  | Key within a ConfigMap when configuring env vars from a ConfigMap                       |                                       |
-| `homeWorker.envVars.FROM_SECRET.secretKeyRef.name`       | Name of a Secret when configuring env vars from a Secret                                |                                       |
-| `homeWorker.envVars.FROM_SECRET.secretKeyRef.key`        | Key within a Secret when configuring env vars from a Secret                             |                                       |
-| `homeWorker.podAnnotations`                              | Annotations to add to the home worker Pod                                               | `{}`                                  |
-| `homeWorker.service.type`                                | Home worker Service type                                                                | `ClusterIP`                           |
-| `homeWorker.service.port`                                | Home worker Service listening port                                                      | `80`                                  |
-| `homeWorker.service.targetPort`                          | Home worker container listening port                                                    | `8484`                                |
-| `homeWorker.service.annotations`                         | Annotations to add to the home worker Service                                           | `{}`                                  |
-| `homeWorker.probes.liveness.path`                        | Configure path for home worker HTTP liveness probe                                      | `/status`                             |
-| `homeWorker.probes.liveness.targetPort`                  | Configure port for home worker HTTP liveness probe                                      |                                       |
-| `homeWorker.probes.liveness.initialDelaySeconds`         | Configure initial delay for home worker liveness probe                                  | `10`                                  |
-| `homeWorker.probes.liveness.initialDelaySeconds`         | Configure timeout for home worker liveness probe                                        |                                       |
-| `homeWorker.probes.startup.path`                         | Configure path for home worker HTTP startup probe                                       | `/status`                             |
-| `homeWorker.probes.startup.targetPort`                   | Configure port for home worker HTTP startup probe                                       |                                       |
-| `homeWorker.probes.startup.initialDelaySeconds`          | Configure initial delay for home worker startup probe                                   | `10`                                  |
-| `homeWorker.probes.startup.initialDelaySeconds`          | Configure timeout for home worker startup probe                                         |                                       |
-| `homeWorker.probes.readiness.path`                       | Configure path for home worker HTTP readiness probe                                     |                                       |
-| `homeWorker.probes.readiness.targetPort`                 | Configure port for home worker HTTP readiness probe                                     |                                       |
-| `homeWorker.probes.readiness.initialDelaySeconds`        | Configure initial delay for home worker readiness probe                                 |                                       |
-| `homeWorker.probes.readiness.initialDelaySeconds`        | Configure timeout for home worker readiness probe                                       |                                       |
-| `homeWorker.resources`                                   | Resource requirements for the home worker container                                     | `{}`                                  |
-| `homeWorker.nodeSelector`                                | Node selector for the home worker Pod                                                   | `{}`                                  |
-| `homeWorker.tolerations`                                 | Tolerations for the home worker Pod                                                     | `[]`                                  |
-| `homeWorker.affinity`                                    | Affinity for the home worker Pod                                                        | `{}`                                  |
-| `homeWorker.persistence`                                 | Additionnal volumes to create and mount on the home worker. Used for debugging purposes | `{}`                                  |
-| `homeWorker.persistence.volume-name.size`                | Size of the additional volume                                                           |                                       |
-| `homeWorker.persistence.volume-name.type`                | Type of the additional volume, persistentVolumeClaim or emptyDir                        |                                       |
-| `homeWorker.persistence.volume-name.mountPath`           | Path where the volume should be mounted to                                              |                                       |
+| Name                                                     | Description                                                                             | Value       |
+| -------------------------------------------------------- | --------------------------------------------------------------------------------------- | ----------- |
+| `homeWorker.image.repository`                            | Repository to use to pull Grist's home worker container image                           |             |
+| `homeWorker.image.tag`                                   | Grist's home worker container tag                                                       |             |
+| `homeWorker.image.pullPolicy`                            | Home worker container image pull policy                                                 |             |
+| `homeWorker.command`                                     | Override the home worker container command                                              | `[]`        |
+| `homeWorker.args`                                        | Override the home worker container args                                                 | `[]`        |
+| `homeWorker.replicas`                                    | Amount of home worker replicas                                                          | `1`         |
+| `homeWorker.securityContext`                             | Configure home worker Pod security context                                              | `nil`       |
+| `homeWorker.shareProcessNamespace`                       | Enable share process namespace between containers                                       | `true`      |
+| `homeWorker.sidecars`                                    | Add sidecars containers to homeWorker deployment                                        | `[]`        |
+| `homeWorker.envVars`                                     | Configure home worker container environment variables                                   | `{}`        |
+| `homeWorker.envVars.BY_VALUE`                            | Example environment variable by setting value directly                                  |             |
+| `homeWorker.envVars.FROM_CONFIGMAP.configMapKeyRef.name` | Name of a ConfigMap when configuring env vars from a ConfigMap                          |             |
+| `homeWorker.envVars.FROM_CONFIGMAP.configMapKeyRef.key`  | Key within a ConfigMap when configuring env vars from a ConfigMap                       |             |
+| `homeWorker.envVars.FROM_SECRET.secretKeyRef.name`       | Name of a Secret when configuring env vars from a Secret                                |             |
+| `homeWorker.envVars.FROM_SECRET.secretKeyRef.key`        | Key within a Secret when configuring env vars from a Secret                             |             |
+| `homeWorker.podAnnotations`                              | Annotations to add to the home worker Pod                                               | `{}`        |
+| `homeWorker.service.type`                                | Home worker Service type                                                                | `ClusterIP` |
+| `homeWorker.service.port`                                | Home worker Service listening port                                                      | `80`        |
+| `homeWorker.service.targetPort`                          | Home worker container listening port                                                    | `8484`      |
+| `homeWorker.service.annotations`                         | Annotations to add to the home worker Service                                           | `{}`        |
+| `homeWorker.probes.liveness.path`                        | Configure path for home worker HTTP liveness probe                                      | `/status`   |
+| `homeWorker.probes.liveness.targetPort`                  | Configure port for home worker HTTP liveness probe                                      |             |
+| `homeWorker.probes.liveness.initialDelaySeconds`         | Configure initial delay for home worker liveness probe                                  | `10`        |
+| `homeWorker.probes.liveness.initialDelaySeconds`         | Configure timeout for home worker liveness probe                                        |             |
+| `homeWorker.probes.startup.path`                         | Configure path for home worker HTTP startup probe                                       | `/status`   |
+| `homeWorker.probes.startup.targetPort`                   | Configure port for home worker HTTP startup probe                                       |             |
+| `homeWorker.probes.startup.initialDelaySeconds`          | Configure initial delay for home worker startup probe                                   | `10`        |
+| `homeWorker.probes.startup.initialDelaySeconds`          | Configure timeout for home worker startup probe                                         |             |
+| `homeWorker.probes.readiness.path`                       | Configure path for home worker HTTP readiness probe                                     |             |
+| `homeWorker.probes.readiness.targetPort`                 | Configure port for home worker HTTP readiness probe                                     |             |
+| `homeWorker.probes.readiness.initialDelaySeconds`        | Configure initial delay for home worker readiness probe                                 |             |
+| `homeWorker.probes.readiness.initialDelaySeconds`        | Configure timeout for home worker readiness probe                                       |             |
+| `homeWorker.resources`                                   | Resource requirements for the home worker container                                     | `{}`        |
+| `homeWorker.nodeSelector`                                | Node selector for the home worker Pod                                                   | `{}`        |
+| `homeWorker.tolerations`                                 | Tolerations for the home worker Pod                                                     | `[]`        |
+| `homeWorker.affinity`                                    | Affinity for the home worker Pod                                                        | `{}`        |
+| `homeWorker.persistence`                                 | Additionnal volumes to create and mount on the home worker. Used for debugging purposes | `{}`        |
+| `homeWorker.persistence.volume-name.size`                | Size of the additional volume                                                           |             |
+| `homeWorker.persistence.volume-name.type`                | Type of the additional volume, persistentVolumeClaim or emptyDir                        |             |
+| `homeWorker.persistence.volume-name.mountPath`           | Path where the volume should be mounted to                                              |             |
 
 ### Doc worker
 
-| Name                                                    | Description                                                                            | Value                                 |
-| ------------------------------------------------------- | -------------------------------------------------------------------------------------- | ------------------------------------- |
-| `docWorker.image.repository`                            | Repository to use to pull Grist's doc worker container image                           |                                       |
-| `docWorker.image.tag`                                   | Grist's doc worker container tag                                                       |                                       |
-| `docWorker.image.pullPolicy`                            | Doc worker container image pull policy                                                 |                                       |
-| `docWorker.command`                                     | Override the doc worker container command                                              | `["docker-entrypoint.sh"]`            |
-| `docWorker.args`                                        | Override the doc worker container args                                                 | `["/bin/sh","-c","./sandbox/run.sh"]` |
-| `docWorker.replicas`                                    | Amount of doc worker replicas                                                          | `3`                                   |
-| `docWorker.shareProcessNamespace`                       | Enable share process namespace between containers                                      | `false`                               |
-| `docWorker.sidecars`                                    | Add sidecars containers to docWorker deployment                                        | `[]`                                  |
-| `docWorker.securityContext`                             | Configure doc worker Pod security context                                              | `nil`                                 |
-| `docWorker.envVars`                                     | Configure doc worker container environment variables                                   | `{}`                                  |
-| `docWorker.envVars.BY_VALUE`                            | Example environment variable by setting value directly                                 |                                       |
-| `docWorker.envVars.FROM_CONFIGMAP.configMapKeyRef.name` | Name of a ConfigMap when configuring env vars from a ConfigMap                         |                                       |
-| `docWorker.envVars.FROM_CONFIGMAP.configMapKeyRef.key`  | Key within a ConfigMap when configuring env vars from a ConfigMap                      |                                       |
-| `docWorker.envVars.FROM_SECRET.secretKeyRef.name`       | Name of a Secret when configuring env vars from a Secret                               |                                       |
-| `docWorker.envVars.FROM_SECRET.secretKeyRef.key`        | Key within a Secret when configuring env vars from a Secret                            |                                       |
-| `docWorker.podAnnotations`                              | Annotations to add to the doc worker Pod                                               | `{}`                                  |
-| `docWorker.service.type`                                | Doc worker Service type                                                                | `ClusterIP`                           |
-| `docWorker.service.port`                                | Doc worker Service listening port                                                      | `80`                                  |
-| `docWorker.service.targetPort`                          | Doc worker container listening port                                                    | `8484`                                |
-| `docWorker.service.annotations`                         | Annotations to add to the doc worker Service                                           | `{}`                                  |
-| `docWorker.probes.liveness.path`                        | Configure path for doc worker HTTP liveness probe                                      | `/status`                             |
-| `docWorker.probes.liveness.targetPort`                  | Configure port for doc worker HTTP liveness probe                                      |                                       |
-| `docWorker.probes.liveness.initialDelaySeconds`         | Configure initial delay for doc worker liveness probe                                  | `10`                                  |
-| `docWorker.probes.liveness.initialDelaySeconds`         | Configure timeout for doc worker liveness probe                                        |                                       |
-| `docWorker.probes.startup.path`                         | Configure path for doc worker HTTP startup probe                                       | `/status`                             |
-| `docWorker.probes.startup.targetPort`                   | Configure port for doc worker HTTP startup probe                                       |                                       |
-| `docWorker.probes.startup.initialDelaySeconds`          | Configure initial delay for doc worker startup probe                                   | `10`                                  |
-| `docWorker.probes.startup.initialDelaySeconds`          | Configure timeout for doc worker startup probe                                         |                                       |
-| `docWorker.probes.readiness.path`                       | Configure path for doc worker HTTP readiness probe                                     |                                       |
-| `docWorker.probes.readiness.targetPort`                 | Configure port for doc worker HTTP readiness probe                                     |                                       |
-| `docWorker.probes.readiness.initialDelaySeconds`        | Configure initial delay for doc worker readiness probe                                 |                                       |
-| `docWorker.probes.readiness.initialDelaySeconds`        | Configure timeout for doc worker readiness probe                                       |                                       |
-| `docWorker.resources`                                   | Resource requirements for the doc worker container                                     | `{}`                                  |
-| `docWorker.nodeSelector`                                | Node selector for the doc worker Pod                                                   | `{}`                                  |
-| `docWorker.tolerations`                                 | Tolerations for the doc worker Pod                                                     | `[]`                                  |
-| `docWorker.affinity`                                    | Affinity for the doc worker Pod                                                        | `{}`                                  |
-| `docWorker.persistence`                                 | Additionnal volumes to create and mount on the doc worker. Used for debugging purposes | `{}`                                  |
-| `docWorker.persistence.volume-name.size`                | Size of the additional volume                                                          |                                       |
-| `docWorker.persistence.volume-name.type`                | Type of the additional volume, persistentVolumeClaim or emptyDir                       |                                       |
-| `docWorker.persistence.volume-name.mountPath`           | Path where the volume should be mounted to                                             |                                       |
+| Name                                                    | Description                                                                            | Value       |
+| ------------------------------------------------------- | -------------------------------------------------------------------------------------- | ----------- |
+| `docWorker.image.repository`                            | Repository to use to pull Grist's doc worker container image                           |             |
+| `docWorker.image.tag`                                   | Grist's doc worker container tag                                                       |             |
+| `docWorker.image.pullPolicy`                            | Doc worker container image pull policy                                                 |             |
+| `docWorker.command`                                     | Override the doc worker container command                                              | `[]`        |
+| `docWorker.args`                                        | Override the doc worker container args                                                 | `[]`        |
+| `docWorker.replicas`                                    | Amount of doc worker replicas                                                          | `3`         |
+| `docWorker.shareProcessNamespace`                       | Enable share process namespace between containers                                      | `true`      |
+| `docWorker.sidecars`                                    | Add sidecars containers to docWorker deployment                                        | `[]`        |
+| `docWorker.securityContext`                             | Configure doc worker Pod security context                                              | `nil`       |
+| `docWorker.envVars`                                     | Configure doc worker container environment variables                                   | `{}`        |
+| `docWorker.envVars.BY_VALUE`                            | Example environment variable by setting value directly                                 |             |
+| `docWorker.envVars.FROM_CONFIGMAP.configMapKeyRef.name` | Name of a ConfigMap when configuring env vars from a ConfigMap                         |             |
+| `docWorker.envVars.FROM_CONFIGMAP.configMapKeyRef.key`  | Key within a ConfigMap when configuring env vars from a ConfigMap                      |             |
+| `docWorker.envVars.FROM_SECRET.secretKeyRef.name`       | Name of a Secret when configuring env vars from a Secret                               |             |
+| `docWorker.envVars.FROM_SECRET.secretKeyRef.key`        | Key within a Secret when configuring env vars from a Secret                            |             |
+| `docWorker.podAnnotations`                              | Annotations to add to the doc worker Pod                                               | `{}`        |
+| `docWorker.service.type`                                | Doc worker Service type                                                                | `ClusterIP` |
+| `docWorker.service.port`                                | Doc worker Service listening port                                                      | `80`        |
+| `docWorker.service.targetPort`                          | Doc worker container listening port                                                    | `8484`      |
+| `docWorker.service.annotations`                         | Annotations to add to the doc worker Service                                           | `{}`        |
+| `docWorker.probes.liveness.path`                        | Configure path for doc worker HTTP liveness probe                                      | `/status`   |
+| `docWorker.probes.liveness.targetPort`                  | Configure port for doc worker HTTP liveness probe                                      |             |
+| `docWorker.probes.liveness.initialDelaySeconds`         | Configure initial delay for doc worker liveness probe                                  | `10`        |
+| `docWorker.probes.liveness.initialDelaySeconds`         | Configure timeout for doc worker liveness probe                                        |             |
+| `docWorker.probes.startup.path`                         | Configure path for doc worker HTTP startup probe                                       | `/status`   |
+| `docWorker.probes.startup.targetPort`                   | Configure port for doc worker HTTP startup probe                                       |             |
+| `docWorker.probes.startup.initialDelaySeconds`          | Configure initial delay for doc worker startup probe                                   | `10`        |
+| `docWorker.probes.startup.initialDelaySeconds`          | Configure timeout for doc worker startup probe                                         |             |
+| `docWorker.probes.readiness.path`                       | Configure path for doc worker HTTP readiness probe                                     |             |
+| `docWorker.probes.readiness.targetPort`                 | Configure port for doc worker HTTP readiness probe                                     |             |
+| `docWorker.probes.readiness.initialDelaySeconds`        | Configure initial delay for doc worker readiness probe                                 |             |
+| `docWorker.probes.readiness.initialDelaySeconds`        | Configure timeout for doc worker readiness probe                                       |             |
+| `docWorker.resources`                                   | Resource requirements for the doc worker container                                     | `{}`        |
+| `docWorker.nodeSelector`                                | Node selector for the doc worker Pod                                                   | `{}`        |
+| `docWorker.tolerations`                                 | Tolerations for the doc worker Pod                                                     | `[]`        |
+| `docWorker.affinity`                                    | Affinity for the doc worker Pod                                                        | `{}`        |
+| `docWorker.persistence`                                 | Additionnal volumes to create and mount on the doc worker. Used for debugging purposes | `{}`        |
+| `docWorker.persistence.volume-name.size`                | Size of the additional volume                                                          |             |
+| `docWorker.persistence.volume-name.type`                | Type of the additional volume, persistentVolumeClaim or emptyDir                       |             |
+| `docWorker.persistence.volume-name.mountPath`           | Path where the volume should be mounted to                                             |             |
 
 ### Grist doc worker load balancer
 
