@@ -20,9 +20,7 @@ data:
         return 200;
       }
 
-      # Internal url for doc workers, should not be exposed by ingress
-      # Used by home worker
-      location ~ /internal/([0-9]*).([0-9]*).([0-9]*).([0-9]*)/(.*)$ {
+      location @dw {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-Proto $scheme;
@@ -31,19 +29,18 @@ data:
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
+      }
+
+      # Internal url for doc workers, should not be exposed by ingress
+      # Used by home worker
+      location ~ /internal/([0-9]*).([0-9]*).([0-9]*).([0-9]*)/(.*)$ {
+        try_files /dev/null @dw;
         error_page 400 404 500 502 504 =404 /404.html;
       }
 
       # Public url for doc workers, exposed by ingress
       location ~ /dw/([0-9]*).([0-9]*).([0-9]*).([0-9]*)/(.*)$ {
         client_max_body_size 10G;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header Host $host;
-        proxy_pass http://$1-$2-$3-$4.{{ $svcName }}.{{ .Release.Namespace }}.svc.cluster.local:8484/$5;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
+        try_files /dev/null @dw;
       }
     }
