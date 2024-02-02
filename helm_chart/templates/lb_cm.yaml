@@ -13,6 +13,7 @@ data:
     server {
       listen 8080;
       root /usr/share/nginx/html;
+      server_tokens off;
 
       resolver $NGINX_LOCAL_RESOLVERS valid=5s;
 
