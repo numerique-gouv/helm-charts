@@ -1,64 +1,145 @@
+{{- if .Values.ingress.enabled -}}
+{{- $fullName := include "plane.fullname" . -}}
+{{- if and .Values.ingress.className (not (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion)) }}
+  {{- if not (hasKey .Values.ingress.annotations "kubernetes.io/ingress.class") }}
+  {{- $_ := set .Values.ingress.annotations "kubernetes.io/ingress.class" .Values.ingress.className}}
+  {{- end }}
+{{- end }}
+{{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
 apiVersion: networking.k8s.io/v1
+{{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1beta1
+{{- else -}}
+apiVersion: extensions/v1beta1
+{{- end }}
 kind: Ingress
 metadata:
-  namespace: {{ .Release.Namespace }}
-  name: {{ .Release.Name }}-ingress
+  name: {{ $fullName }}
+  labels:
+    {{- include "plane.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
   annotations:
-    nginx.ingress.kubernetes.io/proxy-body-size: {{ .Values.ingress.clientMaxBodySize | default "5m" | quote }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
-  ingressClassName: {{ .Values.ingress.ingressClass }}
-  rules:
-    - host: {{ .Values.ingress.appHost }}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ .Release.Name }}-web
-                port:
-                  number: 3000
-          - path: /api
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ .Release.Name }}-api
-                port:
-                  number: 8000
-          - path: /spaces
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ .Release.Name }}-space
-                port:
-                  number: 3000
-          {{- if .Values.minio.local_setup }}
-          - path: /{{ .Values.env.docstore_bucket }}
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ .Release.Name }}-minio
-                port:
-                  number: 9000
-          {{- end }}
-    {{- if and .Values.minio.local_setup .Values.ingress.minioHost }}
-    - host: {{ .Values.ingress.minioHost }}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ .Release.Name }}-minio
-                port:
-                  number: 9090
-    {{- end }}
+  {{- if and .Values.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- end }}
+  {{- if .Values.ingress.tls.enabled }}
   tls:
-    {{- if .Values.ssl.useOwnCert }}
-    - hosts:
-      - {{ .Values.ingress.appHost | quote }}
-      {{- if .Values.ingress.minioHost }}
-      - {{ .Values.ingress.minioHost | quote }}
-      {{- end }}
-      secretName: betanum
+    {{- if .Values.ingress.host }}
+    - secretName: {{ $fullName }}-tls
+      hosts:
+        - {{ .Values.ingress.host | quote }}
     {{- end }}
+    {{- range .Values.ingress.tls.additional }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- if .Values.ingress.host }}
+    - host: {{ .Values.ingress.host | quote }}
+      http:
+        paths:
+          - path: {{ .Values.ingress.path | quote }}
+            {{- if semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion }}
+            pathType: Prefix
+            {{- end }}
+            backend:
+              {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: {{ include "plane.web.fullname" . }}
+                port:
+                  number: {{ .Values.web.service.port }}
+              {{- else }}
+              serviceName: {{ include "plane.web.fullname" . }}
+              servicePort: {{ .Values.web.service.port }}
+            {{- end }}
+          - path: /api
+            {{- if semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion }}
+            pathType: Prefix
+            {{- end }}
+            backend:
+              {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: {{ include "plane.api.fullname" . }}
+                port:
+                  number: {{ .Values.api.service.port }}
+              {{- else }}
+              serviceName: {{ include "plane.api.fullname" . }}
+              servicePort: {{ .Values.api.service.port }}
+            {{- end }}
+          - path: /spaces
+            {{- if semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion }}
+            pathType: Prefix
+            {{- end }}
+            backend:
+              {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: {{ include "plane.space.fullname" . }}
+                port:
+                  number: {{ .Values.space.service.port }}
+              {{- else }}
+              serviceName: {{ include "plane.space.fullname" . }}
+              servicePort: {{ .Values.space.service.port }}
+            {{- end }}
+          {{- with .Values.ingress.customBackends }}
+            {{- toYaml . | nindent 10 }}
+          {{- end }}
+    {{- end }}
+    {{- range .Values.ingress.hosts }}
+    - host: {{ . | quote }}
+      http:
+        paths:
+          - path: {{ $.Values.ingress.path | quote }}
+            {{- if semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion }}
+            pathType: Prefix
+            {{- end }}
+            backend:
+              {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: {{ include "plane.web.fullname" $ }}
+                port:
+                  number: {{ $.Values.web.service.port }}
+              {{- else }}
+              serviceName: {{ include "plane.web.fullname" $ }}
+              servicePort: {{ $.Values.web.service.port }}
+            {{- end }}
+          - path: /api
+            {{- if semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion }}
+            pathType: Prefix
+            {{- end }}
+            backend:
+              {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: {{ include "plane.api.fullname" $ }}
+                port:
+                  number: {{ $.Values.api.service.port }}
+              {{- else }}
+              serviceName: {{ include "plane.api.fullname" $ }}
+              servicePort: {{ $.Values.api.service.port }}
+            {{- end }}
+          - path: /spaces
+            {{- if semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion }}
+            pathType: Prefix
+            {{- end }}
+            backend:
+              {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: {{ include "plane.space.fullname" $ }}
+                port:
+                  number: {{ $.Values.space.service.port }}
+              {{- else }}
+              serviceName: {{ include "plane.space.fullname" $ }}
+              servicePort: {{ $.Values.space.service.port }}
+            {{- end }}
+          {{- with $.Values.ingress.customBackends }}
+            {{- toYaml . | nindent 10 }}
+          {{- end }}
+    {{- end }}
+{{- end }}
+
