@@ -1,0 +1,600 @@
+# Default values for plane.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+## @section General configuration
+
+## @param image.repository Repository to use to pull plane's container image
+## @param image.tag plane's container tag
+## @param image.pullPolicy Container image pull policy
+## @extra image.credentials.username Username for container registry authentication
+## @extra image.credentials.password Password for container registry authentication
+## @extra image.credentials.registry Registry url for which the credentials are specified
+## @extra image.credentials.name Name of the generated secret for imagePullSecrets
+image:
+  repository: makeplane/plane-backend
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+## @param nameOverride Override the chart name
+## @param fullnameOverride Override the full application name
+nameOverride: ""
+fullnameOverride: ""
+
+## @skip commonEnvVars
+commonEnvVars: &commonEnvVars
+  ADMIN_EMAIL: admin@plane.127.0.0.1.nip.io
+  CORS_ALLOWED_ORIGINS: http://plane.127.0.0.1.nip.io,https://plane.127.0.0.1.nip.io
+  DEBUG: "1"
+  DOCKERIZED: "1"
+  ENABLE_EMAIL_PASSWORD: "1"
+  ENABLE_MAGIC_LINK_LOGIN: "1"
+  ENABLE_SIGNUP: "1"
+  GUNICORN_WORKERS: "1"
+  LICENSE_ENGINE_BASE_URL: https://control-center.plane.so
+  SENTRY_DSN: ""
+  SENTRY_ENVIRONMENT: ""
+  WEB_URL: https://plane.127.0.0.1.nip.io
+  EMAIL_FROM: plane@authentification.plane.127.0.0.1.nip.io
+  EMAIL_HOST: smtp-relay.example.com
+  EMAIL_HOST_USER: smtp-user@smtp-relay.example.com
+  EMAIL_PORT: "587"
+  EMAIL_USE_SSL: "0"
+  EMAIL_USE_TLS: "1"
+  GPT_ENGINE: gpt-3.5-turbo
+  OPENAI_API_BASE: https://api.openai.com/v1
+  AWS_ACCESS_KEY_ID: ""
+  AWS_SECRET_ACCESS_KEY: ""
+  AWS_REGION: ""
+  AWS_S3_BUCKET_NAME: ""
+  AWS_S3_ENDPOINT_URL: ""
+  FILE_SIZE_LIMIT: "5242880"
+  USE_MINIO: "0"
+  REDIS_URL: redis://changeme:6379/
+  DATABASE_URL: postgresql://user:password@changeme/database
+  SECRET_KEY: "averylongsecretkey"
+
+## @param ingress.enabled whether to enable the Ingress or not
+## @param ingress.className IngressClass to use for the Ingress
+## @param ingress.host Host for the Ingress
+## @param ingress.path Path to use for the Ingress
+ingress:
+  enabled: true
+  className: null
+  host: plane.example.com
+  path: /
+  ## @param ingress.hosts Additionnal host to configure for the Ingress
+  hosts: []
+  #  - chart-example.local
+  ## @param ingress.tls.enabled Wether to enable TLS for the Ingress
+  ## @skip ingress.tls.additional
+  ## @extra ingress.tls.additional[].secretName Secret name for additional TLS config
+  ## @extra ingress.tls.additional[].hosts[] Hosts for additional TLS config
+  tls:
+    enabled: true
+    additional: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
+  ## @param ingress.customBackends Add custom backends to ingress
+  customBackends: []
+  #  - backend:
+  #      service:
+  #        name: minio-external
+  #        port:
+  #          number: 9000
+  #    path: /plane-plane/
+  #    pathType: Prefix
+
+
+## @section api
+
+api:
+  ## @extra api.image.repository Repository to use to pull plane's api container image
+  ## @extra api.image.tag plane's api container tag
+  ## @extra api.image.pullPolicy api container image pull policy
+  # image:
+  #   repository: planelabs/plane
+  #   pullPolicy: IfNotPresent
+  #   tag: "1.1.7"
+
+  ## @param api.command Override the api container command
+  command:
+    - ./bin/takeoff
+
+  ## @param api.args Override the api container args
+  args: []
+
+  ## @param api.replicas Amount of api replicas
+  replicas: 3
+
+  ## @param api.shareProcessNamespace Enable share process namespace between containers
+  shareProcessNamespace: false
+
+  ## @param api.sidecars Add sidecars containers to api deployment
+  sidecars: []
+
+  ## @param api.securityContext Configure api Pod security context
+  securityContext: null
+
+  ## @param api.envVars Configure api container environment variables
+  ## @extra api.envVars.BY_VALUE Example environment variable by setting value directly
+  ## @extra api.envVars.FROM_CONFIGMAP.configMapKeyRef.name Name of a ConfigMap when configuring env vars from a ConfigMap
+  ## @extra api.envVars.FROM_CONFIGMAP.configMapKeyRef.key Key within a ConfigMap when configuring env vars from a ConfigMap
+  ## @extra api.envVars.FROM_SECRET.secretKeyRef.name Name of a Secret when configuring env vars from a Secret
+  ## @extra api.envVars.FROM_SECRET.secretKeyRef.key Key within a Secret when configuring env vars from a Secret
+  ## @skip api.envVars
+  envVars:
+      <<: *commonEnvVars
+
+  ## @param api.podAnnotations Annotations to add to the api Pod
+  podAnnotations: {}
+
+  ## @param api.service.type api Service type
+  ## @param api.service.port api Service listening port
+  ## @param api.service.targetPort api container listening port
+  ## @param api.service.annotations Annotations to add to the api Service
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 8000
+    annotations: {}
+
+  ## @param api.probes Configure probe for api
+  ## @extra api.probes.liveness.path Configure path for api HTTP liveness probe
+  ## @extra api.probes.liveness.targetPort Configure port for api HTTP liveness probe
+  ## @extra api.probes.liveness.initialDelaySeconds Configure initial delay for api liveness probe
+  ## @extra api.probes.liveness.initialDelaySeconds Configure timeout for api liveness probe
+  ## @extra api.probes.startup.path Configure path for api HTTP startup probe
+  ## @extra api.probes.startup.targetPort Configure port for api HTTP startup probe
+  ## @extra api.probes.startup.initialDelaySeconds Configure initial delay for api startup probe
+  ## @extra api.probes.startup.initialDelaySeconds Configure timeout for api startup probe
+  ## @extra api.probes.readiness.path Configure path for api HTTP readiness probe
+  ## @extra api.probes.readiness.targetPort Configure port for api HTTP readiness probe
+  ## @extra api.probes.readiness.initialDelaySeconds Configure initial delay for api readiness probe
+  ## @extra api.probes.readiness.initialDelaySeconds Configure timeout for api readiness probe
+  probes: {}
+  #  liveness:
+  #    path: /status
+  #    initialDelaySeconds: 10
+  #  startup:
+  #    path: /status
+  #    initialDelaySeconds: 10
+
+
+  ## @param api.resources Resource requirements for the api container
+  resources: {}
+
+  ## @param api.nodeSelector Node selector for the api Pod
+  nodeSelector: {}
+
+  ## @param api.tolerations Tolerations for the api Pod
+  tolerations: []
+
+  ## @param api.affinity Affinity for the api Pod
+  affinity: {}
+
+  ## @param api.persistence Additionnal volumes to create and mount on the api. Used for debugging purposes
+  ## @extra api.persistence.volume-name.size Size of the additional volume
+  ## @extra api.persistence.volume-name.type Type of the additional volume, persistentVolumeClaim or emptyDir
+  ## @extra api.persistence.volume-name.mountPath Path where the volume should be mounted to
+  persistence: {}
+  #   volume-name:
+  #     type: persistentVolumeClaim
+  #     size: 8Gi
+  #     mountPath: /data
+
+  ## @param api.extraVolumeMounts Additionnal volumes to mount on the api.
+  extraVolumeMounts: []
+  #  - name: foo
+  #    mountPath: /mnt/foo.conf
+  #    subPath: foo.conf
+
+  ## @param api.extraVolumes Additionnal volumes to mount on the api.
+  extraVolumes: []
+  #  - name: foo
+  #    configMap:
+  #      name: myconfigmap
+
+## @section space
+
+space:
+  ## @param space.image.repository Repository to use to pull plane's space container image
+  ## @param space.image.tag plane's space container tag
+  ## @param space.image.pullPolicy space container image pull policy
+  image:
+    repository: makeplane/plane-space
+    pullPolicy: IfNotPresent
+    tag: "latest"
+
+  ## @param space.command Override the space container command
+  command:
+    - /usr/local/bin/start.sh
+
+  ## @param space.args Override the space container args
+  args:
+    - space/server.js
+    - space
+
+  ## @param space.replicas Amount of space replicas
+  replicas: 3
+
+  ## @param space.shareProcessNamespace Enable share process namespace between containers
+  shareProcessNamespace: false
+
+  ## @param space.sidecars Add sidecars containers to space deployment
+  sidecars: []
+
+  ## @param space.securityContext Configure space Pod security context
+  securityContext: null
+
+  ## @param space.envVars Configure space container environment variables
+  ## @extra space.envVars.BY_VALUE Example environment variable by setting value directly
+  ## @extra space.envVars.FROM_CONFIGMAP.configMapKeyRef.name Name of a ConfigMap when configuring env vars from a ConfigMap
+  ## @extra space.envVars.FROM_CONFIGMAP.configMapKeyRef.key Key within a ConfigMap when configuring env vars from a ConfigMap
+  ## @extra space.envVars.FROM_SECRET.secretKeyRef.name Name of a Secret when configuring env vars from a Secret
+  ## @extra space.envVars.FROM_SECRET.secretKeyRef.key Key within a Secret when configuring env vars from a Secret
+  ## @skip space.envVars
+  envVars:
+      <<: *commonEnvVars
+
+  ## @param space.podAnnotations Annotations to add to the space Pod
+  podAnnotations: {}
+
+  ## @param space.service.type space Service type
+  ## @param space.service.port space Service listening port
+  ## @param space.service.targetPort space container listening port
+  ## @param space.service.annotations Annotations to add to the space Service
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 3000
+    annotations: {}
+
+  ## @param space.probes Configure probe for space
+  ## @extra space.probes.liveness.path Configure path for space HTTP liveness probe
+  ## @extra space.probes.liveness.targetPort Configure port for space HTTP liveness probe
+  ## @extra space.probes.liveness.initialDelaySeconds Configure initial delay for space liveness probe
+  ## @extra space.probes.liveness.initialDelaySeconds Configure timeout for space liveness probe
+  ## @extra space.probes.startup.path Configure path for space HTTP startup probe
+  ## @extra space.probes.startup.targetPort Configure port for space HTTP startup probe
+  ## @extra space.probes.startup.initialDelaySeconds Configure initial delay for space startup probe
+  ## @extra space.probes.startup.initialDelaySeconds Configure timeout for space startup probe
+  ## @extra space.probes.readiness.path Configure path for space HTTP readiness probe
+  ## @extra space.probes.readiness.targetPort Configure port for space HTTP readiness probe
+  ## @extra space.probes.readiness.initialDelaySeconds Configure initial delay for space readiness probe
+  ## @extra space.probes.readiness.initialDelaySeconds Configure timeout for space readiness probe
+  probes: {}
+  #  liveness:
+  #    path: /status
+  #    initialDelaySeconds: 10
+  #  startup:
+  #    path: /status
+  #    initialDelaySeconds: 10
+
+
+  ## @param space.resources Resource requirements for the space container
+  resources: {}
+
+  ## @param space.nodeSelector Node selector for the space Pod
+  nodeSelector: {}
+
+  ## @param space.tolerations Tolerations for the space Pod
+  tolerations: []
+
+  ## @param space.affinity Affinity for the space Pod
+  affinity: {}
+
+  ## @param space.persistence Additionnal volumes to create and mount on the space. Used for debugging purposes
+  ## @extra space.persistence.volume-name.size Size of the additional volume
+  ## @extra space.persistence.volume-name.type Type of the additional volume, persistentVolumeClaim or emptyDir
+  ## @extra space.persistence.volume-name.mountPath Path where the volume should be mounted to
+  persistence: {}
+  #   volume-name:
+  #     type: persistentVolumeClaim
+  #     size: 8Gi
+  #     mountPath: /data
+
+  ## @param space.extraVolumeMounts Additionnal volumes to mount on the api.
+  extraVolumeMounts: []
+
+  ## @param space.extraVolumes Additionnal volumes to mount on the api.
+  extraVolumes: []
+
+
+## @section web
+
+web:
+  ## @param web.image.repository Repository to use to pull plane's web container image
+  ## @param web.image.tag plane's web container tag
+  ## @param web.image.pullPolicy web container image pull policy
+  image:
+    repository: makeplane/plane-frontend
+    pullPolicy: IfNotPresent
+    tag: "latest"
+
+  ## @param web.command Override the web container command
+  command:
+    - /usr/local/bin/start.sh
+
+  ## @param web.args Override the web container args
+  args:
+    - web/server.js
+    - web
+
+  ## @param web.replicas Amount of web replicas
+  replicas: 3
+
+  ## @param web.shareProcessNamespace Enable share process nameweb between containers
+  shareProcessNamespace: false
+
+  ## @param web.sidecars Add sidecars containers to web deployment
+  sidecars: []
+
+  ## @param web.securityContext Configure web Pod security context
+  securityContext: null
+
+  ## @param web.envVars Configure web container environment variables
+  ## @extra web.envVars.BY_VALUE Example environment variable by setting value directly
+  ## @extra web.envVars.FROM_CONFIGMAP.configMapKeyRef.name Name of a ConfigMap when configuring env vars from a ConfigMap
+  ## @extra web.envVars.FROM_CONFIGMAP.configMapKeyRef.key Key within a ConfigMap when configuring env vars from a ConfigMap
+  ## @extra web.envVars.FROM_SECRET.secretKeyRef.name Name of a Secret when configuring env vars from a Secret
+  ## @extra web.envVars.FROM_SECRET.secretKeyRef.key Key within a Secret when configuring env vars from a Secret
+  ## @skip web.envVars
+  envVars:
+      <<: *commonEnvVars
+
+  ## @param web.podAnnotations Annotations to add to the web Pod
+  podAnnotations: {}
+
+  ## @param web.service.type web Service type
+  ## @param web.service.port web Service listening port
+  ## @param web.service.targetPort web container listening port
+  ## @param web.service.annotations Annotations to add to the web Service
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 3000
+    annotations: {}
+
+  ## @param web.probes Configure probe for web
+  ## @extra web.probes.liveness.path Configure path for web HTTP liveness probe
+  ## @extra web.probes.liveness.targetPort Configure port for web HTTP liveness probe
+  ## @extra web.probes.liveness.initialDelaySeconds Configure initial delay for web liveness probe
+  ## @extra web.probes.liveness.initialDelaySeconds Configure timeout for web liveness probe
+  ## @extra web.probes.startup.path Configure path for web HTTP startup probe
+  ## @extra web.probes.startup.targetPort Configure port for web HTTP startup probe
+  ## @extra web.probes.startup.initialDelaySeconds Configure initial delay for web startup probe
+  ## @extra web.probes.startup.initialDelaySeconds Configure timeout for web startup probe
+  ## @extra web.probes.readiness.path Configure path for web HTTP readiness probe
+  ## @extra web.probes.readiness.targetPort Configure port for web HTTP readiness probe
+  ## @extra web.probes.readiness.initialDelaySeconds Configure initial delay for web readiness probe
+  ## @extra web.probes.readiness.initialDelaySeconds Configure timeout for web readiness probe
+  probes: {}
+  #  liveness:
+  #    path: /status
+  #    initialDelaySeconds: 10
+  #  startup:
+  #    path: /status
+  #    initialDelaySeconds: 10
+
+
+  ## @param web.resources Resource requirements for the web container
+  resources: {}
+
+  ## @param web.nodeSelector Node selector for the web Pod
+  nodeSelector: {}
+
+  ## @param web.tolerations Tolerations for the web Pod
+  tolerations: []
+
+  ## @param web.affinity Affinity for the web Pod
+  affinity: {}
+
+  ## @param web.persistence Additionnal volumes to create and mount on the web. Used for debugging purposes
+  ## @extra web.persistence.volume-name.size Size of the additional volume
+  ## @extra web.persistence.volume-name.type Type of the additional volume, persistentVolumeClaim or emptyDir
+  ## @extra web.persistence.volume-name.mountPath Path where the volume should be mounted to
+  persistence: {}
+  #   volume-name:
+  #     type: persistentVolumeClaim
+  #     size: 8Gi
+  #     mountPath: /data
+
+  ## @param web.extraVolumeMounts Additionnal volumes to mount on the api.
+  extraVolumeMounts: []
+
+  ## @param web.extraVolumes Additionnal volumes to mount on the api.
+  extraVolumes: []
+
+
+
+## @section worker
+
+worker:
+  ## @param worker.image.repository Repository to use to pull plane's worker container image
+  ## @param worker.image.tag plane's worker container tag
+  ## @param worker.image.pullPolicy worker container image pull policy
+  image:
+    repository: makeplane/plane-backend
+    pullPolicy: IfNotPresent
+    tag: "latest"
+
+  ## @param worker.command Override the worker container command
+  command:
+    - ./bin/worker
+
+  ## @param worker.args Override the worker container args
+  args: []
+
+  ## @param worker.replicas Amount of worker replicas
+  replicas: 3
+
+  ## @param worker.shareProcessNamespace Enable share process nameworker between containers
+  shareProcessNamespace: false
+
+  ## @param worker.sidecars Add sidecars containers to worker deployment
+  sidecars: []
+
+  ## @param worker.securityContext Configure worker Pod security context
+  securityContext: null
+
+  ## @param worker.envVars Configure worker container environment variables
+  ## @extra worker.envVars.BY_VALUE Example environment variable by setting value directly
+  ## @extra worker.envVars.FROM_CONFIGMAP.configMapKeyRef.name Name of a ConfigMap when configuring env vars from a ConfigMap
+  ## @extra worker.envVars.FROM_CONFIGMAP.configMapKeyRef.key Key within a ConfigMap when configuring env vars from a ConfigMap
+  ## @extra worker.envVars.FROM_SECRET.secretKeyRef.name Name of a Secret when configuring env vars from a Secret
+  ## @extra worker.envVars.FROM_SECRET.secretKeyRef.key Key within a Secret when configuring env vars from a Secret
+  ## @skip worker.envVars
+  envVars:
+      <<: *commonEnvVars
+
+  ## @param worker.podAnnotations Annotations to add to the worker Pod
+  podAnnotations: {}
+
+  ## @param worker.probes Configure probe for worker
+  ## @extra worker.probes.liveness.path Configure path for worker HTTP liveness probe
+  ## @extra worker.probes.liveness.targetPort Configure port for worker HTTP liveness probe
+  ## @extra worker.probes.liveness.initialDelaySeconds Configure initial delay for worker liveness probe
+  ## @extra worker.probes.liveness.initialDelaySeconds Configure timeout for worker liveness probe
+  ## @extra worker.probes.startup.path Configure path for worker HTTP startup probe
+  ## @extra worker.probes.startup.targetPort Configure port for worker HTTP startup probe
+  ## @extra worker.probes.startup.initialDelaySeconds Configure initial delay for worker startup probe
+  ## @extra worker.probes.startup.initialDelaySeconds Configure timeout for worker startup probe
+  ## @extra worker.probes.readiness.path Configure path for worker HTTP readiness probe
+  ## @extra worker.probes.readiness.targetPort Configure port for worker HTTP readiness probe
+  ## @extra worker.probes.readiness.initialDelaySeconds Configure initial delay for worker readiness probe
+  ## @extra worker.probes.readiness.initialDelaySeconds Configure timeout for worker readiness probe
+  probes: {}
+  #  liveness:
+  #    path: /status
+  #    initialDelaySeconds: 10
+  #  startup:
+  #    path: /status
+  #    initialDelaySeconds: 10
+
+
+  ## @param worker.resources Resource requirements for the worker container
+  resources: {}
+
+  ## @param worker.nodeSelector Node selector for the worker Pod
+  nodeSelector: {}
+
+  ## @param worker.tolerations Tolerations for the worker Pod
+  tolerations: []
+
+  ## @param worker.affinity Affinity for the worker Pod
+  affinity: {}
+
+  ## @param worker.persistence Additionnal volumes to create and mount on the worker. Used for debugging purposes
+  ## @extra worker.persistence.volume-name.size Size of the additional volume
+  ## @extra worker.persistence.volume-name.type Type of the additional volume, persistentVolumeClaim or emptyDir
+  ## @extra worker.persistence.volume-name.mountPath Path where the volume should be mounted to
+  persistence: {}
+  #   volume-name:
+  #     type: persistentVolumeClaim
+  #     size: 8Gi
+  #     mountPath: /data
+
+  ## @param worker.extraVolumeMounts Additionnal volumes to mount on the api.
+  extraVolumeMounts: []
+
+  ## @param worker.extraVolumes Additionnal volumes to mount on the api.
+  extraVolumes: []
+
+
+
+## @section beat_worker
+
+beat_worker:
+  ## @param beat_worker.image.repository Repository to use to pull plane's beat_worker container image
+  ## @param beat_worker.image.tag plane's beat_worker container tag
+  ## @param beat_worker.image.pullPolicy beat_worker container image pull policy
+  image:
+    repository: makeplane/plane-backend
+    pullPolicy: IfNotPresent
+    tag: "latest"
+
+  ## @param beat_worker.command Override the beat_worker container command
+  command:
+    - ./bin/beat
+
+  ## @param beat_worker.args Override the beat_worker container args
+  args: []
+
+  ## @param beat_worker.replicas Amount of beat_worker replicas
+  replicas: 3
+
+  ## @param beat_worker.shareProcessNamespace Enable share process namebeat_worker between containers
+  shareProcessNamespace: false
+
+  ## @param beat_worker.sidecars Add sidecars containers to beat_worker deployment
+  sidecars: []
+
+  ## @param beat_worker.securityContext Configure beat_worker Pod security context
+  securityContext: null
+
+  ## @param beat_worker.envVars Configure beat_worker container environment variables
+  ## @extra beat_worker.envVars.BY_VALUE Example environment variable by setting value directly
+  ## @extra beat_worker.envVars.FROM_CONFIGMAP.configMapKeyRef.name Name of a ConfigMap when configuring env vars from a ConfigMap
+  ## @extra beat_worker.envVars.FROM_CONFIGMAP.configMapKeyRef.key Key within a ConfigMap when configuring env vars from a ConfigMap
+  ## @extra beat_worker.envVars.FROM_SECRET.secretKeyRef.name Name of a Secret when configuring env vars from a Secret
+  ## @extra beat_worker.envVars.FROM_SECRET.secretKeyRef.key Key within a Secret when configuring env vars from a Secret
+  ## @skip beat_worker.envVars
+  envVars:
+      <<: *commonEnvVars
+
+  ## @param beat_worker.podAnnotations Annotations to add to the beat_worker Pod
+  podAnnotations: {}
+
+  ## @param beat_worker.probes Configure probe for beat_worker
+  ## @extra beat_worker.probes.liveness.path Configure path for beat_worker HTTP liveness probe
+  ## @extra beat_worker.probes.liveness.targetPort Configure port for beat_worker HTTP liveness probe
+  ## @extra beat_worker.probes.liveness.initialDelaySeconds Configure initial delay for beat_worker liveness probe
+  ## @extra beat_worker.probes.liveness.initialDelaySeconds Configure timeout for beat_worker liveness probe
+  ## @extra beat_worker.probes.startup.path Configure path for beat_worker HTTP startup probe
+  ## @extra beat_worker.probes.startup.targetPort Configure port for beat_worker HTTP startup probe
+  ## @extra beat_worker.probes.startup.initialDelaySeconds Configure initial delay for beat_worker startup probe
+  ## @extra beat_worker.probes.startup.initialDelaySeconds Configure timeout for beat_worker startup probe
+  ## @extra beat_worker.probes.readiness.path Configure path for beat_worker HTTP readiness probe
+  ## @extra beat_worker.probes.readiness.targetPort Configure port for beat_worker HTTP readiness probe
+  ## @extra beat_worker.probes.readiness.initialDelaySeconds Configure initial delay for beat_worker readiness probe
+  ## @extra beat_worker.probes.readiness.initialDelaySeconds Configure timeout for beat_worker readiness probe
+  probes: {}
+  #  liveness:
+  #    path: /status
+  #    initialDelaySeconds: 10
+  #  startup:
+  #    path: /status
+  #    initialDelaySeconds: 10
+
+
+  ## @param beat_worker.resources Resource requirements for the beat_worker container
+  resources: {}
+
+  ## @param beat_worker.nodeSelector Node selector for the beat_worker Pod
+  nodeSelector: {}
+
+  ## @param beat_worker.tolerations Tolerations for the beat_worker Pod
+  tolerations: []
+
+  ## @param beat_worker.affinity Affinity for the beat_worker Pod
+  affinity: {}
+
+  ## @param beat_worker.persistence Additionnal volumes to create and mount on the beat_worker. Used for debugging purposes
+  ## @extra beat_worker.persistence.volume-name.size Size of the additional volume
+  ## @extra beat_worker.persistence.volume-name.type Type of the additional volume, persistentVolumeClaim or emptyDir
+  ## @extra beat_worker.persistence.volume-name.mountPath Path where the volume should be mounted to
+  persistence: {}
+  #   volume-name:
+  #     type: persistentVolumeClaim
+  #     size: 8Gi
+  #     mountPath: /data
+
+  ## @param beat_worker.extraVolumeMounts Additionnal volumes to mount on the api.
+  extraVolumeMounts: []
+
+  ## @param beat_worker.extraVolumes Additionnal volumes to mount on the api.
+  extraVolumes: []
+

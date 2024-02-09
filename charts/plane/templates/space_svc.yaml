@@ -1,0 +1,20 @@
+{{- $envVars := include "plane.common.env" (list . .Values.space) -}}
+{{- $fullName := include "plane.space.fullname" . -}}
+{{- $component := "space" -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "plane.common.labels" (list . $component) | nindent 4 }}
+  annotations:
+    {{- toYaml $.Values.space.service.annotations | nindent 4 }}
+spec:
+  type: {{ .Values.space.service.type }}
+  ports:
+    - port: {{ .Values.space.service.port }}
+      targetPort: {{ .Values.space.service.targetPort }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "plane.common.selectorLabels" (list . $component) | nindent 4 }}

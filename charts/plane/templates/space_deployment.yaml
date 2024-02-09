@@ -1,0 +1,135 @@
+{{- $envVars := include "plane.common.env" (list . .Values.space) -}}
+{{- $fullName := include "plane.space.fullname" . -}}
+{{- $component := "space" -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "plane.common.labels" (list . $component) | nindent 4 }}
+spec:
+  replicas: {{ .Values.space.replicas }}
+  selector:
+    matchLabels:
+      {{- include "plane.common.selectorLabels" (list . $component) | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        {{- with .Values.space.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "plane.common.selectorLabels" (list . $component) | nindent 8 }}
+    spec:
+      {{- if $.Values.image.credentials }}
+      imagePullSecrets:
+        - name: {{ include "plane.secret.dockerconfigjson.name" (dict "fullname" (include "plane.fullname" .) "imageCredentials" $.Values.image.credentials) }}
+      {{- end}}
+      shareProcessNamespace: {{ .Values.space.shareProcessNamespace }}
+      containers:
+        {{- with .Values.space.sidecars }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+        - name: {{ .Chart.Name }}
+          image: "{{ (.Values.space.image | default dict).repository | default .Values.image.repository }}:{{ (.Values.space.image | default dict).tag | default .Values.image.tag }}"
+          imagePullPolicy: {{ (.Values.space.image | default dict).pullPolicy | default .Values.image.pullPolicy }}
+          {{- with .Values.space.command }}
+          command:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.space.args }}
+          args:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          env:
+            {{- if $envVars}}
+            {{- $envVars | indent 12 }}
+            {{- end }}
+          {{- with .Values.space.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.space.service.targetPort }}
+              protocol: TCP
+          {{- if .Values.space.probes.liveness }}
+          livenessProbe:
+            {{- include "plane.probes.abstract" (merge .Values.space.probes.liveness (dict "targetPort" .Values.space.service.targetPort )) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.space.probes.readiness }}
+          readinessProbe:
+            {{- include "plane.probes.abstract" (merge .Values.space.probes.readiness (dict "targetPort" .Values.space.service.targetPort )) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.space.probes.startup }}
+          startupProbe:
+            {{- include "plane.probes.abstract" (merge .Values.space.probes.startup (dict "targetPort" .Values.space.service.targetPort )) | nindent 12 }}
+          {{- end }}
+          {{- with .Values.space.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            {{- range $index, $value := .Values.mountFiles }}
+            - name: "files-{{ $index }}"
+              mountPath: {{ $value.path }}
+              subPath: content
+            {{- end }}
+            {{- range $name, $volume := .Values.space.persistence }}
+            - name: "{{ $name }}"
+              mountPath: "{{ $volume.mountPath }}"
+            {{- end }}
+            {{- range .Values.space.extraVolumeMounts }}
+            - name: {{ .name }}
+              mountPath: {{ .mountPath }}
+              subPath: {{ .subPath | default "" }}
+              readOnly: {{ .readOnly }}
+            {{- end }}
+      {{- with .Values.space.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.space.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.space.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        {{- range $index, $value := .Values.mountFiles }}
+        - name: "files-{{ $index }}"
+          configMap:
+            name: "{{ include "plane.fullname" $ }}-files-{{ $index }}"
+        {{- end }}
+        {{- range $name, $volume := .Values.space.persistence }}
+        - name: "{{ $name }}"
+          {{- if eq $volume.type "emptyDir" }}
+          emptyDir: {}
+          {{- else }}
+          persistentVolumeClaim:
+            claimName: "{{ $fullName }}-{{ $name }}"
+          {{- end }}
+        {{- end }}
+        {{- range .Values.space.extraVolumes }}
+        - name: {{ .name }}
+          {{- if .existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ .existingClaim }}
+          {{- else if .hostPath }}
+          hostPath:
+            {{ toYaml .hostPath | nindent 12 }}
+          {{- else if .csi }}
+          csi:
+            {{- toYaml .csi | nindent 12 }}
+          {{- else if .configMap }}
+          configMap:
+            {{- toYaml .configMap | nindent 12 }}
+          {{- else if .emptyDir }}
+          emptyDir:
+            {{- toYaml .emptyDir | nindent 12 }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        {{- end }}
