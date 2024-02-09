@@ -23,5 +23,3 @@ jobs:
           charts_dir: charts
           linting: off
           token: ${{ secrets.GITHUB_TOKEN }}
-
-
