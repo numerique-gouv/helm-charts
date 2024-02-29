@@ -60,7 +60,7 @@ releases:
           - name: KEYCLOAK_EXTRA_ARGS
             value: "--import-realm"
           - name: KC_HOSTNAME_URL
-            value: https://keycloak.minikube.local
+            value: https://keycloak.127.0.0.1.nip.io
       - extraVolumes:
           - name: import
             configMap:
@@ -74,7 +74,7 @@ releases:
       - proxy: edge
       - ingress:
           enabled: true
-          hostname: keycloak.minikube.local
+          hostname: keycloak.127.0.0.1.nip.io
       - extraDeploy:
         - apiVersion: v1
           kind: ConfigMap
@@ -82,4 +82,4 @@ releases:
             name: grist
           data:
             grist.json: |
-{{ readFile "../docker_compose/grist.json" | replace "http://grist.docker.localhost:8080"  "https://grist.minikube.local"| indent 14 }}
+{{ readFile "../docker_compose/grist.json" | replace "http://grist.docker.localhost:8080"  "https://grist.127.0.0.1.nip.io"| indent 14 }}

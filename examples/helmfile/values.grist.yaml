@@ -1,9 +1,9 @@
 image:
   tag: 1.1.9
 commonEnvVars: &commonEnvVars
-  APP_HOME_URL: https://grist.minikube.local
+  APP_HOME_URL: https://grist.127.0.0.1.nip.io
   GRIST_ORG_IN_PATH: "true"
-  GRIST_OIDC_SP_HOST: https://grist.minikube.local/
+  GRIST_OIDC_SP_HOST: https://grist.127.0.0.1.nip.io/
   GRIST_OIDC_IDP_ISSUER: http://keycloak.grist.svc.cluster.local/realms/grist
   GRIST_OIDC_IDP_SCOPES: openid email organizations
   GRIST_OIDC_IDP_CLIENT_ID: grist
@@ -23,7 +23,7 @@ commonEnvVars: &commonEnvVars
   TYPEORM_USERNAME: grist
   TYPEORM_PASSWORD: grist
   GRIST_SINGLE_PORT: 0
-  GRIST_ALLOWED_HOSTS: grist.minikube.local
+  GRIST_ALLOWED_HOSTS: grist.127.0.0.1.nip.io
 
 
 docWorker:
@@ -49,4 +49,4 @@ homeWorker:
 
 ingress:
   enabled: true
-  host: grist.minikube.local
+  host: grist.127.0.0.1.nip.io
