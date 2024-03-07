@@ -28,6 +28,7 @@ data:
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header Host $host;
+        # Need to strip the /internal/<ip> part of the path here as the doc worker doesn't expect requests on that path
         proxy_pass http://$1-$2-$3-$4.{{ $svcName }}.{{ .Release.Namespace }}.svc.cluster.local:8484/$5$is_args$args;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
@@ -42,6 +43,7 @@ data:
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header Host $host;
+        # Need to keep the full path including /dw/<ip> in this case as doc workers expect the full path
         proxy_pass http://$1-$2-$3-$4.{{ $svcName }}.{{ .Release.Namespace }}.svc.cluster.local:8484;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
