@@ -1,9 +1,169 @@
-## Grist Helm
+# Grist Helm
 
-### Grist Helm setup
+```
+helm repo add grist https://gitlab.com/api/v4/projects/38774220/packages/helm/stable
+helm repo update
+```
 
-TODO document this.
+## Parameters
 
-### Credit
+### General configuration
+
+| Name                                  | Description                                              | Value             |
+| ------------------------------------- | -------------------------------------------------------- | ----------------- |
+| `image.repository`                    | Repository to use to pull Grist's container image        | `gristlabs/grist` |
+| `image.tag`                           | Grist's container tag                                    | `1.1.9`           |
+| `image.pullPolicy`                    | Container image pull policy                              | `IfNotPresent`    |
+| `image.credentials.username`          | Username for container registry authentication           |                   |
+| `image.credentials.password`          | Password for container registry authentication           |                   |
+| `image.credentials.registry`          | Registry url for which the credentials are specified     |                   |
+| `image.credentials.name`              | Name of the generated secret for imagePullSecrets        |                   |
+| `nameOverride`                        | Override the chart name                                  | `""`              |
+| `fullnameOverride`                    | Override the full application name                       | `""`              |
+| `mountFiles[].path`                   | Mount a static file to a specific path on the Grist Pods |                   |
+| `mountFiles[].content`                | File content encoded in base64                           |                   |
+| `ingress.enabled`                     | whether to enable the Ingress or not                     | `false`           |
+| `ingress.className`                   | IngressClass to use for the Ingress                      | `nil`             |
+| `ingress.host`                        | Host for the Ingress                                     | `nil`             |
+| `ingress.path`                        | Path to use for the Ingress                              | `/`               |
+| `ingress.hosts[].host`                | Additionnal host to configure for the Ingress            |                   |
+| `ingress.hosts[].paths[].path`        | Custom paths to configure for the Ingress host           |                   |
+| `ingress.hosts[].paths[].pathType`    | Type for each custom path                                |                   |
+| `ingress.tls.enabled`                 | Wether to enable TLS for the Ingress                     | `true`            |
+| `ingress.tls.additional[].secretName` | Secret name for additional TLS config                    |                   |
+| `ingress.tls.additional[].hosts[]`    | Hosts for additional TLS config                          |                   |
+
+### Home worker
+
+| Name                                                     | Description                                                                             | Value       |
+| -------------------------------------------------------- | --------------------------------------------------------------------------------------- | ----------- |
+| `homeWorker.image.repository`                            | Repository to use to pull Grist's home worker container image                           |             |
+| `homeWorker.image.tag`                                   | Grist's home worker container tag                                                       |             |
+| `homeWorker.image.pullPolicy`                            | Home worker container image pull policy                                                 |             |
+| `homeWorker.command`                                     | Override the home worker container command                                              | `[]`        |
+| `homeWorker.args`                                        | Override the home worker container args                                                 | `[]`        |
+| `homeWorker.replicas`                                    | Amount of home worker replicas                                                          | `1`         |
+| `homeWorker.securityContext`                             | Configure home worker Pod security context                                              | `nil`       |
+| `homeWorker.shareProcessNamespace`                       | Enable share process namespace between containers                                       | `true`      |
+| `homeWorker.sidecars`                                    | Add sidecars containers to homeWorker deployment                                        | `[]`        |
+| `homeWorker.envVars`                                     | Configure home worker container environment variables                                   | `{}`        |
+| `homeWorker.envVars.BY_VALUE`                            | Example environment variable by setting value directly                                  |             |
+| `homeWorker.envVars.FROM_CONFIGMAP.configMapKeyRef.name` | Name of a ConfigMap when configuring env vars from a ConfigMap                          |             |
+| `homeWorker.envVars.FROM_CONFIGMAP.configMapKeyRef.key`  | Key within a ConfigMap when configuring env vars from a ConfigMap                       |             |
+| `homeWorker.envVars.FROM_SECRET.secretKeyRef.name`       | Name of a Secret when configuring env vars from a Secret                                |             |
+| `homeWorker.envVars.FROM_SECRET.secretKeyRef.key`        | Key within a Secret when configuring env vars from a Secret                             |             |
+| `homeWorker.podAnnotations`                              | Annotations to add to the home worker Pod                                               | `{}`        |
+| `homeWorker.service.type`                                | Home worker Service type                                                                | `ClusterIP` |
+| `homeWorker.service.port`                                | Home worker Service listening port                                                      | `80`        |
+| `homeWorker.service.targetPort`                          | Home worker container listening port                                                    | `8484`      |
+| `homeWorker.service.annotations`                         | Annotations to add to the home worker Service                                           | `{}`        |
+| `homeWorker.probes.liveness.path`                        | Configure path for home worker HTTP liveness probe                                      | `/status`   |
+| `homeWorker.probes.liveness.targetPort`                  | Configure port for home worker HTTP liveness probe                                      |             |
+| `homeWorker.probes.liveness.initialDelaySeconds`         | Configure initial delay for home worker liveness probe                                  | `10`        |
+| `homeWorker.probes.liveness.initialDelaySeconds`         | Configure timeout for home worker liveness probe                                        |             |
+| `homeWorker.probes.startup.path`                         | Configure path for home worker HTTP startup probe                                       | `/status`   |
+| `homeWorker.probes.startup.targetPort`                   | Configure port for home worker HTTP startup probe                                       |             |
+| `homeWorker.probes.startup.initialDelaySeconds`          | Configure initial delay for home worker startup probe                                   | `10`        |
+| `homeWorker.probes.startup.initialDelaySeconds`          | Configure timeout for home worker startup probe                                         |             |
+| `homeWorker.probes.readiness.path`                       | Configure path for home worker HTTP readiness probe                                     |             |
+| `homeWorker.probes.readiness.targetPort`                 | Configure port for home worker HTTP readiness probe                                     |             |
+| `homeWorker.probes.readiness.initialDelaySeconds`        | Configure initial delay for home worker readiness probe                                 |             |
+| `homeWorker.probes.readiness.initialDelaySeconds`        | Configure timeout for home worker readiness probe                                       |             |
+| `homeWorker.resources`                                   | Resource requirements for the home worker container                                     | `{}`        |
+| `homeWorker.nodeSelector`                                | Node selector for the home worker Pod                                                   | `{}`        |
+| `homeWorker.tolerations`                                 | Tolerations for the home worker Pod                                                     | `[]`        |
+| `homeWorker.affinity`                                    | Affinity for the home worker Pod                                                        | `{}`        |
+| `homeWorker.persistence`                                 | Additionnal volumes to create and mount on the home worker. Used for debugging purposes | `{}`        |
+| `homeWorker.persistence.volume-name.size`                | Size of the additional volume                                                           |             |
+| `homeWorker.persistence.volume-name.type`                | Type of the additional volume, persistentVolumeClaim or emptyDir                        |             |
+| `homeWorker.persistence.volume-name.mountPath`           | Path where the volume should be mounted to                                              |             |
+
+### Doc worker
+
+| Name                                                    | Description                                                                            | Value       |
+| ------------------------------------------------------- | -------------------------------------------------------------------------------------- | ----------- |
+| `docWorker.image.repository`                            | Repository to use to pull Grist's doc worker container image                           |             |
+| `docWorker.image.tag`                                   | Grist's doc worker container tag                                                       |             |
+| `docWorker.image.pullPolicy`                            | Doc worker container image pull policy                                                 |             |
+| `docWorker.command`                                     | Override the doc worker container command                                              | `[]`        |
+| `docWorker.args`                                        | Override the doc worker container args                                                 | `[]`        |
+| `docWorker.replicas`                                    | Amount of doc worker replicas                                                          | `3`         |
+| `docWorker.shareProcessNamespace`                       | Enable share process namespace between containers                                      | `true`      |
+| `docWorker.sidecars`                                    | Add sidecars containers to docWorker deployment                                        | `[]`        |
+| `docWorker.securityContext`                             | Configure doc worker Pod security context                                              | `nil`       |
+| `docWorker.envVars`                                     | Configure doc worker container environment variables                                   | `{}`        |
+| `docWorker.envVars.BY_VALUE`                            | Example environment variable by setting value directly                                 |             |
+| `docWorker.envVars.FROM_CONFIGMAP.configMapKeyRef.name` | Name of a ConfigMap when configuring env vars from a ConfigMap                         |             |
+| `docWorker.envVars.FROM_CONFIGMAP.configMapKeyRef.key`  | Key within a ConfigMap when configuring env vars from a ConfigMap                      |             |
+| `docWorker.envVars.FROM_SECRET.secretKeyRef.name`       | Name of a Secret when configuring env vars from a Secret                               |             |
+| `docWorker.envVars.FROM_SECRET.secretKeyRef.key`        | Key within a Secret when configuring env vars from a Secret                            |             |
+| `docWorker.podAnnotations`                              | Annotations to add to the doc worker Pod                                               | `{}`        |
+| `docWorker.service.type`                                | Doc worker Service type                                                                | `ClusterIP` |
+| `docWorker.service.port`                                | Doc worker Service listening port                                                      | `80`        |
+| `docWorker.service.targetPort`                          | Doc worker container listening port                                                    | `8484`      |
+| `docWorker.service.annotations`                         | Annotations to add to the doc worker Service                                           | `{}`        |
+| `docWorker.probes.liveness.path`                        | Configure path for doc worker HTTP liveness probe                                      | `/status`   |
+| `docWorker.probes.liveness.targetPort`                  | Configure port for doc worker HTTP liveness probe                                      |             |
+| `docWorker.probes.liveness.initialDelaySeconds`         | Configure initial delay for doc worker liveness probe                                  | `10`        |
+| `docWorker.probes.liveness.initialDelaySeconds`         | Configure timeout for doc worker liveness probe                                        |             |
+| `docWorker.probes.startup.path`                         | Configure path for doc worker HTTP startup probe                                       | `/status`   |
+| `docWorker.probes.startup.targetPort`                   | Configure port for doc worker HTTP startup probe                                       |             |
+| `docWorker.probes.startup.initialDelaySeconds`          | Configure initial delay for doc worker startup probe                                   | `10`        |
+| `docWorker.probes.startup.initialDelaySeconds`          | Configure timeout for doc worker startup probe                                         |             |
+| `docWorker.probes.readiness.path`                       | Configure path for doc worker HTTP readiness probe                                     |             |
+| `docWorker.probes.readiness.targetPort`                 | Configure port for doc worker HTTP readiness probe                                     |             |
+| `docWorker.probes.readiness.initialDelaySeconds`        | Configure initial delay for doc worker readiness probe                                 |             |
+| `docWorker.probes.readiness.initialDelaySeconds`        | Configure timeout for doc worker readiness probe                                       |             |
+| `docWorker.resources`                                   | Resource requirements for the doc worker container                                     | `{}`        |
+| `docWorker.nodeSelector`                                | Node selector for the doc worker Pod                                                   | `{}`        |
+| `docWorker.tolerations`                                 | Tolerations for the doc worker Pod                                                     | `[]`        |
+| `docWorker.affinity`                                    | Affinity for the doc worker Pod                                                        | `{}`        |
+| `docWorker.persistence`                                 | Additionnal volumes to create and mount on the doc worker. Used for debugging purposes | `{}`        |
+| `docWorker.persistence.volume-name.size`                | Size of the additional volume                                                          |             |
+| `docWorker.persistence.volume-name.type`                | Type of the additional volume, persistentVolumeClaim or emptyDir                       |             |
+| `docWorker.persistence.volume-name.mountPath`           | Path where the volume should be mounted to                                             |             |
+
+### Grist doc worker load balancer
+
+| Name                                                       | Description                                                                                          | Value          |
+| ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | -------------- |
+| `loadBalancer.image.repository`                            | Repository to use to pull the load balancer container image                                          | `nginx`        |
+| `loadBalancer.image.tag`                                   | Load balancer container tag                                                                          | `1.25.3`       |
+| `loadBalancer.image.pullPolicy`                            | Load balancer container image pull policy                                                            | `IfNotPresent` |
+| `loadBalancer.replicas`                                    | Amount of load balancer replicas                                                                     | `2`            |
+| `loadBalancer.shareProcessNamespace`                       | Enable share process namespace between containers                                                    | `false`        |
+| `loadBalancer.sidecars`                                    | Add sidecars containers to loadBalancer deployment                                                   | `[]`           |
+| `loadBalancer.securityContext`                             | Configure load balancer Pod security context                                                         |                |
+| `loadBalancer.envVars`                                     | Configure load balancer container environment variables                                              | `{}`           |
+| `loadBalancer.envVars.BY_VALUE`                            | Example environment variable by setting value directly                                               |                |
+| `loadBalancer.envVars.FROM_CONFIGMAP.configMapKeyRef.name` | Name of a ConfigMap when configuring env vars from a ConfigMap                                       |                |
+| `loadBalancer.envVars.FROM_CONFIGMAP.configMapKeyRef.key`  | Key within a ConfigMap when configuring env vars from a ConfigMap                                    |                |
+| `loadBalancer.envVars.FROM_SECRET.secretKeyRef.name`       | Name of a Secret when configuring env vars from a Secret                                             |                |
+| `loadBalancer.envVars.FROM_SECRET.secretKeyRef.key`        | Key within a Secret when configuring env vars from a Secret                                          |                |
+| `loadBalancer.podAnnotations`                              | Annotations to add to the load balancer Pod                                                          | `{}`           |
+| `loadBalancer.service.type`                                | Load balancer Service type                                                                           | `ClusterIP`    |
+| `loadBalancer.service.port`                                | Load balancer Service listening port                                                                 | `80`           |
+| `loadBalancer.service.targetPort`                          | Load balancer container listening port                                                               | `8080`         |
+| `loadBalancer.service.annotations`                         | Annotations to add to the load balancer Service                                                      | `{}`           |
+| `loadBalancer.probes.liveness.path`                        | Configure path for load balancer HTTP liveness probe                                                 | `/health`      |
+| `loadBalancer.probes.liveness.targetPort`                  | Configure port for load balancer HTTP liveness probe                                                 | `8080`         |
+| `loadBalancer.probes.liveness.initialDelaySeconds`         | Configure initial delay for load balancer liveness probe                                             |                |
+| `loadBalancer.probes.liveness.initialDelaySeconds`         | Configure timeout for load balancer liveness probe                                                   |                |
+| `loadBalancer.probes.startup.path`                         | Configure path for load balancer HTTP startup probe                                                  | `/health`      |
+| `loadBalancer.probes.startup.targetPort`                   | Configure port for load balancer HTTP startup probe                                                  | `8080`         |
+| `loadBalancer.probes.startup.initialDelaySeconds`          | Configure initial delay for load balancer startup probe                                              |                |
+| `loadBalancer.probes.startup.initialDelaySeconds`          | Configure timeout for load balancer startup probe                                                    |                |
+| `loadBalancer.probes.readiness.path`                       | Configure path for load balancer HTTP readiness probe                                                |                |
+| `loadBalancer.probes.readiness.targetPort`                 | Configure port for load balancer HTTP readiness probe                                                |                |
+| `loadBalancer.probes.readiness.initialDelaySeconds`        | Configure initial delay for load balancer readiness probe                                            |                |
+| `loadBalancer.probes.readiness.initialDelaySeconds`        | Configure timeout for load balancer readiness probe                                                  |                |
+| `loadBalancer.resources`                                   | Resource requirements for the load balancer container                                                | `{}`           |
+| `loadBalancer.nodeSelector`                                | Node selector for the load balancer Pod                                                              | `{}`           |
+| `loadBalancer.tolerations`                                 | Tolerations for the load balancer Pod                                                                | `[]`           |
+| `loadBalancer.affinity`                                    | Affinity for the load balancer Pod                                                                   | `{}`           |
+| `loadBalancer.volumeMounts`                                | Additional volumes mounts to add to the container. Be sure to keep the existing ones when overriding | `[]`           |
+| `loadBalancer.volumes`                                     | Additional volumes to mount in the container. Be sure to keep the existing ones when overriding      | `[]`           |
+
+## Credit
 
 Thanks to [Qonfucius](https://qonfucius.com) for their [original work](https://gitlab.com/vigigloo/tools/grist).
