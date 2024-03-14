@@ -48,12 +48,8 @@ spec:
                 fieldRef:
                   apiVersion: v1
                   fieldPath: status.podIP
-            - name: APP_DOC_URL
-              value: https://{{ .Values.ingress.host }}/dw/$(POD_IP)
-            - name: GRIST_DOC_WORKER_ID
-              value: $(POD_IP)
-            - name: APP_DOC_INTERNAL_URL
-              value: http://{{ include "grist.lb.fullname" . }}/internal/$(POD_IP)
+            - name: INTERNAL_LB
+              value: {{ include "grist.lb.fullname" . }}
             {{- if $envVars}}
             {{- $envVars | indent 12 }}
             {{- end }}
