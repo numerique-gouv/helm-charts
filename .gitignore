@@ -1,8 +1,8 @@
-/terraform_module/.terraform/
-/terraform_module/.terraform.lock.hcl
-examples/docker_compose/data_minio
-examples/terraform/.terraform
-examples/terraform/terraform.tfstate
-examples/terraform/terraform.tfstate.backup
+/charts/grist/terraform_module/.terraform/
+/charts/grist/terraform_module/.terraform.lock.hcl
+/charts/grist/examples/docker_compose/data_minio
+/charts/grist/examples/terraform/.terraform
+/charts/grist/examples/terraform/terraform.tfstate
+/charts/grist/examples/terraform/terraform.tfstate.backup
 helm_chart/charts
 n8n/.values.yaml
