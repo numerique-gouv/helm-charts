@@ -1,0 +1,52 @@
+{{- $svcName := include "grist.doc.fullname" . -}}
+{{- $component := "lb" -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "grist.lb.config" . }}
+  labels:
+    {{- include "grist.common.labels" (list . $component) | nindent 4 }}
+data:
+  404.html: |
+    {"message": "document worker not present"}
+  nginx.conf.template: |
+    server {
+      listen 8080;
+      root /usr/share/nginx/html;
+      server_tokens off;
+
+      resolver $NGINX_LOCAL_RESOLVERS valid=5s;
+
+      location /health {
+        return 200;
+      }
+
+      # Internal url for doc workers, should not be exposed by ingress
+      # Used by home worker
+      location ~ /internal/dw/([-0-9]*)/(.*)$ {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Host $host;
+        # Need to strip the /internal/<ip> part of the path here as the doc worker doesn't expect requests on that path
+        proxy_pass http://$1.{{ $svcName }}.{{ .Release.Namespace }}.svc.cluster.local:8484/dw/$1/$2$is_args$args;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        error_page 400 404 500 502 504 =404 /404.html;
+      }
+
+      # Public url for doc workers, exposed by ingress
+      location ~ /dw/([-0-9]*)/(.*)$ {
+        client_max_body_size 10G;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Host $host;
+        # Need to keep the full path including /dw/<ip> in this case as doc workers expect the full path
+        proxy_pass http://$1.{{ $svcName }}.{{ .Release.Namespace }}.svc.cluster.local:8484;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+      }
+    }

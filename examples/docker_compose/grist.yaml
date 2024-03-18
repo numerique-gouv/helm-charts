@@ -1,0 +1,55 @@
+services:
+  grist:
+    image: gristlabs/grist:1.1.9
+    environment:
+      DEBUG: 1
+      GRIST_DOMAIN: grist.docker.localhost
+      GRIST_ORG_IN_PATH: "true"
+      APP_HOME_URL: http://grist.docker.localhost:8080
+      GRIST_OIDC_SP_HOST: http://grist.docker.localhost:8080/
+      GRIST_OIDC_IDP_ISSUER: http://keycloak:8080/realms/grist
+      GRIST_OIDC_IDP_SCOPES: openid email organizations
+      GRIST_OIDC_IDP_CLIENT_ID: grist
+      GRIST_OIDC_IDP_CLIENT_SECRET: yT00LmUDppwn3s4cFCNPV3Qg95pU14ZQ
+      GRIST_DEFAULT_EMAIL: admin@example.org
+      GRIST_SANDBOX_FLAVOR: gvisor
+      GRIST_HIDE_UI_ELEMENTS: billing
+      GRIST_DEFAULT_LOCALE: fr
+      REDIS_URL: redis://redis:6379
+      GRIST_SINGLE_PORT: 0
+      TYPEORM_TYPE: postgres
+      TYPEORM_DATABASE: grist
+      TYPEORM_HOST: postgresql-grist
+      TYPEORM_USERNAME: grist
+      TYPEORM_PASSWORD: grist
+    depends_on:
+      keycloak:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      postgresql-grist:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "sleep", "5"]
+      start_period: 2s
+      interval: 1s
+  grist-wk:
+    extends:
+      file: grist.yaml
+      service: grist
+    environment:
+      GRIST_SERVERS: docs
+      GRIST_DOCS_MINIO_BUCKET: grist
+      GRIST_DOCS_MINIO_ENDPOINT: minio
+      GRIST_DOCS_MINIO_PORT: 9000
+      GRIST_DOCS_MINIO_USE_SSL: 0
+      GRIST_DOCS_MINIO_BUCKET_REGION: local
+      GRIST_DOCS_MINIO_ACCESS_KEY: admin
+      GRIST_DOCS_MINIO_SECRET_KEY: adminadmin
+    depends_on:
+      keycloak:
+        condition: service_healthy
+      grist:
+        condition: service_healthy
+      minio:
+        condition: service_started

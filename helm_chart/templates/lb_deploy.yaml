@@ -1,0 +1,103 @@
+{{- $envVars := include "grist.env.transformDict" .Values.loadBalancer.envVars -}}
+{{- $fullName := include "grist.lb.fullname" . -}}
+{{- $component := "lb" -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "grist.common.labels" (list . $component) | nindent 4 }}
+spec:
+  replicas: {{ .Values.loadBalancer.replicas }}
+  selector:
+    matchLabels:
+      {{- include "grist.common.selectorLabels" (list . $component) | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        configChecksum: {{ include (print $.Template.BasePath "/lb_cm.yaml") . | sha256sum }}
+        {{- with .Values.loadBalancer.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "grist.common.selectorLabels" (list . $component) | nindent 8 }}
+    spec:
+      {{- if $.Values.image.credentials }}
+      imagePullSecrets:
+        - name: {{ include "grist.secret.dockerconfigjson.name" (dict "fullname" (include "grist.fullname" .) "imageCredentials" $.Values.image.credentials) }}
+      {{- end}}
+      shareProcessNamespace: {{ .Values.loadBalancer.shareProcessNamespace }}
+      containers:
+        {{- with .Values.loadBalancer.sidecars }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+        - name: {{ $fullName }}
+          image: "{{ .Values.loadBalancer.image.repository }}:{{ .Values.loadBalancer.image.tag }}"
+          imagePullPolicy: {{ .Values.loadBalancer.image.pullPolicy }}
+          {{- with .Values.loadBalancer.command }}
+          command:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.loadBalancer.args }}
+          args:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          env:
+            - name: NGINX_ENTRYPOINT_LOCAL_RESOLVERS
+              value: "1"
+          {{- if $envVars}}
+            {{- $envVars | indent 12 }}
+          {{- end }}
+          {{- with .Values.loadBalancer.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.loadBalancer.service.targetPort }}
+              protocol: TCP
+          {{- if .Values.loadBalancer.probes.liveness }}
+          livenessProbe:
+            {{- include "grist.probes.abstract" (merge .Values.loadBalancer.probes.liveness (dict "targetPort" .Values.loadBalancer.service.targetPort )) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.loadBalancer.probes.readiness }}
+          readinessProbe:
+            {{- include "grist.probes.abstract" (merge .Values.loadBalancer.probes.readiness (dict "targetPort" .Values.loadBalancer.service.targetPort )) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.loadBalancer.probes.startup }}
+          startupProbe:
+            {{- include "grist.probes.abstract" (merge .Values.loadBalancer.probes.startup (dict "targetPort" .Values.loadBalancer.service.targetPort )) | nindent 12 }}
+          {{- end }}
+          {{- with .Values.loadBalancer.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: config
+              mountPath: /etc/nginx/templates/nginx.conf.template
+              subPath: nginx.conf.template
+            - name: config
+              mountPath: /usr/share/nginx/html/404.html
+              subPath: 404.html
+            {{- with .Values.loadBalancer.volumeMounts }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
+      {{- with .Values.loadBalancer.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.loadBalancer.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.loadBalancer.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: "{{ include "grist.lb.config" . }}"
+        {{- with .Values.loadBalancer.volumes }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}

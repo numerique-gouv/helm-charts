@@ -1,0 +1,4 @@
+apiVersion: v2
+type: application
+name: grist
+version: 5.2.7
