@@ -4,6 +4,8 @@ set -Eeuox pipefail
 
 DATE=$(date +'%Y%m%d%H%M')
 
+mc alias set s3 "$S3_ENDPOINT_URL" "$S3_ACCESS_KEY" "$S3_SECRET_KEY" --api s3v4
+
 mkdir -p /tmp/backup/
 
 set +eo pipefail
@@ -24,32 +26,9 @@ then
         exit "${RESULT[0]}"
     fi
 fi
-set -o pipefail
-tar -tzf /tmp/backup/$DATE.tar.gz >/dev/null
 
-aws configure set plugins.endpoint awscli_plugin_endpoint
+set -eo pipefail
 
-cat > ~/.aws/config <<EOF
-[plugins]
-endpoint = awscli_plugin_endpoint
+tar -I pigz -tf /tmp/backup/$DATE.tar.gz >/dev/null
 
-[default]
-region = $S3_REGION
-s3 =
-  endpoint_url = $S3_ENDPOINT_URL
-  signature_version = s3v4
-  max_concurrent_requests = 100
-  max_queue_size = 1000
-  multipart_threshold = 50MB
-  multipart_chunksize = 10MB
-s3api =
-  endpoint_url = $S3_ENDPOINT_URL
-EOF
-
-cat > ~/.aws/credentials <<EOF
-[default]
-aws_access_key_id=$S3_ACCESS_KEY
-aws_secret_access_key=$S3_SECRET_KEY
-EOF
-
-aws s3 cp /tmp/backup/$DATE.tar.gz s3://$S3_BUCKET
+mc cp "/tmp/backup/$DATE.tar.gz" "s3/$S3_BUCKET"
