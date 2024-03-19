@@ -43,7 +43,7 @@ releases:
               versioning: true
   - name: grist
     namespace: grist
-    chart: ../../helm_chart
+    chart: ../../
     values:
       - values.grist.yaml
   - name: keycloak
