@@ -1,5 +1,5 @@
 resource "helm_release" "grist" {
-  chart     = "../../helm_chart"
+  chart     = "../../"
   name      = "grist"
   namespace = "grist"
   values = [

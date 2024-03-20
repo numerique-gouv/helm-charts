@@ -11,7 +11,6 @@ services:
       service: grist
     environment:
       GRIST_SERVERS: home,static
-      GRIST_HOME_INCLUDE_STATIC: true
   grist-dw-0:
     environment:
       APP_DOC_INTERNAL_URL: http://grist-dw-0:8484
