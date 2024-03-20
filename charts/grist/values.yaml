@@ -1,0 +1,348 @@
+# Default values for grist.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+## @section General configuration
+
+## @param image.repository Repository to use to pull Grist's container image
+## @param image.tag Grist's container tag
+## @param image.pullPolicy Container image pull policy
+## @extra image.credentials.username Username for container registry authentication
+## @extra image.credentials.password Password for container registry authentication
+## @extra image.credentials.registry Registry url for which the credentials are specified
+## @extra image.credentials.name Name of the generated secret for imagePullSecrets
+image:
+  repository: gristlabs/grist
+  pullPolicy: IfNotPresent
+#  credentials:
+#    name: foo
+#    registry: "gitlab.com"
+#    username: "user"
+#    password: "pass"
+  tag: "1.1.9"
+
+## @param nameOverride Override the chart name
+## @param fullnameOverride Override the full application name
+nameOverride: ""
+fullnameOverride: ""
+
+## @skip mountFiles
+## @extra mountFiles[].path Mount a static file to a specific path on the Grist Pods
+## @extra mountFiles[].content File content encoded in base64
+mountFiles: []
+
+## @param ingress.enabled whether to enable the Ingress or not
+## @param ingress.className IngressClass to use for the Ingress
+## @param ingress.host Host for the Ingress
+## @param ingress.path Path to use for the Ingress
+ingress:
+  enabled: false
+  className: null
+  host: null
+  path: /
+  ## @skip ingress.hosts Additionnal host to configure for the Ingress
+  ## @extra ingress.hosts[].host Additionnal host to configure for the Ingress
+  ## @extra ingress.hosts[].paths[].path Custom paths to configure for the Ingress host
+  ## @extra ingress.hosts[].paths[].pathType Type for each custom path
+  hosts: []
+  #  - host: chart-example.local
+  #    paths: []
+  ## @param ingress.tls.enabled Wether to enable TLS for the Ingress
+  ## @skip ingress.tls.additional
+  ## @extra ingress.tls.additional[].secretName Secret name for additional TLS config
+  ## @extra ingress.tls.additional[].hosts[] Hosts for additional TLS config
+  tls:
+    enabled: true
+    additional: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
+## @section Home worker
+
+homeWorker:
+  ## @extra homeWorker.image.repository Repository to use to pull Grist's home worker container image
+  ## @extra homeWorker.image.tag Grist's home worker container tag
+  ## @extra homeWorker.image.pullPolicy Home worker container image pull policy
+  # image:
+  #   repository: gristlabs/grist
+  #   pullPolicy: IfNotPresent
+  #   tag: "1.1.7"
+
+  ## @param homeWorker.command Override the home worker container command
+  ## @param homeWorker.args Override the home worker container args
+  command: []
+  args: []
+
+  ## @param homeWorker.replicas Amount of home worker replicas
+  replicas: 1
+
+  ## @param homeWorker.securityContext Configure home worker Pod security context
+  securityContext: null
+
+  ## @param homeWorker.shareProcessNamespace Enable share process namespace between containers
+  shareProcessNamespace: true
+
+  ## @param homeWorker.sidecars Add sidecars containers to homeWorker deployment
+  sidecars: []
+
+  ## @param homeWorker.envVars Configure home worker container environment variables
+  ## @extra homeWorker.envVars.BY_VALUE Example environment variable by setting value directly
+  ## @extra homeWorker.envVars.FROM_CONFIGMAP.configMapKeyRef.name Name of a ConfigMap when configuring env vars from a ConfigMap
+  ## @extra homeWorker.envVars.FROM_CONFIGMAP.configMapKeyRef.key Key within a ConfigMap when configuring env vars from a ConfigMap
+  ## @extra homeWorker.envVars.FROM_SECRET.secretKeyRef.name Name of a Secret when configuring env vars from a Secret
+  ## @extra homeWorker.envVars.FROM_SECRET.secretKeyRef.key Key within a Secret when configuring env vars from a Secret
+  envVars: {}
+
+  ## @param homeWorker.podAnnotations Annotations to add to the home worker Pod
+  podAnnotations: {}
+
+  ## @param homeWorker.service.type Home worker Service type
+  ## @param homeWorker.service.port Home worker Service listening port
+  ## @param homeWorker.service.targetPort Home worker container listening port
+  ## @param homeWorker.service.annotations Annotations to add to the home worker Service
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 8484
+    annotations: {}
+
+  ## @param homeWorker.probes.liveness.path Configure path for home worker HTTP liveness probe
+  ## @extra homeWorker.probes.liveness.targetPort Configure port for home worker HTTP liveness probe
+  ## @param homeWorker.probes.liveness.initialDelaySeconds Configure initial delay for home worker liveness probe
+  ## @extra homeWorker.probes.liveness.initialDelaySeconds Configure timeout for home worker liveness probe
+  ## @param homeWorker.probes.startup.path Configure path for home worker HTTP startup probe
+  ## @extra homeWorker.probes.startup.targetPort Configure port for home worker HTTP startup probe
+  ## @param homeWorker.probes.startup.initialDelaySeconds Configure initial delay for home worker startup probe
+  ## @extra homeWorker.probes.startup.initialDelaySeconds Configure timeout for home worker startup probe
+  ## @extra homeWorker.probes.readiness.path Configure path for home worker HTTP readiness probe
+  ## @extra homeWorker.probes.readiness.targetPort Configure port for home worker HTTP readiness probe
+  ## @extra homeWorker.probes.readiness.initialDelaySeconds Configure initial delay for home worker readiness probe
+  ## @extra homeWorker.probes.readiness.initialDelaySeconds Configure timeout for home worker readiness probe
+  probes:
+    liveness:
+      path: /status
+      initialDelaySeconds: 10
+    startup:
+      path: /status
+      initialDelaySeconds: 10
+
+  ## @param homeWorker.resources Resource requirements for the home worker container
+  resources: {}
+
+  ## @param homeWorker.nodeSelector Node selector for the home worker Pod
+  nodeSelector: {}
+
+  ## @param homeWorker.tolerations Tolerations for the home worker Pod
+  tolerations: []
+
+  ## @param homeWorker.affinity Affinity for the home worker Pod
+  affinity: {}
+
+  ## @param homeWorker.persistence Additionnal volumes to create and mount on the home worker. Used for debugging purposes
+  ## @extra homeWorker.persistence.volume-name.size Size of the additional volume
+  ## @extra homeWorker.persistence.volume-name.type Type of the additional volume, persistentVolumeClaim or emptyDir
+  ## @extra homeWorker.persistence.volume-name.mountPath Path where the volume should be mounted to
+  persistence: { }
+#     volume-name:
+#       size: 8Gi
+#       type: persistentVolumeClaim
+#       mountPath: /data
+
+## @section Doc worker
+
+docWorker:
+  ## @extra docWorker.image.repository Repository to use to pull Grist's doc worker container image
+  ## @extra docWorker.image.tag Grist's doc worker container tag
+  ## @extra docWorker.image.pullPolicy Doc worker container image pull policy
+  # image:
+  #   repository: gristlabs/grist
+  #   pullPolicy: IfNotPresent
+  #   tag: "1.1.7"
+
+  ## @param docWorker.command Override the doc worker container command
+  ## @param docWorker.args Override the doc worker container args
+  command: []
+  args:
+    - /bin/sh
+    - -c
+    - |
+      set -e
+      export GRIST_DOC_WORKER_ID=$(echo $POD_IP | tr  "."  "-")
+      export APP_DOC_URL="$APP_HOME_URL/dw/$GRIST_DOC_WORKER_ID"
+      export APP_DOC_INTERNAL_URL="http://$INTERNAL_LB/internal/dw/$GRIST_DOC_WORKER_ID"
+      exec ./sandbox/run.sh
+
+  ## @param docWorker.replicas Amount of doc worker replicas
+  replicas: 3
+
+  ## @param docWorker.shareProcessNamespace Enable share process namespace between containers
+  shareProcessNamespace: true
+
+  ## @param docWorker.sidecars Add sidecars containers to docWorker deployment
+  sidecars: []
+
+  ## @param docWorker.securityContext Configure doc worker Pod security context
+  securityContext: null
+
+  ## @param docWorker.envVars Configure doc worker container environment variables
+  ## @extra docWorker.envVars.BY_VALUE Example environment variable by setting value directly
+  ## @extra docWorker.envVars.FROM_CONFIGMAP.configMapKeyRef.name Name of a ConfigMap when configuring env vars from a ConfigMap
+  ## @extra docWorker.envVars.FROM_CONFIGMAP.configMapKeyRef.key Key within a ConfigMap when configuring env vars from a ConfigMap
+  ## @extra docWorker.envVars.FROM_SECRET.secretKeyRef.name Name of a Secret when configuring env vars from a Secret
+  ## @extra docWorker.envVars.FROM_SECRET.secretKeyRef.key Key within a Secret when configuring env vars from a Secret
+  envVars: {}
+
+  ## @param docWorker.podAnnotations Annotations to add to the doc worker Pod
+  podAnnotations: {}
+
+  ## @param docWorker.service.type Doc worker Service type
+  ## @param docWorker.service.port Doc worker Service listening port
+  ## @param docWorker.service.targetPort Doc worker container listening port
+  ## @param docWorker.service.annotations Annotations to add to the doc worker Service
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 8484
+    annotations: {}
+
+  ## @param docWorker.probes.liveness.path Configure path for doc worker HTTP liveness probe
+  ## @extra docWorker.probes.liveness.targetPort Configure port for doc worker HTTP liveness probe
+  ## @param docWorker.probes.liveness.initialDelaySeconds Configure initial delay for doc worker liveness probe
+  ## @extra docWorker.probes.liveness.initialDelaySeconds Configure timeout for doc worker liveness probe
+  ## @param docWorker.probes.startup.path Configure path for doc worker HTTP startup probe
+  ## @extra docWorker.probes.startup.targetPort Configure port for doc worker HTTP startup probe
+  ## @param docWorker.probes.startup.initialDelaySeconds Configure initial delay for doc worker startup probe
+  ## @extra docWorker.probes.startup.initialDelaySeconds Configure timeout for doc worker startup probe
+  ## @extra docWorker.probes.readiness.path Configure path for doc worker HTTP readiness probe
+  ## @extra docWorker.probes.readiness.targetPort Configure port for doc worker HTTP readiness probe
+  ## @extra docWorker.probes.readiness.initialDelaySeconds Configure initial delay for doc worker readiness probe
+  ## @extra docWorker.probes.readiness.initialDelaySeconds Configure timeout for doc worker readiness probe
+  probes:
+    liveness:
+      path: /status
+      initialDelaySeconds: 10
+    startup:
+      path: /status
+      initialDelaySeconds: 10
+
+  ## @param docWorker.resources Resource requirements for the doc worker container
+  resources: {}
+
+  ## @param docWorker.nodeSelector Node selector for the doc worker Pod
+  nodeSelector: {}
+
+  ## @param docWorker.tolerations Tolerations for the doc worker Pod
+  tolerations: []
+
+  ## @param docWorker.affinity Affinity for the doc worker Pod
+  affinity: {}
+
+  ## @param docWorker.persistence Additionnal volumes to create and mount on the doc worker. Used for debugging purposes
+  ## @extra docWorker.persistence.volume-name.size Size of the additional volume
+  ## @extra docWorker.persistence.volume-name.type Type of the additional volume, persistentVolumeClaim or emptyDir
+  ## @extra docWorker.persistence.volume-name.mountPath Path where the volume should be mounted to
+  persistence: { }
+  #   volume-name:
+  #     type: persistentVolumeClaim
+  #     size: 8Gi
+  #     mountPath: /data
+
+## @section Grist doc worker load balancer
+
+loadBalancer:
+  ## @param loadBalancer.image.repository Repository to use to pull the load balancer container image
+  ## @param loadBalancer.image.tag Load balancer container tag
+  ## @param loadBalancer.image.pullPolicy Load balancer container image pull policy
+  image:
+    repository: nginx
+    pullPolicy: IfNotPresent
+    tag: 1.25.3
+
+  ## @param loadBalancer.replicas Amount of load balancer replicas
+  replicas: 2
+
+  ## @param loadBalancer.shareProcessNamespace Enable share process namespace between containers
+  shareProcessNamespace: false
+
+  ## @param loadBalancer.sidecars Add sidecars containers to loadBalancer deployment
+  sidecars: []
+
+  ## @skip loadBalancer.securityContext
+  ## @extra loadBalancer.securityContext Configure load balancer Pod security context
+  ## @skip loadBalancer.securityContext.runAsUser
+  ## @skip loadBalancer.securityContext.runAsGroup
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+
+  ## @param loadBalancer.envVars Configure load balancer container environment variables
+  ## @extra loadBalancer.envVars.BY_VALUE Example environment variable by setting value directly
+  ## @extra loadBalancer.envVars.FROM_CONFIGMAP.configMapKeyRef.name Name of a ConfigMap when configuring env vars from a ConfigMap
+  ## @extra loadBalancer.envVars.FROM_CONFIGMAP.configMapKeyRef.key Key within a ConfigMap when configuring env vars from a ConfigMap
+  ## @extra loadBalancer.envVars.FROM_SECRET.secretKeyRef.name Name of a Secret when configuring env vars from a Secret
+  ## @extra loadBalancer.envVars.FROM_SECRET.secretKeyRef.key Key within a Secret when configuring env vars from a Secret
+  envVars: {}
+
+  ## @param loadBalancer.podAnnotations Annotations to add to the load balancer Pod
+  podAnnotations: {}
+
+  ## @param loadBalancer.service.type Load balancer Service type
+  ## @param loadBalancer.service.port Load balancer Service listening port
+  ## @param loadBalancer.service.targetPort Load balancer container listening port
+  ## @param loadBalancer.service.annotations Annotations to add to the load balancer Service
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 8080
+    annotations: {}
+
+  ## @param loadBalancer.probes.liveness.path Configure path for load balancer HTTP liveness probe
+  ## @param loadBalancer.probes.liveness.targetPort Configure port for load balancer HTTP liveness probe
+  ## @extra loadBalancer.probes.liveness.initialDelaySeconds Configure initial delay for load balancer liveness probe
+  ## @extra loadBalancer.probes.liveness.initialDelaySeconds Configure timeout for load balancer liveness probe
+  ## @param loadBalancer.probes.startup.path Configure path for load balancer HTTP startup probe
+  ## @param loadBalancer.probes.startup.targetPort Configure port for load balancer HTTP startup probe
+  ## @extra loadBalancer.probes.startup.initialDelaySeconds Configure initial delay for load balancer startup probe
+  ## @extra loadBalancer.probes.startup.initialDelaySeconds Configure timeout for load balancer startup probe
+  ## @extra loadBalancer.probes.readiness.path Configure path for load balancer HTTP readiness probe
+  ## @extra loadBalancer.probes.readiness.targetPort Configure port for load balancer HTTP readiness probe
+  ## @extra loadBalancer.probes.readiness.initialDelaySeconds Configure initial delay for load balancer readiness probe
+  ## @extra loadBalancer.probes.readiness.initialDelaySeconds Configure timeout for load balancer readiness probe
+  probes:
+    liveness:
+      path: /health
+      targetPort: 8080
+    startup:
+      path: /health
+      targetPort: 8080
+
+  ## @param loadBalancer.resources Resource requirements for the load balancer container
+  resources: {}
+
+  ## @param loadBalancer.nodeSelector Node selector for the load balancer Pod
+  nodeSelector: {}
+
+  ## @param loadBalancer.tolerations Tolerations for the load balancer Pod
+  tolerations: []
+
+  ## @param loadBalancer.affinity Affinity for the load balancer Pod
+  affinity: {}
+
+  ## @param loadBalancer.volumeMounts [array] Additional volumes mounts to add to the container. Be sure to keep the existing ones when overriding
+  volumeMounts:
+    - name: cache
+      mountPath: /var/cache/nginx/
+    - name: run
+      mountPath: /var/run
+    - name: conf
+      mountPath: /etc/nginx/conf.d
+
+  ## @param loadBalancer.volumes [array] Additional volumes to mount in the container. Be sure to keep the existing ones when overriding
+  volumes:
+    - name: cache
+      emptyDir: {}
+    - name: run
+      emptyDir: {}
+    - name: conf
+      emptyDir: {}

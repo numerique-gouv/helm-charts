@@ -1,0 +1,20 @@
+{{- $envVars := include "grist.common.env" (list . .Values.docWorker) -}}
+{{- $fullName := include "grist.doc.fullname" . -}}
+{{- $component := "doc-worker" -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "grist.common.labels" (list . $component) | nindent 4 }}
+  annotations:
+    {{- toYaml $.Values.docWorker.service.annotations | nindent 4 }}
+spec:
+  type: {{ .Values.docWorker.service.type }}
+  ports:
+    - port: {{ .Values.docWorker.service.port }}
+      targetPort: {{ .Values.docWorker.service.targetPort }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "grist.common.selectorLabels" (list . $component) | nindent 4 }}
