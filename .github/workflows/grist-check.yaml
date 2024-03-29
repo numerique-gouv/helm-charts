@@ -1,0 +1,53 @@
+name: Check grist chart
+
+# SEE UPDATE BELOW
+defaults:
+  run:
+    # GitHub Actions run without a TTY device. This is a workaround to get one,
+    # based on https://github.com/actions/runner/issues/241#issuecomment-842566950.
+    shell: 'script -q -e -c "bash --noprofile --norc -eo pipefail {0}"'
+
+on:
+  pull_request:
+    paths:
+      - 'charts/grist/**'
+
+jobs:
+  check:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Check Readme
+        run: |
+          set -eu -o pipefail
+          cd charts/grist
+          MD5_ORIGIN=$(md5sum README.md)
+          ./update_readme.sh
+          MD5=$(md5sum README.md)
+          if [[ "$MD5_ORIGIN" != "$MD5" ]];
+          then
+            echo "Please update the readme of the chart"
+            exit 0
+          fi
+
+      - name: Check if chart version upgrade
+        run: |
+          helm repo add dinum https://numerique-gouv.github.io/helm-charts/
+          helm repo update
+          CHART_VERSION=$(helm search repo dinum | awk '/dinum\/grist/ {print $2}')
+          cd charts/grist
+          if grep $CHART_VERSION Chart.yaml;
+          then
+            echo "You probably need to upgrade the chart version"
+            echo "The last version is ${CHART_VERSION}"
+            echo "We found $(cat Chart.yaml |awk '/version:/ {print $2}') in Chart.yaml"
+            exit 1
+          else
+            echo "Ok"
+          fi
