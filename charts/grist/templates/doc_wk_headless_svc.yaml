@@ -11,6 +11,7 @@ metadata:
     {{- toYaml $.Values.docWorker.service.annotations | nindent 4 }}
 spec:
   type: {{ .Values.docWorker.service.type }}
+  clusterIP: None
   ports:
     - port: {{ .Values.docWorker.service.port }}
       targetPort: {{ .Values.docWorker.service.targetPort }}
