@@ -40,6 +40,9 @@ ingress:
   className: null
   host: null
   path: /
+  annotations:
+    ## @param ingress.annotations.nginx.ingress.kubernetes.io/proxy-body-size Set the client_max_body_size for Ingress' Nginx
+    nginx.ingress.kubernetes.io/proxy-body-size: 500m
   ## @skip ingress.hosts Additionnal host to configure for the Ingress
   ## @extra ingress.hosts[].host Additionnal host to configure for the Ingress
   ## @extra ingress.hosts[].paths[].path Custom paths to configure for the Ingress host
