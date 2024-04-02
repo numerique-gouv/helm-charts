@@ -25,7 +25,7 @@ commonEnvVars: &commonEnvVars
   GRIST_SINGLE_PORT: 0
   GRIST_ALLOWED_HOSTS: grist.127.0.0.1.nip.io
   GRIST_BOOT_KEY: bootkey
-  GRIST_LOG_SKIP_HTTP: false
+  GRIST_LOG_SKIP_HTTP: ''
   NODE_OPTIONS: '--inspect --enable-source-maps' # This enables the debugger in the containers
   GRIST_MAX_UPLOAD_IMPORT_MB: 300
 
