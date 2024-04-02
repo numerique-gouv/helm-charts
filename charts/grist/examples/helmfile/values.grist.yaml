@@ -1,6 +1,8 @@
+# Documentation for Grist variables is available here: https://github.com/gristlabs/grist-core
 commonEnvVars: &commonEnvVars
   APP_HOME_URL: https://grist.127.0.0.1.nip.io
   GRIST_ORG_IN_PATH: "true"
+  # For OIDC, see this documentation: https://support.getgrist.com/install/oidc/
   GRIST_OIDC_SP_HOST: https://grist.127.0.0.1.nip.io/
   GRIST_OIDC_IDP_ISSUER: http://keycloak.grist.svc.cluster.local/realms/grist
   GRIST_OIDC_IDP_SCOPES: openid email organizations
@@ -22,10 +24,16 @@ commonEnvVars: &commonEnvVars
   TYPEORM_PASSWORD: grist
   GRIST_SINGLE_PORT: 0
   GRIST_ALLOWED_HOSTS: grist.127.0.0.1.nip.io
+  GRIST_BOOT_KEY: bootkey
+  GRIST_LOG_SKIP_HTTP: false
+  NODE_OPTIONS: '--inspect --enable-source-maps' # This enables the debugger in the containers
+  GRIST_MAX_UPLOAD_IMPORT_MB: 300
 
 
 docWorker:
-  replicas: 2
+  replicas: 1
+  probes:
+    liveness: null # Disable the liveness probe for allowing debugging the NodeJS process
   envVars:
     <<: *commonEnvVars
 
@@ -39,7 +47,9 @@ docWorker:
     GRIST_DOCS_MINIO_SECRET_KEY: gristgristgrist
 
 homeWorker:
-  replicas: 2
+  replicas: 1
+  probes:
+    liveness: null # Disable the liveness probe for allowing debugging the NodeJS process
   envVars:
     <<: *commonEnvVars
 
