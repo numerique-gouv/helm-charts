@@ -124,10 +124,10 @@ homeWorker:
   ## @extra homeWorker.probes.readiness.initialDelaySeconds Configure timeout for home worker readiness probe
   probes:
     liveness:
-      path: /status
+      path: /status?db=1&redis=1
       initialDelaySeconds: 10
     startup:
-      path: /status
+      path: /status?db=1&redis=1
       initialDelaySeconds: 10
 
   ## @param homeWorker.resources Resource requirements for the home worker container
@@ -223,10 +223,10 @@ docWorker:
   ## @extra docWorker.probes.readiness.initialDelaySeconds Configure timeout for doc worker readiness probe
   probes:
     liveness:
-      path: /status
+      path: /status?db=1&redis=1&docWorkerRegistered=1
       initialDelaySeconds: 10
     startup:
-      path: /status
+      path: /status?db=1&redis=1&docWorkerRegistered=1
       initialDelaySeconds: 10
 
   ## @param docWorker.resources Resource requirements for the doc worker container
