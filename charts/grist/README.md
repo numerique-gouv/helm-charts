@@ -36,48 +36,48 @@ helm repo update
 
 ### Home worker
 
-| Name                                                     | Description                                                                             | Value       |
-| -------------------------------------------------------- | --------------------------------------------------------------------------------------- | ----------- |
-| `homeWorker.image.repository`                            | Repository to use to pull Grist's home worker container image                           |             |
-| `homeWorker.image.tag`                                   | Grist's home worker container tag                                                       |             |
-| `homeWorker.image.pullPolicy`                            | Home worker container image pull policy                                                 |             |
-| `homeWorker.command`                                     | Override the home worker container command                                              | `[]`        |
-| `homeWorker.args`                                        | Override the home worker container args                                                 | `[]`        |
-| `homeWorker.replicas`                                    | Amount of home worker replicas                                                          | `1`         |
-| `homeWorker.securityContext`                             | Configure home worker Pod security context                                              | `nil`       |
-| `homeWorker.shareProcessNamespace`                       | Enable share process namespace between containers                                       | `true`      |
-| `homeWorker.sidecars`                                    | Add sidecars containers to homeWorker deployment                                        | `[]`        |
-| `homeWorker.envVars`                                     | Configure home worker container environment variables                                   | `{}`        |
-| `homeWorker.envVars.BY_VALUE`                            | Example environment variable by setting value directly                                  |             |
-| `homeWorker.envVars.FROM_CONFIGMAP.configMapKeyRef.name` | Name of a ConfigMap when configuring env vars from a ConfigMap                          |             |
-| `homeWorker.envVars.FROM_CONFIGMAP.configMapKeyRef.key`  | Key within a ConfigMap when configuring env vars from a ConfigMap                       |             |
-| `homeWorker.envVars.FROM_SECRET.secretKeyRef.name`       | Name of a Secret when configuring env vars from a Secret                                |             |
-| `homeWorker.envVars.FROM_SECRET.secretKeyRef.key`        | Key within a Secret when configuring env vars from a Secret                             |             |
-| `homeWorker.podAnnotations`                              | Annotations to add to the home worker Pod                                               | `{}`        |
-| `homeWorker.service.type`                                | Home worker Service type                                                                | `ClusterIP` |
-| `homeWorker.service.port`                                | Home worker Service listening port                                                      | `80`        |
-| `homeWorker.service.targetPort`                          | Home worker container listening port                                                    | `8484`      |
-| `homeWorker.service.annotations`                         | Annotations to add to the home worker Service                                           | `{}`        |
-| `homeWorker.probes.liveness.path`                        | Configure path for home worker HTTP liveness probe                                      | `/status`   |
-| `homeWorker.probes.liveness.targetPort`                  | Configure port for home worker HTTP liveness probe                                      |             |
-| `homeWorker.probes.liveness.initialDelaySeconds`         | Configure initial delay for home worker liveness probe                                  | `10`        |
-| `homeWorker.probes.liveness.initialDelaySeconds`         | Configure timeout for home worker liveness probe                                        |             |
-| `homeWorker.probes.startup.path`                         | Configure path for home worker HTTP startup probe                                       | `/status`   |
-| `homeWorker.probes.startup.targetPort`                   | Configure port for home worker HTTP startup probe                                       |             |
-| `homeWorker.probes.startup.initialDelaySeconds`          | Configure initial delay for home worker startup probe                                   | `10`        |
-| `homeWorker.probes.startup.initialDelaySeconds`          | Configure timeout for home worker startup probe                                         |             |
-| `homeWorker.probes.readiness.path`                       | Configure path for home worker HTTP readiness probe                                     |             |
-| `homeWorker.probes.readiness.targetPort`                 | Configure port for home worker HTTP readiness probe                                     |             |
-| `homeWorker.probes.readiness.initialDelaySeconds`        | Configure initial delay for home worker readiness probe                                 |             |
-| `homeWorker.probes.readiness.initialDelaySeconds`        | Configure timeout for home worker readiness probe                                       |             |
-| `homeWorker.resources`                                   | Resource requirements for the home worker container                                     | `{}`        |
-| `homeWorker.nodeSelector`                                | Node selector for the home worker Pod                                                   | `{}`        |
-| `homeWorker.tolerations`                                 | Tolerations for the home worker Pod                                                     | `[]`        |
-| `homeWorker.affinity`                                    | Affinity for the home worker Pod                                                        | `{}`        |
-| `homeWorker.persistence`                                 | Additionnal volumes to create and mount on the home worker. Used for debugging purposes | `{}`        |
-| `homeWorker.persistence.volume-name.size`                | Size of the additional volume                                                           |             |
-| `homeWorker.persistence.volume-name.type`                | Type of the additional volume, persistentVolumeClaim or emptyDir                        |             |
-| `homeWorker.persistence.volume-name.mountPath`           | Path where the volume should be mounted to                                              |             |
+| Name                                                     | Description                                                                             | Value                  |
+| -------------------------------------------------------- | --------------------------------------------------------------------------------------- | ---------------------- |
+| `homeWorker.image.repository`                            | Repository to use to pull Grist's home worker container image                           |                        |
+| `homeWorker.image.tag`                                   | Grist's home worker container tag                                                       |                        |
+| `homeWorker.image.pullPolicy`                            | Home worker container image pull policy                                                 |                        |
+| `homeWorker.command`                                     | Override the home worker container command                                              | `[]`                   |
+| `homeWorker.args`                                        | Override the home worker container args                                                 | `[]`                   |
+| `homeWorker.replicas`                                    | Amount of home worker replicas                                                          | `1`                    |
+| `homeWorker.securityContext`                             | Configure home worker Pod security context                                              | `nil`                  |
+| `homeWorker.shareProcessNamespace`                       | Enable share process namespace between containers                                       | `true`                 |
+| `homeWorker.sidecars`                                    | Add sidecars containers to homeWorker deployment                                        | `[]`                   |
+| `homeWorker.envVars`                                     | Configure home worker container environment variables                                   | `{}`                   |
+| `homeWorker.envVars.BY_VALUE`                            | Example environment variable by setting value directly                                  |                        |
+| `homeWorker.envVars.FROM_CONFIGMAP.configMapKeyRef.name` | Name of a ConfigMap when configuring env vars from a ConfigMap                          |                        |
+| `homeWorker.envVars.FROM_CONFIGMAP.configMapKeyRef.key`  | Key within a ConfigMap when configuring env vars from a ConfigMap                       |                        |
+| `homeWorker.envVars.FROM_SECRET.secretKeyRef.name`       | Name of a Secret when configuring env vars from a Secret                                |                        |
+| `homeWorker.envVars.FROM_SECRET.secretKeyRef.key`        | Key within a Secret when configuring env vars from a Secret                             |                        |
+| `homeWorker.podAnnotations`                              | Annotations to add to the home worker Pod                                               | `{}`                   |
+| `homeWorker.service.type`                                | Home worker Service type                                                                | `ClusterIP`            |
+| `homeWorker.service.port`                                | Home worker Service listening port                                                      | `80`                   |
+| `homeWorker.service.targetPort`                          | Home worker container listening port                                                    | `8484`                 |
+| `homeWorker.service.annotations`                         | Annotations to add to the home worker Service                                           | `{}`                   |
+| `homeWorker.probes.liveness.path`                        | Configure path for home worker HTTP liveness probe                                      | `/status?db=1&redis=1` |
+| `homeWorker.probes.liveness.targetPort`                  | Configure port for home worker HTTP liveness probe                                      |                        |
+| `homeWorker.probes.liveness.initialDelaySeconds`         | Configure initial delay for home worker liveness probe                                  | `10`                   |
+| `homeWorker.probes.liveness.initialDelaySeconds`         | Configure timeout for home worker liveness probe                                        |                        |
+| `homeWorker.probes.startup.path`                         | Configure path for home worker HTTP startup probe                                       | `/status?db=1&redis=1` |
+| `homeWorker.probes.startup.targetPort`                   | Configure port for home worker HTTP startup probe                                       |                        |
+| `homeWorker.probes.startup.initialDelaySeconds`          | Configure initial delay for home worker startup probe                                   | `10`                   |
+| `homeWorker.probes.startup.initialDelaySeconds`          | Configure timeout for home worker startup probe                                         |                        |
+| `homeWorker.probes.readiness.path`                       | Configure path for home worker HTTP readiness probe                                     |                        |
+| `homeWorker.probes.readiness.targetPort`                 | Configure port for home worker HTTP readiness probe                                     |                        |
+| `homeWorker.probes.readiness.initialDelaySeconds`        | Configure initial delay for home worker readiness probe                                 |                        |
+| `homeWorker.probes.readiness.initialDelaySeconds`        | Configure timeout for home worker readiness probe                                       |                        |
+| `homeWorker.resources`                                   | Resource requirements for the home worker container                                     | `{}`                   |
+| `homeWorker.nodeSelector`                                | Node selector for the home worker Pod                                                   | `{}`                   |
+| `homeWorker.tolerations`                                 | Tolerations for the home worker Pod                                                     | `[]`                   |
+| `homeWorker.affinity`                                    | Affinity for the home worker Pod                                                        | `{}`                   |
+| `homeWorker.persistence`                                 | Additionnal volumes to create and mount on the home worker. Used for debugging purposes | `{}`                   |
+| `homeWorker.persistence.volume-name.size`                | Size of the additional volume                                                           |                        |
+| `homeWorker.persistence.volume-name.type`                | Type of the additional volume, persistentVolumeClaim or emptyDir                        |                        |
+| `homeWorker.persistence.volume-name.mountPath`           | Path where the volume should be mounted to                                              |                        |
 
 ### Doc worker
 
@@ -103,11 +103,11 @@ helm repo update
 | `docWorker.service.port`                                | Doc worker Service listening port                                                      | `80`                                                                                                                                                                                                                                                                    |
 | `docWorker.service.targetPort`                          | Doc worker container listening port                                                    | `8484`                                                                                                                                                                                                                                                                  |
 | `docWorker.service.annotations`                         | Annotations to add to the doc worker Service                                           | `{}`                                                                                                                                                                                                                                                                    |
-| `docWorker.probes.liveness.path`                        | Configure path for doc worker HTTP liveness probe                                      | `/status`                                                                                                                                                                                                                                                               |
+| `docWorker.probes.liveness.path`                        | Configure path for doc worker HTTP liveness probe                                      | `/status?db=1&redis=1&docWorkerRegistered=1`                                                                                                                                                                                                                            |
 | `docWorker.probes.liveness.targetPort`                  | Configure port for doc worker HTTP liveness probe                                      |                                                                                                                                                                                                                                                                         |
 | `docWorker.probes.liveness.initialDelaySeconds`         | Configure initial delay for doc worker liveness probe                                  | `10`                                                                                                                                                                                                                                                                    |
 | `docWorker.probes.liveness.initialDelaySeconds`         | Configure timeout for doc worker liveness probe                                        |                                                                                                                                                                                                                                                                         |
-| `docWorker.probes.startup.path`                         | Configure path for doc worker HTTP startup probe                                       | `/status`                                                                                                                                                                                                                                                               |
+| `docWorker.probes.startup.path`                         | Configure path for doc worker HTTP startup probe                                       | `/status?db=1&redis=1&docWorkerRegistered=1`                                                                                                                                                                                                                            |
 | `docWorker.probes.startup.targetPort`                   | Configure port for doc worker HTTP startup probe                                       |                                                                                                                                                                                                                                                                         |
 | `docWorker.probes.startup.initialDelaySeconds`          | Configure initial delay for doc worker startup probe                                   | `10`                                                                                                                                                                                                                                                                    |
 | `docWorker.probes.startup.initialDelaySeconds`          | Configure timeout for doc worker startup probe                                         |                                                                                                                                                                                                                                                                         |
