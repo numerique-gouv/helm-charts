@@ -4,7 +4,7 @@ commonEnvVars: &commonEnvVars
   GRIST_ORG_IN_PATH: "true"
   # For OIDC, see this documentation: https://support.getgrist.com/install/oidc/
   GRIST_OIDC_SP_HOST: https://grist.127.0.0.1.nip.io/
-  GRIST_OIDC_IDP_ISSUER: http://keycloak.grist.svc.cluster.local/realms/grist
+  GRIST_OIDC_IDP_ISSUER: http://keycloak/realms/grist
   GRIST_OIDC_IDP_SCOPES: openid email organizations
   GRIST_OIDC_IDP_CLIENT_ID: grist
   GRIST_OIDC_IDP_CLIENT_SECRET: yT00LmUDppwn3s4cFCNPV3Qg95pU14ZQ
