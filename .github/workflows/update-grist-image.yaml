@@ -1,0 +1,32 @@
+name: Upgrade docker image in chart if needed
+
+on:
+  schedule:
+    - cron: "0 1 * * *"
+
+jobs:
+  build:
+    name: Check grist_release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - id: grist_release
+        uses: pozetroninc/github-action-get-latest-release@master
+        with:
+          repository: gristlabs/grist-core
+
+      - name: Format version
+        id: version
+        run: |
+          VERSION=$(echo ${{ steps.grist_release.outputs.release }} | awk -F'v' '{print $2}')
+          sed -i '22s/  tag: .*/  tag: "'"${VERSION}"'"/' charts/grist/values.yaml
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "[GRIST] Automatic upgrade version"
+          title: "[GRIST] Automatic upgrade version"
