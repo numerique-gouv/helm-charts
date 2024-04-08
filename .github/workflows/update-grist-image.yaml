@@ -1,6 +1,13 @@
 name: Upgrade docker image in chart if needed
 
+defaults:
+  run:
+    # GitHub Actions run without a TTY device. This is a workaround to get one,
+    # based on https://github.com/actions/runner/issues/241#issuecomment-842566950.
+    shell: 'script -O /dev/stdout -q -e -c "bash --noprofile --norc -eo pipefail {0}"'
+
 on:
+  push:
   schedule:
     - cron: "0 1 * * *"
 
@@ -22,8 +29,15 @@ jobs:
       - name: Format version
         id: version
         run: |
-          VERSION=$(echo ${{ steps.grist_release.outputs.release }} | awk -F'v' '{print $2}')
-          sed -i '22s/  tag: .*/  tag: "'"${VERSION}"'"/' charts/grist/values.yaml
+          version=$(echo ${{ steps.grist_release.outputs.release }} | awk -F'v' '{print $2}')
+          version=toto
+          sed -i '22s/  tag: .*/  tag: "'"${version}"'"/' charts/grist/values.yaml
+          cd charts/grist
+          ./update_readme.sh
+          . ../../scripts/utils.sh
+          current_version=$(cat Chart.yaml |awk '/version:/ {print $2}')
+          new_version=$(increment_version $current_version)
+          sed -i "s/${current_version}/${new_version}/g" Chart.yaml
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
