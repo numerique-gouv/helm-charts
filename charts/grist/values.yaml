@@ -19,7 +19,7 @@ image:
 #    registry: "gitlab.com"
 #    username: "user"
 #    password: "pass"
-  tag: "1.1.12"
+  tag: "0.0.0"
 
 ## @param nameOverride Override the chart name
 ## @param fullnameOverride Override the full application name
