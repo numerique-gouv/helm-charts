@@ -24,7 +24,8 @@ jobs:
         id: version
         run: |
           VERSION=$(echo ${{ steps.grist_release.outputs.release }} | awk -F'v' '{print $2}')
-          sed '22s/  tag: .*/  tag: '"${VERSION}"'/' charts/grist/values.yaml
+          VERSION=0.0.0
+          sed -i '22s/  tag: .*/  tag: "'"${VERSION}"'"/' charts/grist/values.yaml
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
