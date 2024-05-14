@@ -7,9 +7,6 @@ defaults:
     shell: 'script -O /dev/stdout -q -e -c "bash --noprofile --norc -eo pipefail {0}"'
 
 on:
-  push:
-    branches:
-      - fix-grist-update
   schedule:
     - cron: "0 1 * * *"
 
