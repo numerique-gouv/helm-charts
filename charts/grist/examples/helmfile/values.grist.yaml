@@ -1,6 +1,7 @@
 # Documentation for Grist variables is available here: https://github.com/gristlabs/grist-core
 commonEnvVars: &commonEnvVars
   APP_HOME_URL: https://grist.127.0.0.1.nip.io
+  APP_HOME_INTERNAL_URL: http://grist-home-wk
   GRIST_ORG_IN_PATH: "true"
   # For OIDC, see this documentation: https://support.getgrist.com/install/oidc/
   GRIST_OIDC_SP_HOST: https://grist.127.0.0.1.nip.io/
