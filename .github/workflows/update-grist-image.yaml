@@ -34,9 +34,12 @@ jobs:
             cd charts/grist
             ./update_readme.sh
             . ../../scripts/utils.sh
-            current_version=$(cat Chart.yaml |awk '/version:/ {print $2}')
-            new_version=$(increment_version $current_version)
-            sed -i "s/${current_version}/${new_version}/g" Chart.yaml
+            chart_version=$(cat Chart.yaml |awk '/version:/ {print $2}')
+            app_version=$(cat Chart.yaml |awk '/appVersion:/ {print $2}')
+            new_chart_version=$(increment_version $chart_version)
+            new_app_version=$(increment_version $app_version)
+            sed -i "s/${chart_version}/${new_chart_version}/g" Chart.yaml
+            sed -i "s/${app_version}/${new_app_version}/g" Chart.yaml
           fi
 
       - name: Create Pull Request
