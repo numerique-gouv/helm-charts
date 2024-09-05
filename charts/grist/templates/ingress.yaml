@@ -90,11 +90,11 @@ spec:
             backend:
               {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
               service:
-                name: {{ include "grist.lb.fullname" . }}
+                name: {{ include "grist.lb.fullname" $ }}
                 port:
                   number: {{ $svcPort }}
               {{- else }}
-              serviceName: {{ include "grist.lb.fullname" . }}
+              serviceName: {{ include "grist.lb.fullname" $ }}
               servicePort: {{ $svcPort }}
             {{- end }}
           {{- range .paths }}
@@ -105,11 +105,11 @@ spec:
             backend:
               {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
               service:
-                name: {{ include "grist.home.fullname" . }}
+                name: {{ include "grist.home.fullname" $ }}
                 port:
                   number: {{ $svcPort }}
               {{- else }}
-              serviceName: {{ include "grist.home.fullname" . }}
+              serviceName: {{ include "grist.home.fullname" $ }}
               servicePort: {{ $svcPort }}
               {{- end }}
           {{- end }}
