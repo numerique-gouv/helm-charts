@@ -245,11 +245,26 @@ docWorker:
   ## @extra docWorker.persistence.volume-name.size Size of the additional volume
   ## @extra docWorker.persistence.volume-name.type Type of the additional volume, persistentVolumeClaim or emptyDir
   ## @extra docWorker.persistence.volume-name.mountPath Path where the volume should be mounted to
-  persistence: { }
+  persistence: {}
   #   volume-name:
   #     type: persistentVolumeClaim
   #     size: 8Gi
   #     mountPath: /data
+
+  ## @param docWorker.extraVolumes Additional volumes for the Grafana pod
+  ## Example:
+  ## extraVolumes:
+  ##   - name: my-volume
+  ##     emptyDir: {}
+  ##
+  extraVolumes: []
+  ## @param docWorker.extraVolumeMounts Additional volume mounts for the Grafana container
+  ## Example:
+  ## extraVolumeMounts:
+  ##   - name: my-volume
+  ##     mountPath: /opt/bitnami/grafana/my-stuff
+  ##
+  extraVolumeMounts: []
 
 ## @section Grist doc worker load balancer
 
