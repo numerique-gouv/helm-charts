@@ -12,6 +12,15 @@ entries:
   grist:
   - apiVersion: v2
     appVersion: 1.1.18
+    created: "2024-12-10T10:36:22.847862408Z"
+    digest: 452267e608194e9c589d90eaab421a9f2d1198082e3eddaa08d9a2d482d3edb0
+    name: grist
+    type: application
+    urls:
+    - https://numerique-gouv.github.io/helm-charts/grist-5.4.0.tgz
+    version: 5.4.0
+  - apiVersion: v2
+    appVersion: 1.1.18
     created: "2024-09-12T17:48:01.99706191Z"
     digest: 74bdfebbefb2c9b2f6de55dde6e0be4f6023a0e3977d426fdf5e8ea429c05edb
     name: grist
@@ -123,11 +132,11 @@ entries:
     version: 5.2.7
   plane:
   - apiVersion: v2
-    created: "2024-09-12T17:48:01.998305871Z"
-    digest: 4e1b2cfa5e76a4e98a23f565ec26a447eaa09869af708ca46491606e8509c5f7
+    created: "2024-12-10T10:36:22.849336314Z"
+    digest: 0d48c68a32e7754383c23edba0b61731e6bcfd661fae749cc47aee71fda5662b
     name: plane
     type: application
     urls:
     - https://numerique-gouv.github.io/helm-charts/plane-0.0.1-devel.tgz
     version: 0.0.1-devel
-generated: "2024-09-12T17:48:01.995981494Z"
+generated: "2024-12-10T10:36:22.845596459Z"
