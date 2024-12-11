@@ -1,5 +1,5 @@
 apiVersion: v2
 type: application
 name: grist
-version: 5.4.0
-appVersion: 1.1.18
+version: 5.4.1
+appVersion: 1.1.19
