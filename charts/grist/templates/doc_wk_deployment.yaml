@@ -117,6 +117,21 @@ spec:
             claimName: "{{ $fullName }}-{{ $name }}"
           {{- end }}
         {{- end }}
+        {{- if eq .Values.docWorker.kind "StatefulSet"}}
+        - name: persist
+          mountPath: /persist
+        {{- end }}
         {{- if .Values.docWorker.extraVolumes }}
         {{- include "common.tplvalues.render" (dict "value" .Values.docWorker.extraVolumes  "context" $) | nindent 8 }}
         {{- end }}
+  {{- if eq .Values.docWorker.kind "StatefulSet" }}
+  volumeClaimTemplates:
+  - metadata:
+      name: persist
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: {{ .Values.docWorker.storageClassName }}
+      resources:
+        requests:
+          storage: {{ .Values.docWorker.storageSize }}
+  {{- end }}
