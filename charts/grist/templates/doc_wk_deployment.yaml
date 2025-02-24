@@ -22,6 +22,10 @@ spec:
       labels:
         {{- include "grist.common.selectorLabels" (list . $component) | nindent 8 }}
     spec:
+      {{- with .Values.docWorker.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- if $.Values.image.credentials }}
       imagePullSecrets:
         - name: {{ include "grist.secret.dockerconfigjson.name" (dict "fullname" (include "grist.fullname" .) "imageCredentials" $.Values.image.credentials) }}

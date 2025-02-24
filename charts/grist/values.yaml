@@ -179,6 +179,9 @@ docWorker:
   ## @param docWorker.kind Kind of pod (StatefulSet or Deployment)
   kind: Deployment
 
+  ## @param docWorker.podSecurityContext Security context of pod
+  podSecurityContext: {}
+
   ## @param docWorker.storageClassName Name of the storageClass to use when using a sts
   storageClassName: ""
 
