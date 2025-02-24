@@ -78,6 +78,10 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           volumeMounts:
+            {{- if eq .Values.docWorker.kind "StatefulSet"}}
+            - name: persist
+              mountPath: /persist
+            {{- end }}
             {{- range $index, $value := .Values.mountFiles }}
             - name: "files-{{ $index }}"
               mountPath: {{ $value.path }}
@@ -116,10 +120,6 @@ spec:
           persistentVolumeClaim:
             claimName: "{{ $fullName }}-{{ $name }}"
           {{- end }}
-        {{- end }}
-        {{- if eq .Values.docWorker.kind "StatefulSet"}}
-        - name: persist
-          mountPath: /persist
         {{- end }}
         {{- if .Values.docWorker.extraVolumes }}
         {{- include "common.tplvalues.render" (dict "value" .Values.docWorker.extraVolumes  "context" $) | nindent 8 }}
