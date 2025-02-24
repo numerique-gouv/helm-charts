@@ -2,7 +2,7 @@
 {{- $fullName := include "grist.doc.fullname" . -}}
 {{- $component := "doc-worker" -}}
 apiVersion: apps/v1
-kind: Deployment
+kind: {{ .Values.docWorker.kind }}
 metadata:
   name: {{ $fullName }}
   labels:
