@@ -176,17 +176,17 @@ docWorker:
       export APP_DOC_INTERNAL_URL="http://$INTERNAL_LB/internal/dw/$GRIST_DOC_WORKER_ID"
       exec ./sandbox/run.sh
 
-  ## @param docWorker.kind Kind of pod (StatefulSet or Deployment)
-  kind: Deployment
-
   ## @param docWorker.podSecurityContext Security context of pod
   podSecurityContext: {}
 
-  ## @param docWorker.storageClassName Name of the storageClass to use when using a sts
-  storageClassName: ""
+  useVolume:
+    ## @param docWorker.useVolume.enabled Use a volume for /persist
+    enabled: false
+    ## @param docWorker.useVolume.storageClassName Name of the storageClass to use when using an ephemeral volume for /persist
+    storageClassName: ""
 
-  ## @param docWorker.storageSize Size of the storageClass to use when using a sts
-  storageSize: "10Gi"
+    ## @param docWorker.useVolume.storageSize Size of the storageClass to use when using an ephemeral volume for /persists
+    storageSize: "10Gi"
 
   ## @param docWorker.replicas Amount of doc worker replicas
   replicas: 3
