@@ -12,15 +12,6 @@ entries:
   grist:
   - apiVersion: v2
     appVersion: 1.1.20
-    created: "2025-03-03T09:46:09.744458497Z"
-    digest: f39946e3ed8fd70e5aa769a5129f62d47ad1c4e6536fed95933b5b2bb89ba992
-    name: grist
-    type: application
-    urls:
-    - https://numerique-gouv.github.io/helm-charts/grist-5.4.7.tgz
-    version: 5.4.7
-  - apiVersion: v2
-    appVersion: 1.1.20
     created: "2025-03-03T09:39:04.707325232Z"
     digest: 39d04d5dfa6944bb850fed0b14e90d365a4b569d5f118f4467be961b30c5b2af
     name: grist
