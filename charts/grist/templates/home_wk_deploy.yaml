@@ -12,6 +12,10 @@ spec:
   selector:
     matchLabels:
       {{- include "grist.common.selectorLabels" (list . $component) | nindent 6 }}
+  {{- with .Values.homeWorker.strategy }}
+  strategy:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   template:
     metadata:
       annotations:

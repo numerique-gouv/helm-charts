@@ -80,6 +80,9 @@ homeWorker:
   ## @param homeWorker.replicas Amount of home worker replicas
   replicas: 1
 
+  ## @param homeWorker.strategy Deployment strategy
+  strategy: {}
+
   ## @param homeWorker.securityContext Configure home worker Pod security context
   securityContext: null
 
@@ -190,6 +193,9 @@ docWorker:
 
   ## @param docWorker.replicas Amount of doc worker replicas
   replicas: 3
+
+  ## @param docWorker.strategy Deployment strategy
+  strategy: {}
 
   ## @param docWorker.shareProcessNamespace Enable share process namespace between containers
   shareProcessNamespace: true
