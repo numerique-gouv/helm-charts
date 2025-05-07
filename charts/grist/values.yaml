@@ -293,7 +293,7 @@ loadBalancer:
   image:
     repository: nginx
     pullPolicy: IfNotPresent
-    tag: 1.25.3
+    tag: 1.27.5
 
   ## @param loadBalancer.replicas Amount of load balancer replicas
   replicas: 2
