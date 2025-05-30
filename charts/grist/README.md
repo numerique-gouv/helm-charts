@@ -12,7 +12,7 @@ helm repo update
 | Name                                                              | Description                                              | Value                                                    |
 | ----------------------------------------------------------------- | -------------------------------------------------------- | -------------------------------------------------------- |
 | `image.repository`                                                | Repository to use to pull Grist's container image        | `gristlabs/grist`                                        |
-| `image.tag`                                                       | Grist's container tag                                    | `1.4.2`                                                  |
+| `image.tag`                                                       | Grist's container tag                                    | `1.6.0`                                                  |
 | `image.pullPolicy`                                                | Container image pull policy                              | `IfNotPresent`                                           |
 | `image.credentials.username`                                      | Username for container registry authentication           |                                                          |
 | `image.credentials.password`                                      | Password for container registry authentication           |                                                          |
@@ -137,7 +137,7 @@ helm repo update
 | Name                                                       | Description                                                                                          | Value          |
 | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | -------------- |
 | `loadBalancer.image.repository`                            | Repository to use to pull the load balancer container image                                          | `nginx`        |
-| `loadBalancer.image.tag`                                   | Load balancer container tag                                                                          | `1.25.3`       |
+| `loadBalancer.image.tag`                                   | Load balancer container tag                                                                          | `1.27.5`       |
 | `loadBalancer.image.pullPolicy`                            | Load balancer container image pull policy                                                            | `IfNotPresent` |
 | `loadBalancer.replicas`                                    | Amount of load balancer replicas                                                                     | `2`            |
 | `loadBalancer.shareProcessNamespace`                       | Enable share process namespace between containers                                                    | `false`        |
