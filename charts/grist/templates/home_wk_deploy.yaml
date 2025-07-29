@@ -84,6 +84,9 @@ spec:
             - name: "{{ $name }}"
               mountPath: "{{ $volume.mountPath }}"
             {{- end }}
+            {{- if .Values.homeWorker.extraVolumeMounts }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.homeWorker.extraVolumeMounts "context" $) | nindent 12 }}
+            {{- end }}
       {{- with .Values.homeWorker.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -110,4 +113,7 @@ spec:
           persistentVolumeClaim:
             claimName: "{{ $fullName }}-{{ $name }}"
           {{- end }}
+        {{- end }}
+        {{- if .Values.homeWorker.extraVolumes }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.homeWorker.extraVolumes  "context" $) | nindent 8 }}
         {{- end }}
