@@ -79,6 +79,8 @@ helm repo update
 | `homeWorker.persistence.volume-name.size`                | Size of the additional volume                                                           |                        |
 | `homeWorker.persistence.volume-name.type`                | Type of the additional volume, persistentVolumeClaim or emptyDir                        |                        |
 | `homeWorker.persistence.volume-name.mountPath`           | Path where the volume should be mounted to                                              |                        |
+| `homeWorker.extraVolumes`                                | Additional volumes for the Grafana pod                                                  | `[]`                   |
+| `homeWorker.extraVolumeMounts`                           | Additional volume mounts for the Grafana container                                      | `[]`                   |
 
 ### Doc worker
 
@@ -137,7 +139,7 @@ helm repo update
 | Name                                                       | Description                                                                                          | Value          |
 | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | -------------- |
 | `loadBalancer.image.repository`                            | Repository to use to pull the load balancer container image                                          | `nginx`        |
-| `loadBalancer.image.tag`                                   | Load balancer container tag                                                                          | `1.25.3`       |
+| `loadBalancer.image.tag`                                   | Load balancer container tag                                                                          | `1.27.5`       |
 | `loadBalancer.image.pullPolicy`                            | Load balancer container image pull policy                                                            | `IfNotPresent` |
 | `loadBalancer.replicas`                                    | Amount of load balancer replicas                                                                     | `2`            |
 | `loadBalancer.shareProcessNamespace`                       | Enable share process namespace between containers                                                    | `false`        |

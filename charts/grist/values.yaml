@@ -19,7 +19,7 @@ image:
 #    registry: "gitlab.com"
 #    username: "user"
 #    password: "pass"
-  tag: "1.4.2"
+  tag: "1.6.1"
 
 ## @param nameOverride Override the chart name
 ## @param fullnameOverride Override the full application name
@@ -150,10 +150,25 @@ homeWorker:
   ## @extra homeWorker.persistence.volume-name.type Type of the additional volume, persistentVolumeClaim or emptyDir
   ## @extra homeWorker.persistence.volume-name.mountPath Path where the volume should be mounted to
   persistence: { }
-#     volume-name:
-#       size: 8Gi
-#       type: persistentVolumeClaim
-#       mountPath: /data
+  #     volume-name:
+  #       size: 8Gi
+  #       type: persistentVolumeClaim
+  #       mountPath: /data
+
+  ## @param homeWorker.extraVolumes Additional volumes for the Grafana pod
+  ## Example:
+  ## extraVolumes:
+  ##   - name: my-volume
+  ##     emptyDir: {}
+  ##
+  extraVolumes: []
+  ## @param homeWorker.extraVolumeMounts Additional volume mounts for the Grafana container
+  ## Example:
+  ## extraVolumeMounts:
+  ##   - name: my-volume
+  ##     mountPath: /opt/bitnami/grafana/my-stuff
+  ##
+  extraVolumeMounts: []
 
 ## @section Doc worker
 
