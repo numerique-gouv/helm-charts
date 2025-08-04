@@ -1,0 +1,20 @@
+{{- if .Values.app.metrics.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ printf "%s-%s-%s" (include "helper.fullname" .) "app" "metrics" }}
+  labels: {{- (include "helper.labels" (dict "root" . "componentName" "app")) | nindent 4 }}
+  {{- if .Values.app.metrics.service.labels }}
+    {{- toYaml .Values.app.metrics.service.labels | nindent 4 }}
+  {{- end }}
+  {{- if .Values.app.metrics.service.annotations }}
+  annotations: {{- toYaml .Values.app.metrics.service.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.app.metrics.service.type }}
+  ports:
+  - port: {{ .Values.app.metrics.service.port }}
+    targetPort: {{ .Values.app.metrics.service.targetPort }}
+    protocol: TCP
+  selector: {{- include "helper.selectorLabels" . | nindent 4 }}
+{{- end }}

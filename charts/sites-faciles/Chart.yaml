@@ -1,0 +1,25 @@
+apiVersion: v2
+name: sites-faciles
+type: application
+version: 0.1.0
+appVersion: "2.0.0"
+description: A Helm chart to deploy sites-faciles.
+home: https://sites.beta.gouv.fr
+deprecated: false
+annotations: {}
+keywords: []
+dependencies:
+- name: cloudnative-pg
+  alias: cnpgOperator
+  version: "0.25.0"
+  repository: https://cloudnative-pg.github.io/charts
+  condition: cnpgOperator.enabled
+- name: cluster
+  alias: cnpgCluster
+  version: "0.3.1"
+  repository: https://cloudnative-pg.github.io/charts
+  condition: cnpgCluster.enabled
+sources:
+- https://github.com/numerique-gouv/sites-faciles
+- https://github.com/numerique-gouv/helm-charts
+maintainers: []

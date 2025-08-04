@@ -1,0 +1,64 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ printf "%s-%s" (include "helper.fullname" .) "superuser" }}
+  labels: {{- (include "helper.labels" (dict "root" . "componentName" "superuser")) | nindent 4 }}
+spec:
+  ttlSecondsAfterFinished: 300
+  template:
+    spec:
+      {{- if .Values.app.imagePullSecrets }}
+      imagePullSecrets:
+      {{- range .Values.app.imagePullSecrets }}
+      - name: {{ .name }}
+      {{- end }}
+      {{- end }}
+      {{- if .Values.app.podSecurityContext }}
+      securityContext: {{- toYaml .Values.app.podSecurityContext | nindent 8 }}
+      {{- end }}
+      {{- if (get .Values "app").serviceAccount.enabled }}
+      serviceAccountName: {{ .Values.app.serviceAccount.name | default (printf "%s-%s" (include "helper.fullname" .) "app") }}
+      {{- end }}
+      restartPolicy: OnFailure
+      containers:
+      - name: superuser
+        {{- if .Values.app.securityContext }}
+        securityContext: {{- toYaml .Values.app.securityContext | nindent 12 }}
+        {{- end }}
+        image: "{{ .Values.app.image.repository }}:{{ .Values.app.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.app.image.pullPolicy }}
+        env:
+        {{- (include "helper.config" .) | nindent 8 }}
+        {{- if or .Values.app.env .Values.app.secrets .Values.app.envFrom }}
+        envFrom:
+        {{- if .Values.app.env }}
+        - configMapRef:
+            name: {{ printf "%s-%s" (include "helper.fullname" .) "app" }}
+        {{- end }}
+        {{- if .Values.app.secrets }}
+        - secretRef:
+            name: {{ printf "%s-%s" (include "helper.fullname" .) "app" }}
+        {{- end }}
+        {{- if .Values.app.envFrom }}
+          {{- toYaml .Values.app.envFrom | nindent 8 }}
+        {{- end }}
+        {{- end }}
+        command:
+        - /bin/sh
+        - -c
+        - |
+          echo "Waiting for app server to be ready..."
+          export SERVER_HOST={{ printf "%s-%s" (include "helper.fullname" .) "app" }}
+          export SERVER_PORT={{ .Values.app.service.port }}
+          until python -c "import socket; s=socket.socket(); s.connect(('$SERVER_HOST', $SERVER_PORT)); s.close()" 2>/dev/null; do
+            echo "App server not ready, waiting..."
+            sleep 5
+          done
+          echo "App server is ready"
+          echo "Checking if superuser needs to be created..."
+          if python manage.py shell -c 'from django.contrib.auth import get_user_model; import sys; sys.exit(0) if get_user_model().objects.filter(is_superuser=True).exists() else sys.exit(1)' 2>/dev/null; then
+            echo "Superuser already exists, skipping creation."
+          else
+            echo "Creating superuser..."
+            python manage.py createsuperuser --noinput
+          fi
