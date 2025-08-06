@@ -1,0 +1,50 @@
+{{- if and .Values.app.metrics.enabled .Values.app.metrics.serviceMonitor.enabled }}
+{{- $metricSvcPort := .Values.app.metrics.service.port -}}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ printf "%s-%s-%s" (include "helper.fullname" .) "app" "metrics" }}
+  labels: {{- (include "helper.labels" (dict "root" . "componentName" "app")) | nindent 4 }}
+  {{- if .Values.app.metrics.serviceMonitor.labels }}
+    {{- toYaml .Values.app.metrics.serviceMonitor.labels | nindent 4 }}
+  {{- end }}
+  {{- if .Values.app.metrics.serviceMonitor.annotations }}
+  annotations: {{- toYaml .Values.app.metrics.serviceMonitor.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  endpoints:
+  {{- range .Values.app.metrics.serviceMonitor.endpoints }}
+  - port: {{ $metricSvcPort | quote }}
+    path: {{ .path }}
+    honorLabels: {{ .honorLabels }}
+    {{- if and .basicAuth .basicAuth.username .basicAuth.password }}
+    basicAuth: {{- toYaml .basicAuth | nindent 6 }}
+    {{- end }}
+    {{- if and .bearerTokenSecret .bearerTokenSecret.name .bearerTokenSecret.key }}
+    bearerTokenSecret: {{- toYaml .bearerTokenSecret | nindent 6 }}
+    {{- end }}
+    {{- if .interval }}
+    interval: {{ .interval }}
+    {{- end }}
+    {{- if .scrapeTimeout }}
+    scrapeTimeout: {{ .scrapeTimeout }}
+    {{- end }}
+    {{- if .relabelings }}
+    relabelings: {{- toYaml .relabelings | nindent 6 }}
+    {{- end }}
+    {{- if .metricRelabelings }}
+    metricRelabelings: {{- toYaml .metricRelabelings | nindent 6 }}
+    {{- end }}
+    {{- if .scheme }}
+    scheme: {{ .scheme }}
+    {{- end }}
+    {{- if .tlsConfig }}
+    tlsConfig: {{- toYaml .tlsConfig | nindent 6 }}
+    {{- end }}
+  {{- end }}
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.Namespace | quote }}
+  selector:
+    matchLabels: {{- include "helper.selectorLabels" (dict "root" . "componentName" "app") | nindent 6 }}
+{{- end }}

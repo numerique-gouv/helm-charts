@@ -1,0 +1,793 @@
+# -- Provide a name in place of the default application name.
+# @section -- General
+nameOverride: ""
+
+# -- String to fully override the default application name.
+# @section -- General
+fullnameOverride: ""
+
+app:
+  # -- The number of application controller pods to run.
+  # @section -- General
+  replicaCount: 1
+  image:
+    # -- Repository to use for the app.
+    # @section -- Image
+    repository: "ghcr.io/numerique-gouv/sites-faciles"
+    # -- Image pull policy for the app.
+    # @section -- Image
+    pullPolicy: "IfNotPresent"
+    # -- Tag to use for the app.
+    # @section -- Image
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "main"
+  ingress:
+    # -- Whether or not ingress should be enabled.
+    # @section -- Ingress
+    enabled: false
+    # -- Defines which ingress controller will implement the resource.
+    # @section -- Ingress
+    className: ""
+    # -- Additional ingress annotations.
+    # @section -- Ingress
+    annotations: {}
+    # -- Additional ingress labels.
+    # @section -- Ingress
+    labels: {}
+    hosts:
+      - backend:
+          # -- Name of the backend service linked to the host record (leave empty to use the app service).
+          # @section -- Ingress
+          serviceName: ""
+          # -- Port used by the backend service linked to the host record (leave null to use the app service port).
+          # @section -- Ingress
+          portNumber: null
+        # -- Name of the host record.
+        # @section -- Ingress
+        name: "domain.local"
+        # -- Path type of the host record.
+        # @section -- Ingress
+        pathType: "Prefix"
+        # -- Path of the host record to manage routing.
+        # @section -- Ingress
+        path: "/"
+    # -- Enable TLS configuration.
+    # @section -- Ingress
+    tls: []
+    # - secretName: domain.local-tls
+    #   hosts:
+    #   - domain.local
+  # -- Annotations for the app deployed pods.
+  # @section -- General
+  podAnnotations: {}
+  # -- Labels for the app deployed pods.
+  # @section -- General
+  podLabels: {}
+  # -- Toggle and define pod-level security context.
+  # @section -- General
+  podSecurityContext: {}
+  # fsGroup: 2000
+  # -- Init containers to add to the app pod.
+  # @section -- General
+  initContainers: []
+  # - name: wait-for-db-ready
+  #   image: docker.io/postgres:17
+  #   env:
+  #   {{- (include "helper.config" .) | nindent 8 }}
+  #   command:
+  #   - 'sh'
+  #   - '-c'
+  #   - |
+  #     echo "Waiting for database to be ready..."
+  #     until python -c "import os, psycopg2; psycopg2.connect(os.environ['DATABASE_URL'])" 2>/dev/null; do
+  #       echo "Database not ready, waiting..."
+  #       sleep 5
+  #     done
+  #     echo "Database is ready"
+  # - name: wait-for-keycloak
+  #   image: docker.io/curlimages/curl:latest
+  #   command:
+  #   - "/bin/sh"
+  #   - "-c"
+  #   args:
+  #   - "while [ $(curl -sw '%{http_code}' http://webapp.svc.cluster.local -o /dev/null) -ne 200 ]; do sleep 5; echo 'Waiting for the webapp...'; done"
+  #   volumeMounts:
+  #   - mountPath: /custom-volume
+  #     name: custom-volume
+  # -- Extra containers to add to the app pod as sidecars.
+  # @section -- General
+  extraContainers: []
+  # - name: fluentd
+  #   image: "fluentd"
+  #   volumeMounts:
+  #     - mountPath: /my-volume/config
+  #       name: config
+  # -- App container port.
+  # @section -- General
+  containerPort: 8000
+  # -- App extra container ports.
+  # @section -- General
+  extraPorts: []
+  # - containerPort: 9090
+  #   protocol: "TCP"
+  # -- App container command.
+  # @section -- General
+  command: []
+  # -- App container command args.
+  # @section -- General
+  args: []
+  # -- Toggle and define container-level security context.
+  # @section -- General
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+    # runAsUser: 1000
+  # -- App container env variables loaded from configmap or secret reference.
+  # @section -- General
+  envFrom: []
+  # - configMapRef:
+  #     name: my-config
+  # - secretRef:
+  #     name: my-secret
+  ## The config section is used to define environment variables for the app container.
+  ## More values than the ones defined here can be added in this section (even if not listed).
+  ## Each value can be loaded from a direct value, a configmap reference, or a secret reference.
+  config:
+    # -- Django superuser username (Default to `admin` if not set).
+    # @section -- Config
+    djangoSuperuserUsername: ""
+      # valueFrom:
+      #   secretKeyRef:
+      #     name: "sites-faciles-config"
+      #     key: "DJANGO_SUPERUSER_USERNAME"
+    # -- Django superuser password (Default to autogenerating a random password if not set).
+    # @section -- Config
+    djangoSuperuserPassword: ""
+      # valueFrom:
+      #   secretKeyRef:
+      #     name: "sites-faciles-config"
+      #     key: "DJANGO_SUPERUSER_PASSWORD"
+    # -- Django superuser email (Default to `<djangoSuperuserUsername>@domain.local` if not set).
+    # @section -- Config
+    djangoSuperuserEmail: ""
+      # valueFrom:
+      #   secretKeyRef:
+      #     name: "sites-faciles-config"
+      #     key: "DJANGO_SUPERUSER_EMAIL"
+    # -- Secret key, for example generated in a terminal with the command `openssl rand -hex 32` (Default to a random value if not set).
+    # @section -- Config
+    secretKey: ""
+      # valueFrom:
+      #   secretKeyRef:
+      #     name: "sites-faciles-config"
+      #     key: "SECRET_KEY"
+    # -- The protocol to use for the app's main URL.
+    # @section -- Config
+    hostProto: "http"
+      # valueFrom:
+      #   secretKeyRef:
+      #     name: "sites-faciles-config"
+      #     key: "HOST_PROTO"
+    # -- The domain name of your site's main URL.
+    # @section -- Config
+    hostUrl: "localhost:8000"
+      # valueFrom:
+      #   secretKeyRef:
+      #     name: "sites-faciles-config"
+      #     key: "HOST_URL"
+    # -- The domain(s) authorized to access the site, separated by commas if more than one.
+    # @section -- Config
+    allowedHosts: "localhost,127.0.0.1"
+      # valueFrom:
+      #   secretKeyRef:
+      #     name: "sia" # ""
+      # valueFrom:
+      #   secretKeyRef:
+      #     name: "sites-faciles-config"
+      #     key: "SECRET_KEY"
+    # -- Default email address used for sending emails.
+    # @section -- Config
+    defaultFromEmail: "no-reply@domain.local"
+      # valueFrom:
+      #   secretKeyRef:
+      #     name: "sites-faciles-config"
+      #     key: "DEFAULT_FROM_EMAIL"
+    # -- Host to use for sending emails.
+    # @section -- Config
+    emailHost: ""
+      # valueFrom:
+      #   secretKeyRef:
+      #     name: "sites-faciles-config"
+      #     key: "EMAIL_HOST"
+    # -- Port to use for the SMTP server defined above.
+    # @section -- Config
+    emailPort: 465
+      # valueFrom:
+      #   secretKeyRef:
+      #     name: "sites-faciles-config"
+      #     key: "EMAIL_PORT"
+    # -- Username to use for the SMTP server defined in `EMAIL_HOST`.
+    # @section -- Config
+    emailHostUser: ""
+      # valueFrom:
+      #   secretKeyRef:
+      #     name: "sites-faciles-config"
+      #     key: "EMAIL_HOST_USER"
+    # -- Password to use for the SMTP server defined in `EMAIL_HOST`.
+    # @section -- Config
+    emailHostPassword: ""
+      # valueFrom:
+      #   secretKeyRef:
+      #     name: "sites-faciles-config"
+      #     key: "EMAIL_HOST_PASSWORD"
+    # -- Whether to use a secure TLS connection for SMTP communication.
+    # @section -- Config
+    emailUseTls: true
+      # valueFrom:
+      #   secretKeyRef:
+      #     name: "sites-faciles-config"
+      #     key: "EMAIL_USE_TLS"
+    # -- Whether to use implicit TLS (SSL) for SMTP communication.
+    # @section -- Config
+    emailUseSsl: false
+      # valueFrom:
+      #   secretKeyRef:
+      #     name: "sites-faciles-config"
+      #     key: "EMAIL_USE_SSL"
+    # -- Timeout in seconds for blocking operations such as connection attempts. Must not be zero.
+    # @section -- Config
+    emailTimeout: 30
+      # valueFrom:
+      #   secretKeyRef:
+      #     name: "sites-faciles-config"
+      #     key: "EMAIL_TIMEOUT"
+    # -- If `EMAIL_USE_SSL` or `EMAIL_USE_TLS` are true, optionally set the path to a PEM private key file for SSL connection.
+    # @section -- Config
+    emailSslKeyfile: ""
+      # valueFrom:
+      #   secretKeyRef:
+      #     name: "sites-faciles-config"
+      #     key: "EMAIL_SSL_KEYFILE"
+    # -- If `EMAIL_USE_SSL` or `EMAIL_USE_TLS` are true, optionally set the path to a PEM certificate chain file for SSL connection.
+    # @section -- Config
+    emailSslCertfile: ""
+      # valueFrom:
+      #   secretKeyRef:
+      #     name: "sites-faciles-config"
+      #     key: "EMAIL_SSL_CERTFILE"
+    # -- Allow users to request a password reset.
+    # @section -- Config
+    wagtailPasswordResetEnabled: true
+      # valueFrom:
+      #   secretKeyRef:
+      #     name: "sites-faciles-config"
+      #     key: "WAGTAIL_PASSWORD_RESET_ENABLED"
+    # -- Name of the S3 bucket to use for storage.
+    # @section -- Config
+    s3BucketName: ""
+      # valueFrom:
+      #   secretKeyRef:
+      #     name: "sites-faciles-config"
+      #     key: "S3_BUCKET_NAME"
+    # -- AWS region of the S3 bucket.
+    # @section -- Config
+    s3BucketRegion: ""
+      # valueFrom:
+      #   secretKeyRef:
+      #     name: "sites-faciles-config"
+      #     key: "S3_BUCKET_REGION"
+    # -- S3 host (without https://), e.g. `s3.amazonaws.com`.
+    # @section -- Config
+    s3Host: ""
+      # valueFrom:
+      #   secretKeyRef:
+      #     name: "sites-faciles-config"
+      #     key: "S3_HOST"
+    # -- S3 access key ID for authentication.
+    # @section -- Config
+    s3KeyId: ""
+      # valueFrom:
+      #   secretKeyRef:
+      #     name: "sites-faciles-config"
+      #     key: "S3_KEY_ID"
+    # -- S3 secret access key for authentication.
+    # @section -- Config
+    s3KeySecret: ""
+      # valueFrom:
+      #   secretKeyRef:
+      #     name: "sites-faciles-config"
+      #     key: "S3_KEY_SECRET"
+    # -- The S3_LOCATION parameter is optional, but allows you to share the S3 bucket with several Easy Sites installations. We recommend using the app name as the value.
+    # @section -- Config
+    s3Location: ""
+      # valueFrom:
+      #   secretKeyRef:
+      #     name: "sites-faciles-config"
+      #     key: "S3_LOCATION"
+    ## Database URL is automatically generated from the postgresql values but you can uverride it here.
+    # databaseUrl: ""
+    #   # valueFrom:
+    #   #   secretKeyRef:
+    #   #     name: "sites-faciles-config"
+    #   #     key: "DATABASE_URL"
+  # -- App container env variables, it will be injected into a configmap and loaded into the container.
+  # @section -- General
+  env: {}
+  # -- App container env secrets, it will be injected into a secret and loaded into the container.
+  # @section -- General
+  secrets: {}
+  probes:
+    healthcheck:
+      # -- App container healthcheck endpoint.
+      # @section -- Probes
+      path: "/"
+      # -- Port to use for healthcheck (defaults to container port if not set)
+      # @section -- Probes
+      port: 8000
+    startupProbe:
+      # -- Whether or not enable the probe.
+      # @section -- Probes
+      enabled: false
+      # -- Number of seconds after the container has started before probe is initiated.
+      # @section -- Probes
+      initialDelaySeconds: 5
+      # -- Minimum consecutive successes for the probe to be considered successful after having failed.
+      # @section -- Probes
+      successThreshold: 1
+      # -- Minimum consecutive failures for the probe to be considered failed after having succeeded.
+      # @section -- Probes
+      failureThreshold: 10
+      # -- How often (in seconds) to perform the probe.
+      # @section -- Probes
+      periodSeconds: 10
+      # -- Number of seconds after which the probe times out.
+      # @section -- Probes
+      timeoutSeconds: 5
+    readinessProbe:
+      # -- Whether or not enable the probe.
+      # @section -- Probes
+      enabled: false
+      # -- Number of seconds after the container has started before probe is initiated.
+      # @section -- Probes
+      initialDelaySeconds: 10
+      # -- Minimum consecutive successes for the probe to be considered successful after having failed.
+      # @section -- Probes
+      successThreshold: 2
+      # -- Minimum consecutive failures for the probe to be considered failed after having succeeded.
+      # @section -- Probes
+      failureThreshold: 3
+      # -- How often (in seconds) to perform the probe.
+      # @section -- Probes
+      periodSeconds: 10
+      # -- Number of seconds after which the probe times out.
+      # @section -- Probes
+      timeoutSeconds: 5
+    livenessProbe:
+      # -- Whether or not enable the probe.
+      # @section -- Probes
+      enabled: false
+      # -- Number of seconds after the container has started before probe is initiated.
+      # @section -- Probes
+      initialDelaySeconds: 30
+      # -- Minimum consecutive successes for the probe to be considered successful after having failed.
+      # @section -- Probes
+      successThreshold: 1
+      # -- Minimum consecutive failures for the probe to be considered failed after having succeeded.
+      # @section -- Probes
+      failureThreshold: 3
+      # -- How often (in seconds) to perform the probe.
+      # @section -- Probes
+      periodSeconds: 30
+      # -- Number of seconds after which the probe times out.
+      # @section -- Probes
+      timeoutSeconds: 5
+  strategy:
+    # -- Strategy type used to replace old Pods by new ones, can be `Recreate` or `RollingUpdate`.
+    # @section -- General
+    type: "RollingUpdate"
+    rollingUpdate:
+      # -- The maximum number of pods that can be unavailable during the update process.
+      # @section -- General
+      maxUnavailable: 1
+      # -- The maximum number of pods that can be scheduled above the desired number of pods.
+      # @section -- General
+      maxSurge: 1
+  # -- Image credentials configuration.
+  # @section -- Image
+  imagePullSecrets: []
+  # - name: "pullsecret-name-1"
+  #   create: false
+  # - name: "pullsecret-name-2"
+  #   create: true
+  #   registry: ""
+  #   username: ""
+  #   password: ""
+  #   email: ""
+  # -- Host aliases that will be injected at pod-level into /etc/hosts.
+  # @section -- General
+  hostAliases: []
+  # - ip: "127.0.0.1"
+  #   hostnames:
+  #   - "foo.local"
+  #   - "bar.local"
+  # - ip: "10.1.2.3"
+  #   hostnames:
+  #   - "foo.remote"
+  #   - "bar.remote"
+  # -- List of volumes to add.
+  # @section -- Volumes
+  volumes: []
+  # - name: medias
+  #   emptyDir: {}
+  # - name: staticfiles
+  #   emptyDir: {}
+  # -- List of volumeClaims to add.
+  # @section -- Volumes
+  volumeClaims: []
+  # - metadata:
+  #     name: app-volume
+  #   spec:
+  #     accessModes: [ "ReadWriteOnce" ]
+  #     storageClassName: "my-storage-class"
+  #     resources:
+  #       requests:
+  #         storage: 1Gi
+  # -- List of mounts to add (normally used with `volumes` or `volumeClaims`).
+  # @section -- Volumes
+  volumeMounts: []
+  # - name: media
+  #   mountPath: /app/medias
+  # - name: staticfiles
+  #   mountPath: /app/staticfiles
+  service:
+    # -- Type of service to create for the app.
+    # @section -- Service
+    type: "ClusterIP"
+    # -- Port used by the service.
+    # @section -- Service
+    port: 80
+    # -- Port used when type is `NodePort` to expose the service on the given node port.
+    # @section -- Service
+    nodePort: 31000
+    # -- Port name used by the service.
+    # @section -- Service
+    portName: "http"
+    # -- Protocol used by the service.
+    # @section -- Service
+    protocol: "TCP"
+    # -- Extra service ports.
+    # @section -- Service
+    extraPorts: []
+    # - port: 9090
+    #   targetPort: 9090
+    #   protocol: "TCP" 
+    #   name: "metrics"
+  resources:
+    requests:
+      # -- Memory request for the app.
+      # @section -- Resources
+      memory: "256Mi"
+      # -- CPU request for the app.
+      # @section -- Resources
+      cpu: "200m"
+      # Other stuff like GPU, etc could be added here.
+      # nvidia.com/gpu: "1"
+    limits:
+      # -- Memory limit for the app.
+      # @section -- Resources
+      memory: "1Gi"
+      # -- CPU limit for the app.
+      # @section -- Resources
+      cpu: "1"
+      # Other stuff like GPU, etc could be added here.
+      # nvidia.com/gpu: "1"
+  autoscaling:
+    # -- Enable Horizontal Pod Autoscaler for the app.
+    # @section -- Autoscaling
+    enabled: false
+    # -- Minimum number of replicas for the app.
+    # @section -- Autoscaling
+    minReplicas: 1
+    # -- Maximum number of replicas for the app.
+    # @section -- Autoscaling
+    maxReplicas: 3
+    # -- Average CPU utilization percentage for the app.
+    # @section -- Autoscaling
+    targetCPUUtilizationPercentage: 80
+    # -- Average memory utilization percentage for the app.
+    # @section -- Autoscaling
+    targetMemoryUtilizationPercentage: 80
+  # -- Revision history limit for the app.
+  # @section -- General
+  revisionHistoryLimit: 10
+  # -- Default node selector for app.
+  # @section -- General
+  nodeSelector: {}
+  # kubernetes.io/os: "linux"
+  # kubernetes.io/arch: "amd64"
+  # kubernetes.io/hostname: "node1"
+  # -- Default tolerations for app.
+  # @section -- General
+  tolerations: []
+  # - key: "key1"
+  #   operator: "Equal"
+  #   value: "value1"
+  #   effect: "NoSchedule"
+  #   tolerationSeconds: 3600
+  # - key: "key2"
+  #   operator: "Equal"
+  #   value: "value2"
+  #   effect: "NoExecute"
+  #   tolerationSeconds: 3600
+  # - key: "key3"
+  #   operator: "Exists"
+  #   effect: "PreferNoSchedule"
+  #   tolerationSeconds: 3600
+  # -- Affinity used for app pod.
+  # @section -- General
+  affinity: {}
+  # podAntiAffinity:
+  #   requiredDuringSchedulingIgnoredDuringExecution:
+  #   - labelSelector:
+  #       matchExpressions:
+  #       - key: "app.kubernetes.io/name"
+  #         operator: "In"
+  #         values:
+  #         - "sites-faciles-app"
+  #     topologyKey: "kubernetes.io/hostname"
+  serviceAccount:
+    # -- Enable the service account.
+    # @section -- Service Account
+    enabled: false
+    # -- Create a service account.
+    # @section -- Service Account
+    create: false
+    # -- Annotations applied to created service account.
+    # @section -- Service Account
+    annotations: {}
+    # -- Service account name.
+    # @section -- Service Account
+    name: ""
+    # -- Should the service account access token be automount in the pod.
+    # @section -- Service Account
+    automountServiceAccountToken: false
+    role:
+      # -- Should the role be created.
+      # @section -- Service Account
+      create: false
+      # -- Role rules associated with the service account.
+      # @section -- Service Account
+      rules: []
+      # - apiGroups:
+      #   - argoproj.io
+      #   resources:
+      #   - applications
+      #   - applicationsets
+      #   - appprojects
+      #   verbs:
+      #   - create
+      #   - get
+      #   - list
+      #   - watch
+      #   - update
+      #   - delete
+      #   - patch
+    clusterRole:
+      # -- Should the clusterRole be created.
+      # @section -- Service Account
+      create: false
+      # -- ClusterRole rules associated with the service account.
+      # @section -- Service Account
+      rules: []
+      # - apiGroups:
+      #   - argoproj.io
+      #   resources:
+      #   - applications
+      #   - applicationsets
+      #   - appprojects
+      #   verbs:
+      #   - create
+      #   - get
+      #   - list
+      #   - watch
+      #   - update
+      #   - delete
+      #   - patch
+  ## Ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
+  pdb:
+    # -- Deploy a PodDisruptionBudget for the app
+    # @section -- General
+    enabled: false
+    # -- Labels to be added to app pdb.
+    # @section -- General
+    labels: {}
+    # -- Annotations to be added to app pdb.
+    # @section -- General
+    annotations: {}
+    # -- Number of pods that are available after eviction as number or percentage (eg.: 50%).
+    # @section -- General
+    # @default -- `""` (defaults to 0 if not specified)
+    minAvailable: ""
+    # -- Number of pods that are unavailable after eviction as number or percentage (eg.: 50%). Has higher precedence over `app.pdb.minAvailable`.
+    # @section -- General
+    maxUnavailable: ""
+  networkPolicy:
+    # -- Create NetworkPolicy object for the app.
+    # @section -- NetworkPolicy
+    create: false
+    # -- Policy types used in the NetworkPolicy object.
+    # @section -- NetworkPolicy
+    policyTypes:
+      - Ingress
+    # -- Ingress rules for the NetworkPolicy object.
+    # @section -- NetworkPolicy
+    ingress: []
+    # - from:
+    #   - ipBlock:
+    #       cidr: 172.17.0.0/16
+    #       except:
+    #       - 172.17.1.0/24
+    #   - namespaceSelector:
+    #       matchLabels:
+    #         project: myproject
+    #   - podSelector:
+    #       matchLabels:
+    #         role: frontend
+    #   ports:
+    #   - protocol: TCP
+    #     port: 6379
+    # -- Egress rules for the NetworkPolicy object.
+    # @section -- NetworkPolicy
+    egress: []
+    # - to:
+    #   - ipBlock:
+    #       cidr: 10.0.0.0/24
+    #   ports:
+    #   - protocol: TCP
+    #     port: 32000
+    #     endPort: 32768
+  metrics:
+    # -- Deploy metrics service.
+    # @section -- Metrics
+    enabled: false
+    service:
+      # -- Metrics service annotations.
+      # @section -- Metrics
+      annotations: {}
+      # -- Metrics service labels.
+      # @section -- Metrics
+      labels: {}
+      # -- Metrics service port.
+      # @section -- Metrics
+      port: 9100
+      # -- Metrics service target port.
+      # @section -- Metrics
+      targetPort: 9100
+    serviceMonitor:
+      # -- Enable a prometheus ServiceMonitor.
+      # @section -- Metrics
+      enabled: false
+      # -- Prometheus ServiceMonitor labels.
+      # @section -- Metrics
+      labels: {}
+      # -- Prometheus ServiceMonitor annotations.
+      # @section -- Metrics
+      annotations: {}
+      endpoints:
+        - basicAuth:
+            # -- The secret in the service monitor namespace that contains the username for authentication.
+            # @section -- Metrics
+            username: ""
+            # -- The secret in the service monitor namespace that contains the password for authentication.
+            # @section -- Metrics
+            password: ""
+          bearerTokenSecret:
+            # -- Secret name to mount to read bearer token for scraping targets. The secret needs to be in the same namespace as the service monitor and accessible by the Prometheus Operator.
+            # @section -- Metrics
+            name: ""
+            # -- Secret key to mount to read bearer token for scraping targets. The secret needs to be in the same namespace as the service monitor and accessible by the Prometheus Operator.
+            # @section -- Metrics
+            key: ""
+          # -- Prometheus ServiceMonitor interval.
+          # @section -- Metrics
+          interval: "30s"
+          # -- Prometheus ServiceMonitor scrapeTimeout. If empty, Prometheus uses the global scrape timeout unless it is less than the target's scrape interval value in which the latter is used.
+          # @section -- Metrics
+          scrapeTimeout: "10s"
+          # -- Path used by the Prometheus ServiceMonitor to scrape metrics.
+          # @section -- Metrics
+          path: "/metrics"
+          # -- When true, honorLabels preserves the metric’s labels when they collide with the target’s labels.
+          # @section -- Metrics
+          honorLabels: false
+          # -- Prometheus RelabelConfigs to apply to samples before scraping.
+          # @section -- Metrics
+          relabelings: []
+          # -- Prometheus MetricRelabelConfigs to apply to samples before ingestion.
+          # @section -- Metrics
+          metricRelabelings: []
+          # -- Prometheus ServiceMonitor selector.
+          # @section -- Metrics
+          selector: {}
+          # prometheus: kube-prometheus
+          # -- Prometheus ServiceMonitor scheme.
+          # @section -- Metrics
+          scheme: ""
+          # -- Prometheus ServiceMonitor tlsConfig.
+          # @section -- Metrics
+          tlsConfig: {}
+
+# -- Add extra specs dynamically to this chart.
+# @section -- General
+extraObjects: []
+# - apiVersion: v1
+#   kind: ConfigMap
+#   metadata:
+#     name: my-configmap
+#   data:
+#     key: {{ .Values.fullname }}
+# - apiVersion: v1
+#   kind: Secret
+#   metadata:
+#     name: my-secret
+#   type: Opaque
+#   data:
+#     password: {{ "secretpassword" | b64enc | quote }}
+
+cnpgOperator:
+  # -- Enable the CNPG operator (See. https://artifacthub.io/packages/helm/cloudnative-pg/cloudnative-pg).
+  # @section -- Database
+  enabled: false
+
+cnpgCluster:
+  # -- Enable the CNPG cluster (See. https://artifacthub.io/packages/helm/cloudnative-pg/cluster).
+  # @section -- Database
+  enabled: false
+  # -- Name of the CNPG cluster.
+  # @section -- Database
+  fullnameOverride: "sites-faciles-pg-cluster"
+  cluster:
+    # -- Number of CNPG cluster instances.
+    # @section -- Database
+    instances: 1
+    # -- Name of the secret containing the admin user credentials.
+    # @section -- Database
+    superuserSecret: "sites-faciles-pg-cluster-admin"
+    initdb:
+      # -- Name of the database.
+      # @section -- Database
+      database: "sitesfaciles"
+      # -- Name of the database owner.
+      # @section -- Database
+      owner: "sitesfaciles"
+      secret:
+        # -- Name of the secret containing the app user credentials. It will be created if not provided.
+        # @section -- Database
+        name: "sites-faciles-pg-cluster-app"
+      # options: []
+      # encoding: UTF8
+      # postInitSQL: []
+      # postInitApplicationSQL: []
+      # postInitTemplateSQL: []
+    storage:
+      # -- Size of the storage used by the CNPG cluster.
+      # @section -- Database
+      size: 1Gi
+  resources:
+    limits:
+      # -- CPU limit for the CNPG cluster.
+      # @section -- Database
+      cpu: 200m
+      # -- Memory limit for the CNPG cluster.
+      # @section -- Database
+      memory: 512Mi
+    requests:
+      # -- CPU request for the CNPG cluster.
+      # @section -- Database
+      cpu: 200m
+      # -- Memory request for the CNPG cluster.
+      # @section -- Database
+      memory: 512Mi

@@ -1,0 +1,11 @@
+{{- if .Values.app.env -}}
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ printf "%s-%s" (include "helper.fullname" .) "app" }}
+  labels: {{- (include "helper.labels" (dict "root" . "componentName" "app")) | nindent 4 }}
+data:
+  {{- if .Values.app.env -}}
+  {{- include "helper.env" .Values.app | indent 2 }}
+  {{- end -}}
+{{- end -}}
