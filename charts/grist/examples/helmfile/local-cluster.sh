@@ -90,7 +90,7 @@ data:
 EOF
 
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
-if ! kubectl -n ingress-nginx get secret mkcert; then
+if ! kubectl -n ingress-nginx get secret mkcert &>/dev/null; then
     kubectl -n ingress-nginx create secret tls mkcert --key 127.0.0.1.nip.io+1-key.pem --cert 127.0.0.1.nip.io+1.pem
 fi
 kubectl -n ingress-nginx patch deployments.apps ingress-nginx-controller --type 'json' -p '[{"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value":"--default-ssl-certificate=ingress-nginx/mkcert"}]'
