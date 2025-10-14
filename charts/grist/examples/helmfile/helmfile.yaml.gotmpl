@@ -9,6 +9,11 @@ releases:
     chart: bitnami/postgresql
     version: 13.1.5
     values:
+      - image:
+          repository: bitnamilegacy/postgresql
+      - volumePermissions:
+          image:
+            repository: bitnamilegacy/os-shell
       - auth:
           username: grist
           password: grist
@@ -21,6 +26,8 @@ releases:
     chart: bitnami/redis
     version: 18.1.5
     values:
+    - image:
+        repository: bitnamilegacy/redis
     - architecture: standalone
     - auth:
         enabled: true
@@ -31,7 +38,9 @@ releases:
     namespace: grist
     chart: bitnami/minio
     version: 12.10.10
-    values: 
+    values:
+      - image:
+          repository: bitnamilegacy/minio
       - mode: distributed
       - auth:
           rootUser: gristgristgrist
@@ -51,7 +60,11 @@ releases:
     chart: bitnami/keycloak
     version: 17.3.6
     values:
+      - image:
+          repository: bitnamilegacy/keycloak
       - postgresql:
+          image:
+            repository: bitnamilegacy/postgresql
           auth:
             username: keycloak
             password: keycloak
