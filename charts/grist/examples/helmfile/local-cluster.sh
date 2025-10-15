@@ -22,6 +22,7 @@ fi
 # https://github.com/kubernetes-sigs/kind/issues/2875
 # https://github.com/containerd/containerd/blob/main/docs/cri/config.md#registry-configuration
 # See: https://github.com/containerd/containerd/blob/main/docs/hosts.md
+if ! kind get clusters | grep -q kind; then
 cat <<EOF | kind create cluster --config=-
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
@@ -31,7 +32,7 @@ containerdConfigPatches:
     config_path = "/etc/containerd/certs.d"
 nodes:
 - role: control-plane
-  image: kindest/node:v1.27.3
+  image: kindest/node:v1.33.4
   kubeadmConfigPatches:
   - |
     kind: InitConfiguration
@@ -46,10 +47,11 @@ nodes:
     hostPort: 443
     protocol: TCP
 - role: worker
-  image: kindest/node:v1.27.3
+  image: kindest/node:v1.33.4
 - role: worker
-  image: kindest/node:v1.27.3
+  image: kindest/node:v1.33.4
 EOF
+fi
 
 # 3. Add the registry config to the nodes
 #
@@ -88,5 +90,7 @@ data:
 EOF
 
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
-kubectl -n ingress-nginx create secret tls mkcert --key 127.0.0.1.nip.io+1-key.pem --cert 127.0.0.1.nip.io+1.pem
+if ! kubectl -n ingress-nginx get secret mkcert &>/dev/null; then
+    kubectl -n ingress-nginx create secret tls mkcert --key 127.0.0.1.nip.io+1-key.pem --cert 127.0.0.1.nip.io+1.pem
+fi
 kubectl -n ingress-nginx patch deployments.apps ingress-nginx-controller --type 'json' -p '[{"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value":"--default-ssl-certificate=ingress-nginx/mkcert"}]'
