@@ -31,6 +31,20 @@ fullnameOverride: ""
 ## @extra mountFiles[].content File content encoded in base64
 mountFiles: []
 
+## @param serviceAccount.enabled Whether to enable the service account or not
+## @param serviceAccount.name Name to use for the service account
+## @param serviceAccount.imagePullSecrets Image pull secrets for the service account
+## @param serviceAccount.annotations Annotations for the service account
+## @param serviceAccount.labels Labels for the service account
+## @param serviceAccount.automountServiceAccountToken Set this toggle to false to opt out of automounting API credentials for the service account
+serviceAccount:
+  enabled: false
+  name: grist
+  imagePullSecrets: []
+  annotations: {}
+  labels: {}
+  automountServiceAccountToken: true
+
 ## @param ingress.enabled whether to enable the Ingress or not
 ## @param ingress.className IngressClass to use for the Ingress
 ## @param ingress.host Host for the Ingress

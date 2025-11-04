@@ -1,6 +1,6 @@
 # Grist Helm
 
-```
+```bash
 helm repo add dinum https://numerique-gouv.github.io/helm-charts/
 helm repo update
 ```
@@ -9,30 +9,36 @@ helm repo update
 
 ### General configuration
 
-| Name                                                              | Description                                              | Value                                                    |
-| ----------------------------------------------------------------- | -------------------------------------------------------- | -------------------------------------------------------- |
-| `image.repository`                                                | Repository to use to pull Grist's container image        | `gristlabs/grist`                                        |
-| `image.tag`                                                       | Grist's container tag                                    | `1.7.4`                                                  |
-| `image.pullPolicy`                                                | Container image pull policy                              | `IfNotPresent`                                           |
-| `image.credentials.username`                                      | Username for container registry authentication           |                                                          |
-| `image.credentials.password`                                      | Password for container registry authentication           |                                                          |
-| `image.credentials.registry`                                      | Registry url for which the credentials are specified     |                                                          |
-| `image.credentials.name`                                          | Name of the generated secret for imagePullSecrets        |                                                          |
-| `nameOverride`                                                    | Override the chart name                                  | `""`                                                     |
-| `fullnameOverride`                                                | Override the full application name                       | `""`                                                     |
-| `mountFiles[].path`                                               | Mount a static file to a specific path on the Grist Pods |                                                          |
-| `mountFiles[].content`                                            | File content encoded in base64                           |                                                          |
-| `ingress.enabled`                                                 | whether to enable the Ingress or not                     | `false`                                                  |
-| `ingress.className`                                               | IngressClass to use for the Ingress                      | `nil`                                                    |
-| `ingress.host`                                                    | Host for the Ingress                                     | `nil`                                                    |
-| `ingress.path`                                                    | Path to use for the Ingress                              | `/`                                                      |
-| `ingress.annotations.nginx.ingress.kubernetes.io/proxy-body-size` | Set the client_max_body_size for Ingress' Nginx          | `{"nginx.ingress.kubernetes.io/proxy-body-size":"500m"}` |
-| `ingress.hosts[].host`                                            | Additionnal host to configure for the Ingress            |                                                          |
-| `ingress.hosts[].paths[].path`                                    | Custom paths to configure for the Ingress host           |                                                          |
-| `ingress.hosts[].paths[].pathType`                                | Type for each custom path                                |                                                          |
-| `ingress.tls.enabled`                                             | Wether to enable TLS for the Ingress                     | `true`                                                   |
-| `ingress.tls.additional[].secretName`                             | Secret name for additional TLS config                    |                                                          |
-| `ingress.tls.additional[].hosts[]`                                | Hosts for additional TLS config                          |                                                          |
+| Name                                                              | Description                                                                                 | Value                                                    |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| `image.repository`                                                | Repository to use to pull Grist's container image                                           | `gristlabs/grist`                                        |
+| `image.tag`                                                       | Grist's container tag                                                                       | `1.7.4`                                                  |
+| `image.pullPolicy`                                                | Container image pull policy                                                                 | `IfNotPresent`                                           |
+| `image.credentials.username`                                      | Username for container registry authentication                                              |                                                          |
+| `image.credentials.password`                                      | Password for container registry authentication                                              |                                                          |
+| `image.credentials.registry`                                      | Registry url for which the credentials are specified                                        |                                                          |
+| `image.credentials.name`                                          | Name of the generated secret for imagePullSecrets                                           |                                                          |
+| `nameOverride`                                                    | Override the chart name                                                                     | `""`                                                     |
+| `fullnameOverride`                                                | Override the full application name                                                          | `""`                                                     |
+| `mountFiles[].path`                                               | Mount a static file to a specific path on the Grist Pods                                    |                                                          |
+| `mountFiles[].content`                                            | File content encoded in base64                                                              |                                                          |
+| `serviceAccount.enabled`                                          | Whether to enable the service account or not                                                | `false`                                                  |
+| `serviceAccount.name`                                             | Name to use for the service account                                                         | `grist`                                                  |
+| `serviceAccount.imagePullSecrets`                                 | Image pull secrets for the service account                                                  | `[]`                                                     |
+| `serviceAccount.annotations`                                      | Annotations for the service account                                                         | `{}`                                                     |
+| `serviceAccount.labels`                                           | Labels for the service account                                                              | `{}`                                                     |
+| `serviceAccount.automountServiceAccountToken`                     | Set this toggle to false to opt out of automounting API credentials for the service account | `true`                                                   |
+| `ingress.enabled`                                                 | whether to enable the Ingress or not                                                        | `false`                                                  |
+| `ingress.className`                                               | IngressClass to use for the Ingress                                                         | `nil`                                                    |
+| `ingress.host`                                                    | Host for the Ingress                                                                        | `nil`                                                    |
+| `ingress.path`                                                    | Path to use for the Ingress                                                                 | `/`                                                      |
+| `ingress.annotations.nginx.ingress.kubernetes.io/proxy-body-size` | Set the client_max_body_size for Ingress' Nginx                                             | `{"nginx.ingress.kubernetes.io/proxy-body-size":"500m"}` |
+| `ingress.hosts[].host`                                            | Additionnal host to configure for the Ingress                                               |                                                          |
+| `ingress.hosts[].paths[].path`                                    | Custom paths to configure for the Ingress host                                              |                                                          |
+| `ingress.hosts[].paths[].pathType`                                | Type for each custom path                                                                   |                                                          |
+| `ingress.tls.enabled`                                             | Wether to enable TLS for the Ingress                                                        | `true`                                                   |
+| `ingress.tls.additional[].secretName`                             | Secret name for additional TLS config                                                       |                                                          |
+| `ingress.tls.additional[].hosts[]`                                | Hosts for additional TLS config                                                             |                                                          |
 
 ### Home worker
 
