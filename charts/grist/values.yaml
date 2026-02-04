@@ -302,6 +302,9 @@ docWorker:
 ## @section Grist doc worker load balancer
 
 loadBalancer:
+  ## @param loadBalancer.enabled Wether or not to enable loadBalancer component
+  enabled: true
+
   ## @param loadBalancer.image.repository Repository to use to pull the load balancer container image
   ## @param loadBalancer.image.tag Load balancer container tag
   ## @param loadBalancer.image.pullPolicy Load balancer container image pull policy
