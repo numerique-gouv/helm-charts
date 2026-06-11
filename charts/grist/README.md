@@ -12,7 +12,7 @@ helm repo update
 | Name                                                              | Description                                              | Value                                                    |
 | ----------------------------------------------------------------- | -------------------------------------------------------- | -------------------------------------------------------- |
 | `image.repository`                                                | Repository to use to pull Grist's container image        | `gristlabs/grist`                                        |
-| `image.tag`                                                       | Grist's container tag                                    | `1.7.9`                                                  |
+| `image.tag`                                                       | Grist's container tag                                    | `1.7.15`                                                 |
 | `image.pullPolicy`                                                | Container image pull policy                              | `IfNotPresent`                                           |
 | `image.credentials.username`                                      | Username for container registry authentication           |                                                          |
 | `image.credentials.password`                                      | Password for container registry authentication           |                                                          |
