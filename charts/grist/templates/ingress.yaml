@@ -64,6 +64,7 @@ spec:
               serviceName: {{ include "grist.home.fullname" . }}
               servicePort: {{ $svcPort }}
             {{- end }}
+          {{- if $.Values.loadBalancer.enabled }}
           - path: /dw
             {{- if semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion }}
             pathType: Prefix
@@ -78,6 +79,7 @@ spec:
               serviceName: {{ include "grist.lb.fullname" . }}
               servicePort: {{ $svcPort }}
             {{- end }}
+          {{- end }}
     {{- end }}
     {{- range .Values.ingress.hosts }}
     - host: {{ .host | quote }}
@@ -97,6 +99,7 @@ spec:
               serviceName: {{ include "grist.home.fullname" $ }}
               servicePort: {{ $svcPort }}
             {{- end }}
+          {{- if $.Values.loadBalancer.enabled }}
           - path: /dw
             {{- if semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion }}
             pathType: Prefix
@@ -111,6 +114,7 @@ spec:
               serviceName: {{ include "grist.lb.fullname" $ }}
               servicePort: {{ $svcPort }}
             {{- end }}
+          {{- end }}
           {{- range .paths }}
           - path: {{ .path }}
             {{- if and .pathType (semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion) }}

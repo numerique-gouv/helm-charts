@@ -1,3 +1,4 @@
+{{- if .Values.loadBalancer.enabled }}
 {{- $envVars := include "grist.env.transformDict" .Values.loadBalancer.envVars -}}
 {{- $fullName := include "grist.lb.fullname" . -}}
 {{- $component := "lb" -}}
@@ -101,3 +102,4 @@ spec:
         {{- with .Values.loadBalancer.volumes }}
           {{- toYaml . | nindent 8 }}
         {{- end }}
+{{- end }}

@@ -1,3 +1,4 @@
+{{- if .Values.loadBalancer.enabled }}
 {{- $svcName := include "grist.doc.fullname" . -}}
 {{- $component := "lb" -}}
 apiVersion: v1
@@ -51,3 +52,4 @@ data:
         proxy_set_header Connection "upgrade";
       }
     }
+{{- end }}
