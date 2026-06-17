@@ -1,0 +1,28 @@
+{{- /* Output connection info for the user */ -}}
+
+{{- $hostProto := .Values.config.hostProto -}}
+{{- $hostUrl := .Values.config.hostUrl -}}
+{{- $svcPort := .Values.service.port -}}
+{{- $containerPort := .Values.containerPort -}}
+
+Your application is now deployed!
+You can access it at: {{ $hostProto }}://{{ $hostUrl }}
+
+---
+IMPORTANT:
+
+{{- if not .Values.config.djangoSuperuserUsername }}
+  The admin username has been auto-generated. To retrieve it, run:
+
+    kubectl get secret {{ printf "%s-%s" (include "helper.fullname" .) "admin" }} -o jsonpath='{.data.DJANGO_SUPERUSER_USERNAME}' | base64 -d
+{{ end }}
+{{ if not .Values.config.djangoSuperuserPassword }}
+  The admin password has been auto-generated. To retrieve it, run:
+
+    kubectl get secret {{ printf "%s-%s" (include "helper.fullname" .) "admin" }} -o jsonpath='{.data.DJANGO_SUPERUSER_PASSWORD}' | base64 -d
+{{ end }}
+{{ if not .Values.ingress.enabled }}
+  Ingress is not enabled. To access your application locally, run:
+
+    kubectl port-forward svc/{{ include "helper.fullname" . }} {{ $containerPort }}:{{ $svcPort }}
+{{ end }}
