@@ -4,7 +4,7 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: "{{ include "grist.fullname" $ }}-{{ $name }}"
+  name: "{{ include "grist.doc.fullname" $ }}-{{ $name }}"
   labels:
     {{- include "grist.labels" $ | nindent 4 }}
   {{- if $volume.annotations }}
