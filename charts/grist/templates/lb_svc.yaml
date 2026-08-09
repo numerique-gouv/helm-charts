@@ -1,3 +1,4 @@
+{{- if .Values.loadBalancer.enabled }}
 {{- $component := "lb" -}}
 apiVersion: v1
 kind: Service
@@ -16,3 +17,4 @@ spec:
       name: http
   selector:
     {{- include "grist.common.selectorLabels" (list . $component) | nindent 4 }}
+{{- end }}
