@@ -1,0 +1,108 @@
+{{- if .Values.gateway.enabled }}
+{{- range .Values.httpRoutes }}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ .name }}
+  namespace: {{ include "envoy-gateway-app.namespace" (list . $) }}
+  labels:
+    {{- include "envoy-gateway-app.labels" $ | nindent 4 }}
+    {{- with .labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- $annot := dict "globalAnnotations" $.Values.global.annotations "localAnnotations" .annotations }}
+  {{- with include "envoy-gateway-app.annotations" $annot }}
+  annotations:
+    {{- . | nindent 4 }}
+  {{- end }}
+spec:
+  parentRefs:
+  {{- range .parentRefs }}
+    {{- include "envoy-gateway-app.parentRef" . | nindent 4 }}
+  {{- end }}
+  {{- with .hostnames }}
+  hostnames:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  rules:
+  {{- range .rules }}
+    - {{- with .name }}
+      name: {{ . }}
+      {{- end }}
+      {{- with .matches }}
+      matches:
+      {{- range . }}
+        - {{- with .path }}
+          path:
+            type: {{ .type | default "PathPrefix" }}
+            value: {{ .value | default "/" }}
+          {{- end }}
+          {{- with .headers }}
+          headers:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .queryParams }}
+          queryParams:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .method }}
+          method: {{ . }}
+          {{- end }}
+      {{- end }}
+      {{- end }}
+      {{- with .filters }}
+      filters:
+        {{- include "envoy-gateway-app.httpFilters" . | nindent 8 }}
+      {{- end }}
+      {{- with .backendRefs }}
+      backendRefs:
+        {{- range . }}
+        - name: {{ .name }}
+          {{- with .namespace }}
+          namespace: {{ . }}
+          {{- end }}
+          port: {{ .port }}
+          {{- with .weight }}
+          weight: {{ . }}
+          {{- end }}
+          {{- with .group }}
+          group: {{ . }}
+          {{- end }}
+          {{- with .kind }}
+          kind: {{ . }}
+          {{- end }}
+          {{- with .filters }}
+          filters:
+            {{- include "envoy-gateway-app.httpFilters" . | nindent 12 }}
+          {{- end }}
+        {{- end }}
+      {{- end }}
+      {{- with .timeouts }}
+      timeouts:
+        {{- with .request }}
+        request: {{ . }}
+        {{- end }}
+        {{- with .backendRequest }}
+        backendRequest: {{ . }}
+        {{- end }}
+      {{- end }}
+      {{- with .sessionPersistence }}
+      sessionPersistence:
+        sessionName: {{ .sessionName }}
+        type: {{ .type }}
+        {{- with .cookieConfig }}
+        cookieConfig:
+          lifetimeType: {{ .lifetimeType | default "Session" }}
+          {{- with .ttl }}
+          ttl: {{ . }}
+          {{- end }}
+        {{- end }}
+        {{- with .headerConfig }}
+        headerConfig:
+          headerName: {{ .headerName }}
+        {{- end }}
+      {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}

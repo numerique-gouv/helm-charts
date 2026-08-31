@@ -1,0 +1,260 @@
+{{- if .Values.gateway.enabled }}
+{{- range .Values.backendTrafficPolicies }}
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: BackendTrafficPolicy
+metadata:
+  name: {{ .name }}
+  namespace: {{ include "envoy-gateway-app.namespace" (list . $) }}
+  labels:
+    {{- include "envoy-gateway-app.labels" $ | nindent 4 }}
+    {{- with .labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- $annot := dict "globalAnnotations" $.Values.global.annotations "localAnnotations" .annotations }}
+  {{- with include "envoy-gateway-app.annotations" $annot }}
+  annotations:
+    {{- . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .targetRefs }}
+  {{- include "envoy-gateway-app.targetRefs" .targetRefs | nindent 2 }}
+  {{- else if .targetRef }}
+  {{- include "envoy-gateway-app.targetRef" .targetRef | nindent 2 }}
+  {{- end }}
+
+  {{- with .requestBuffer }}
+  requestBuffer:
+    limit: {{ .limit }}
+  {{- end }}
+
+  {{- with .retry }}
+  retry:
+    {{- with .numRetries }}
+    numRetries: {{ . }}
+    {{- end }}
+    {{- with .perRetry }}
+    perRetry:
+      {{- with .timeout }}
+      timeout: {{ . }}
+      {{- end }}
+      {{- with .backOff }}
+      backOff:
+        baseInterval: {{ .baseInterval }}
+        {{- with .maxInterval }}
+        maxInterval: {{ . }}
+        {{- end }}
+      {{- end }}
+    {{- end }}
+    {{- with .retryOn }}
+    retryOn:
+      {{- with .triggers }}
+      triggers:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .httpStatusCodes }}
+      httpStatusCodes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+
+  {{- with .timeout }}
+  timeout:
+    {{- with .http }}
+    http:
+      {{- with .connectionIdleTimeout }}
+      connectionIdleTimeout: {{ . }}
+      {{- end }}
+      {{- with .maxConnectionDuration }}
+      maxConnectionDuration: {{ . }}
+      {{- end }}
+    {{- end }}
+    {{- with .tcp }}
+    tcp:
+      {{- with .connectTimeout }}
+      connectTimeout: {{ . }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+
+  {{- with .healthCheck }}
+  healthCheck:
+    {{- with .active }}
+    active:
+      type: {{ .type | default "HTTP" }}
+      {{- if eq (.type | default "HTTP") "HTTP" }}
+      {{- with .http }}
+      http:
+        path: {{ .path | default "/health" }}
+        {{- with .method }}
+        method: {{ . }}
+        {{- end }}
+        {{- with .expectedStatuses }}
+        expectedStatuses:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .expectedResponse }}
+        expectedResponse:
+          type: {{ .type | default "Text" }}
+          {{- with .text }}
+          text: {{ . }}
+          {{- end }}
+        {{- end }}
+      {{- end }}
+      {{- end }}
+      {{- if eq (.type | default "") "TCP" }}
+      {{- with .tcp }}
+      tcp:
+        {{- with .send }}
+        send:
+          type: {{ .type | default "Text" }}
+          text: {{ .text }}
+        {{- end }}
+        {{- with .receive }}
+        receive:
+          type: {{ .type | default "Text" }}
+          text: {{ .text }}
+        {{- end }}
+      {{- end }}
+      {{- end }}
+      {{- if eq (.type | default "") "GRPC" }}
+      grpc:
+        {{- with .grpc }}
+        service: {{ .service }}
+        {{- end }}
+      {{- end }}
+      {{- with .interval }}
+      interval: {{ . }}
+      {{- end }}
+      {{- with .timeout }}
+      timeout: {{ . }}
+      {{- end }}
+      {{- with .unhealthyThreshold }}
+      unhealthyThreshold: {{ . }}
+      {{- end }}
+      {{- with .healthyThreshold }}
+      healthyThreshold: {{ . }}
+      {{- end }}
+    {{- end }}
+    {{- with .passive }}
+    passive:
+      {{- with .baseEjectionTime }}
+      baseEjectionTime: {{ . }}
+      {{- end }}
+      {{- with .interval }}
+      interval: {{ . }}
+      {{- end }}
+      {{- with .maxEjectionPercent }}
+      maxEjectionPercent: {{ . }}
+      {{- end }}
+      {{- with .consecutiveGatewayErrors }}
+      consecutiveGatewayErrors: {{ . }}
+      {{- end }}
+      {{- with .consecutive5XxErrors }}
+      consecutive5XxErrors: {{ . }}
+      {{- end }}
+      {{- with .splitExternalLocalOriginErrors }}
+      splitExternalLocalOriginErrors: {{ . }}
+      {{- end }}
+      {{- with .consecutiveLocalOriginFailures }}
+      consecutiveLocalOriginFailures: {{ . }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+
+  {{- with .tcpKeepalive }}
+  tcpKeepalive:
+    {{- with .probes }}
+    probes: {{ . }}
+    {{- end }}
+    {{- with .idle }}
+    idle: {{ . }}
+    {{- end }}
+    {{- with .interval }}
+    interval: {{ . }}
+    {{- end }}
+  {{- end }}
+
+  {{- with .rateLimit }}
+  rateLimit:
+    type: {{ .type }}
+    {{- if eq .type "Global" }}
+    {{- with .global }}
+    global:
+      rules:
+        {{- toYaml .rules | nindent 8 }}
+    {{- end }}
+    {{- end }}
+    {{- if eq .type "Local" }}
+    {{- with .local }}
+    local:
+      rules:
+        {{- toYaml .rules | nindent 8 }}
+    {{- end }}
+    {{- end }}
+  {{- end }}
+
+  {{- with .circuitBreaker }}
+  circuitBreaker:
+    {{- with .maxConnections }}
+    maxConnections: {{ . }}
+    {{- end }}
+    {{- with .maxPendingRequests }}
+    maxPendingRequests: {{ . }}
+    {{- end }}
+    {{- with .maxParallelRequests }}
+    maxParallelRequests: {{ . }}
+    {{- end }}
+    {{- with .maxParallelRetries }}
+    maxParallelRetries: {{ . }}
+    {{- end }}
+    {{- with .maxRequestsPerConnection }}
+    maxRequestsPerConnection: {{ . }}
+    {{- end }}
+  {{- end }}
+
+  {{- with .loadBalancer }}
+  loadBalancer:
+    type: {{ .type | default "RoundRobin" }}
+    {{- if eq (.type | default "RoundRobin") "ConsistentHash" }}
+    {{- with .consistentHash }}
+    consistentHash:
+      type: {{ .type }}
+      {{- if eq .type "Header" }}
+      header:
+        name: {{ .header.name }}
+      {{- end }}
+      {{- if eq .type "Cookie" }}
+      cookie:
+        name: {{ .cookie.name }}
+        {{- with .cookie.ttl }}
+        ttl: {{ . }}
+        {{- end }}
+      {{- end }}
+    {{- end }}
+    {{- end }}
+  {{- end }}
+
+  {{- with .proxyProtocol }}
+  proxyProtocol:
+    version: {{ .version | default "V1" }}
+  {{- end }}
+
+  {{- with .compression }}
+  compression:
+    - type: {{ .type | default "Gzip" }}
+      {{- if eq (.type | default "Gzip") "Gzip" }}
+      {{- with .gzip }}
+      gzip:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- end }}
+  {{- end }}
+
+  {{- with .responseOverride }}
+  responseOverride:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}
+{{- end }}

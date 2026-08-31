@@ -1,0 +1,63 @@
+{{- if .Values.gateway.enabled }}
+{{- range .Values.listenerSets }}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: ListenerSet
+metadata:
+  name: {{ .name }}
+  namespace: {{ include "envoy-gateway-app.namespace" (list . $) }}
+  labels:
+    {{- include "envoy-gateway-app.labels" $ | nindent 4 }}
+    {{- with .labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- $annot := dict "globalAnnotations" $.Values.global.annotations "localAnnotations" .annotations }}
+  {{- with include "envoy-gateway-app.annotations" $annot }}
+  annotations:
+    {{- . | nindent 4 }}
+  {{- end }}
+spec:
+  parentRef:
+    name: {{ .parentRef.name }}
+    {{- with .parentRef.namespace }}
+    namespace: {{ . }}
+    {{- end }}
+    kind: {{ .parentRef.kind | default "Gateway" }}
+    group: {{ .parentRef.group | default "gateway.networking.k8s.io" }}
+  listeners:
+  {{- range .listeners }}
+    - name: {{ .name }}
+      protocol: {{ .protocol }}
+      port: {{ .port }}
+      {{- with .hostname }}
+      hostname: {{ . | quote }}
+      {{- end }}
+      {{- if or (eq .protocol "HTTPS") (eq .protocol "TLS") }}
+      {{- with .tls }}
+      tls:
+        mode: {{ .mode | default "Terminate" }}
+        {{- with .certificateRefs }}
+        certificateRefs:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      {{- end }}
+      {{- end }}
+      {{- with .allowedRoutes }}
+      allowedRoutes:
+        {{- with .namespaces }}
+        namespaces:
+          from: {{ .from | default "Same" }}
+          {{- if eq (.from | default "Same") "Selector" }}
+          selector:
+            matchLabels:
+              {{- toYaml .selector.matchLabels | nindent 14 }}
+          {{- end }}
+        {{- end }}
+        {{- with .kinds }}
+        kinds:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}

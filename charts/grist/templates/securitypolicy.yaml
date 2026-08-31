@@ -1,0 +1,210 @@
+{{- if .Values.gateway.enabled }}
+{{- range .Values.securityPolicies }}
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: {{ .name }}
+  namespace: {{ include "envoy-gateway-app.namespace" (list . $) }}
+  labels:
+    {{- include "envoy-gateway-app.labels" $ | nindent 4 }}
+    {{- with .labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- $annot := dict "globalAnnotations" $.Values.global.annotations "localAnnotations" .annotations }}
+  {{- with include "envoy-gateway-app.annotations" $annot }}
+  annotations:
+    {{- . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .targetRefs }}
+  {{- include "envoy-gateway-app.targetRefs" .targetRefs | nindent 2 }}
+  {{- else if .targetRef }}
+  {{- include "envoy-gateway-app.targetRef" .targetRef | nindent 2 }}
+  {{- end }}
+
+  {{- /* ── JWT ── */}}
+  {{- with .jwt }}
+  jwt:
+    providers:
+    {{- range .providers }}
+      - name: {{ .name }}
+        {{- with .issuer }}
+        issuer: {{ . }}
+        {{- end }}
+        {{- with .audiences }}
+        audiences:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .remoteJWKS }}
+        remoteJWKS:
+          uri: {{ .uri }}
+          {{- with .backendRefs }}
+          backendRefs:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        {{- end }}
+        {{- with .claimToHeaders }}
+        claimToHeaders:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .extractFrom }}
+        extractFrom:
+          {{- with .headers }}
+          headers:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .cookies }}
+          cookies:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .params }}
+          params:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        {{- end }}
+    {{- end }}
+  {{- end }}
+
+  {{- /* ── OIDC ── */}}
+  {{- with .oidc }}
+  oidc:
+    provider:
+      issuer: {{ .provider.issuer }}
+      {{- with .provider.authorizationEndpoint }}
+      authorizationEndpoint: {{ . }}
+      {{- end }}
+      {{- with .provider.tokenEndpoint }}
+      tokenEndpoint: {{ . }}
+      {{- end }}
+    clientID: {{ .clientID }}
+    clientSecret:
+      name: {{ .clientSecret.name }}
+      {{- with .clientSecret.namespace }}
+      namespace: {{ . }}
+      {{- end }}
+    redirectURL: {{ .redirectURL }}
+    {{- with .scopes }}
+    scopes:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .resources }}
+    resources:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .cookieConfig }}
+    cookieConfig:
+      sameSite: {{ .sameSite | default "Lax" }}
+    {{- end }}
+    {{- with .forwardAccessToken }}
+    forwardAccessToken: {{ . }}
+    {{- end }}
+    {{- with .refreshToken }}
+    refreshToken: {{ . }}
+    {{- end }}
+    {{- with .logoutPath }}
+    logoutPath: {{ . }}
+    {{- end }}
+  {{- end }}
+
+  {{- /* ── Basic Auth ── */}}
+  {{- with .basicAuth }}
+  basicAuth:
+    users:
+      name: {{ .users.name }}
+      {{- with .users.namespace }}
+      namespace: {{ . }}
+      {{- end }}
+  {{- end }}
+
+  {{- /* ── API Key Auth ── */}}
+  {{- with .apiKeyAuth }}
+  apiKeyAuth:
+    credentials:
+      {{- toYaml .credentials | nindent 6 }}
+    {{- with .extractFrom }}
+    extractFrom:
+      {{- with .headers }}
+      headers:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .params }}
+      params:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .cookies }}
+      cookies:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+
+  {{- /* ── CORS ── */}}
+  {{- with .cors }}
+  cors:
+    {{- with .allowOrigins }}
+    allowOrigins:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .allowMethods }}
+    allowMethods:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .allowHeaders }}
+    allowHeaders:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .exposeHeaders }}
+    exposeHeaders:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .maxAge }}
+    maxAge: {{ . }}
+    {{- end }}
+    {{- if hasKey . "allowCredentials" }}
+    allowCredentials: {{ .allowCredentials }}
+    {{- end }}
+  {{- end }}
+
+  {{- /* ── Authorization ── */}}
+  {{- with .authorization }}
+  authorization:
+    {{- with .defaultAction }}
+    defaultAction: {{ . }}
+    {{- end }}
+    {{- with .rules }}
+    rules:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+  {{- end }}
+
+  {{- /* ── ExtAuth ── */}}
+  {{- with .extAuth }}
+  extAuth:
+    {{- with .grpc }}
+    grpc:
+      backendRefs:
+        {{- toYaml .backendRefs | nindent 8 }}
+    {{- end }}
+    {{- with .http }}
+    http:
+      url: {{ .url }}
+      {{- with .backendRefs }}
+      backendRefs:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .headersToBackend }}
+      headersToBackend:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- end }}
+    {{- with .headersToExtAuth }}
+    headersToExtAuth:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- if hasKey . "failOpen" }}
+    failOpen: {{ .failOpen }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}
