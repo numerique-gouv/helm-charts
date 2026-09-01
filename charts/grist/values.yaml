@@ -61,6 +61,165 @@ ingress:
     #    hosts:
     #      - chart-example.local
 
+## @section Gateway API
+
+## @param gateway.enabled Whether to render the Gateway API resources (ListenerSets, HTTPRoutes, SecurityPolicies and BackendTrafficPolicies). Mutually exclusive with `ingress.enabled` in practice
+gateway:
+  enabled: false
+
+## @skip listenerSets List of ListenerSets attached to an existing Gateway
+## @extra listenerSets[].name Name of the ListenerSet
+## @extra listenerSets[].annotations Annotations for the ListenerSet, e.g. `cert-manager.io/cluster-issuer`
+## @extra listenerSets[].parentRef.name Name of the parent Gateway
+## @extra listenerSets[].parentRef.namespace Namespace of the parent Gateway
+## @extra listenerSets[].parentRef.kind Kind of the parent resource, `Gateway`
+## @extra listenerSets[].parentRef.group API group of the parent resource, `gateway.networking.k8s.io`
+## @extra listenerSets[].listeners[].name Name of the listener, referenced by `httpRoutes[].parentRefs[].sectionName`
+## @extra listenerSets[].listeners[].protocol Protocol of the listener, `HTTP` or `HTTPS`
+## @extra listenerSets[].listeners[].port Port the listener binds to
+## @extra listenerSets[].listeners[].hostname Hostname served by the listener
+## @extra listenerSets[].listeners[].tls.mode TLS mode for an HTTPS listener, `Terminate` or `Passthrough`
+## @extra listenerSets[].listeners[].tls.certificateRefs[].group API group of the certificate reference, empty for core
+## @extra listenerSets[].listeners[].tls.certificateRefs[].kind Kind of the certificate reference, `Secret`
+## @extra listenerSets[].listeners[].tls.certificateRefs[].name Name of the Secret holding the certificate
+## @extra listenerSets[].listeners[].allowedRoutes.namespaces.from Which namespaces may attach routes to this listener, `All`, `Same` or `Selector`
+listenerSets: []
+#  - name: grist-listeners
+#    annotations:
+#      cert-manager.io/cluster-issuer: letsencrypt-production
+#    parentRef:
+#      name: platform-gateway
+#      namespace: envoy-gateway-system
+#      kind: Gateway
+#      group: gateway.networking.k8s.io
+#    listeners:
+#      - name: https-grist-example-com
+#        protocol: HTTPS
+#        port: 443
+#        hostname: grist.example.com
+#        tls:
+#          mode: Terminate
+#          certificateRefs:
+#            - group: ''
+#              kind: Secret
+#              name: grist.example.com
+#        allowedRoutes:
+#          namespaces:
+#            from: All
+#      - name: http-grist-example-com
+#        protocol: HTTP
+#        port: 80
+#        hostname: grist.example.com
+#        allowedRoutes:
+#          namespaces:
+#            from: All
+
+## @skip httpRoutes List of HTTPRoutes attached to the listeners above
+## @extra httpRoutes[].name Name of the HTTPRoute, referenced by the policies below
+## @extra httpRoutes[].annotations Annotations for the HTTPRoute, e.g. external-dns configuration
+## @extra httpRoutes[].parentRefs[].name Name of the ListenerSet the route attaches to
+## @extra httpRoutes[].parentRefs[].kind Kind of the parent resource, `ListenerSet`
+## @extra httpRoutes[].parentRefs[].group API group of the parent resource, `gateway.networking.k8s.io`
+## @extra httpRoutes[].parentRefs[].sectionName Name of the listener the route attaches to
+## @extra httpRoutes[].hostnames[] Hostnames matched by the route
+## @extra httpRoutes[].rules[].name Name of the rule, referenced by `sectionName` in the policies below
+## @extra httpRoutes[].rules[].matches[].path.type Path match type, `PathPrefix`, `Exact` or `RegularExpression`
+## @extra httpRoutes[].rules[].matches[].path.value Path matched by the rule
+## @extra httpRoutes[].rules[].backendRefs[].name Name of the backend Service
+## @extra httpRoutes[].rules[].backendRefs[].port Port of the backend Service
+## @extra httpRoutes[].rules[].filters[].type Filter type, `RequestRedirect` or `URLRewrite`
+## @extra httpRoutes[].rules[].filters[].requestRedirect.scheme Scheme to redirect to
+## @extra httpRoutes[].rules[].filters[].requestRedirect.statusCode HTTP status code of the redirect
+## @extra httpRoutes[].rules[].filters[].urlRewrite.hostname Hostname sent upstream, equivalent to the Nginx `upstream-vhost` annotation
+httpRoutes: []
+#  - name: grist-example-com-https
+#    annotations:
+#      external-dns.kubernetes.io/gateway-hostname-source: defined-hosts-only
+#    parentRefs:
+#      - name: grist-listeners
+#        kind: ListenerSet
+#        group: gateway.networking.k8s.io
+#        sectionName: https-grist-example-com
+#    hostnames:
+#      - grist.example.com
+#    rules:
+#      - name: rule-0
+#        matches:
+#          - path:
+#              type: PathPrefix
+#              value: /dw
+#        backendRefs:
+#          - name: grist-lb
+#            port: 80
+#      - name: rule-1
+#        matches:
+#          - path:
+#              type: PathPrefix
+#              value: /
+#        backendRefs:
+#          - name: grist-home-wk
+#            port: 80
+#  - name: grist-example-com-http
+#    parentRefs:
+#      - name: grist-listeners
+#        kind: ListenerSet
+#        group: gateway.networking.k8s.io
+#        sectionName: http-grist-example-com
+#    hostnames:
+#      - grist.example.com
+#    rules:
+#      - name: rule-0
+#        matches:
+#          - path:
+#              type: PathPrefix
+#              value: /
+#        filters:
+#          - type: RequestRedirect
+#            requestRedirect:
+#              scheme: https
+#              statusCode: 308
+
+## @skip securityPolicies List of SecurityPolicies, the equivalent of the Nginx `whitelist-source-range` annotation
+## @extra securityPolicies[].name Name of the SecurityPolicy
+## @extra securityPolicies[].authorization.defaultAction Action applied when no rule matches, `Deny` or `Allow`
+## @extra securityPolicies[].authorization.rules[].action Action applied when the rule matches, `Allow` or `Deny`
+## @extra securityPolicies[].authorization.rules[].principal.clientCIDRs[] Client CIDRs the rule applies to
+## @extra securityPolicies[].targetRefs[].group API group of the target, `gateway.networking.k8s.io`
+## @extra securityPolicies[].targetRefs[].kind Kind of the target, `HTTPRoute`
+## @extra securityPolicies[].targetRefs[].name Name of the target HTTPRoute
+## @extra securityPolicies[].targetRefs[].sectionName Name of the target rule, omit to apply the policy to the whole route
+securityPolicies: []
+#  - name: grist-example-com-allowlist
+#    authorization:
+#      defaultAction: Deny
+#      rules:
+#        - action: Allow
+#          principal:
+#            clientCIDRs:
+#              - 192.0.2.0/24
+#    targetRefs:
+#      - group: gateway.networking.k8s.io
+#        kind: HTTPRoute
+#        name: grist-example-com-https
+#        sectionName: rule-0
+
+## @skip backendTrafficPolicies List of BackendTrafficPolicies, the equivalent of the Nginx `proxy-body-size` annotation
+## @extra backendTrafficPolicies[].name Name of the BackendTrafficPolicy
+## @extra backendTrafficPolicies[].requestBuffer.limit Maximum size of a buffered request body
+## @extra backendTrafficPolicies[].targetRefs[].group API group of the target, `gateway.networking.k8s.io`
+## @extra backendTrafficPolicies[].targetRefs[].kind Kind of the target, `HTTPRoute`
+## @extra backendTrafficPolicies[].targetRefs[].name Name of the target HTTPRoute
+## @extra backendTrafficPolicies[].targetRefs[].sectionName Name of the target rule, omit to apply the policy to the whole route
+backendTrafficPolicies: []
+#  - name: grist-example-com-body-size
+#    requestBuffer:
+#      limit: 10Gi
+#    targetRefs:
+#      - group: gateway.networking.k8s.io
+#        kind: HTTPRoute
+#        name: grist-example-com-https
+#        sectionName: rule-0
+
 ## @section Home worker
 
 homeWorker:
