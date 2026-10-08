@@ -19,4 +19,4 @@ spec:
       protocol: TCP
       name: http
   selector:
-    {{- include "grist.common.selectorLabels" (list . $component) | nindent 4 }}
+    {{- include "grist.docworker.poolSelectorLabels" . | nindent 4 }}
