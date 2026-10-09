@@ -299,6 +299,141 @@ docWorker:
   ##
   extraVolumeMounts: []
 
+## @section Doc worker surboost
+## A second, independent doc worker deployment, used to dedicate a pool of doc workers to a specific
+## GRIST_WORKER_GROUP. Disabled by default, it mirrors docWorker and shares the same internal routing
+## service, so every field below behaves exactly like its docWorker counterpart.
+
+docWorkerSurboost:
+  ## @param docWorkerSurboost.enabled Whether to deploy the surboosted doc worker deployment
+  enabled: false
+
+  ## @extra docWorkerSurboost.image.repository Repository to use to pull Grist's doc worker container image
+  ## @extra docWorkerSurboost.image.tag Grist's doc worker container tag
+  ## @extra docWorkerSurboost.image.pullPolicy Doc worker container image pull policy
+  # image:
+  #   repository: gristlabs/grist
+  #   pullPolicy: IfNotPresent
+  #   tag: "1.1.7"
+
+  ## @param docWorkerSurboost.command Override the doc worker container command
+  ## @param docWorkerSurboost.args Override the doc worker container args
+  command: []
+  args:
+    - /bin/sh
+    - -c
+    - |
+      set -e
+      export GRIST_DOC_WORKER_ID=$(echo $POD_IP | tr  "."  "-")
+      export APP_DOC_URL="$APP_HOME_URL/dw/$GRIST_DOC_WORKER_ID"
+      export APP_DOC_INTERNAL_URL="http://$INTERNAL_LB/internal/dw/$GRIST_DOC_WORKER_ID"
+      exec ./sandbox/run.sh
+
+  ## @param docWorkerSurboost.podSecurityContext Security context of pod
+  podSecurityContext: {}
+
+  useVolume:
+    ## @param docWorkerSurboost.useVolume.enabled Use a volume for /persist
+    enabled: false
+    ## @param docWorkerSurboost.useVolume.storageClassName Name of the storageClass to use when using an ephemeral volume for /persist
+    storageClassName: ""
+
+    ## @param docWorkerSurboost.useVolume.storageSize Size of the storageClass to use when using an ephemeral volume for /persists
+    storageSize: "10Gi"
+
+  ## @param docWorkerSurboost.replicas Amount of doc worker replicas
+  replicas: 3
+
+  ## @param docWorkerSurboost.strategy Deployment strategy
+  strategy: {}
+
+  ## @param docWorkerSurboost.shareProcessNamespace Enable share process namespace between containers
+  shareProcessNamespace: true
+
+  ## @param docWorkerSurboost.sidecars Add sidecars containers to docWorkerSurboost deployment
+  sidecars: []
+
+  ## @param docWorkerSurboost.securityContext Configure doc worker Pod security context
+  securityContext: null
+
+  ## @param docWorkerSurboost.envVars Configure doc worker container environment variables
+  ## @extra docWorkerSurboost.envVars.BY_VALUE Example environment variable by setting value directly
+  ## @extra docWorkerSurboost.envVars.FROM_CONFIGMAP.configMapKeyRef.name Name of a ConfigMap when configuring env vars from a ConfigMap
+  ## @extra docWorkerSurboost.envVars.FROM_CONFIGMAP.configMapKeyRef.key Key within a ConfigMap when configuring env vars from a ConfigMap
+  ## @extra docWorkerSurboost.envVars.FROM_SECRET.secretKeyRef.name Name of a Secret when configuring env vars from a Secret
+  ## @extra docWorkerSurboost.envVars.FROM_SECRET.secretKeyRef.key Key within a Secret when configuring env vars from a Secret
+  envVars: {}
+
+  ## @param docWorkerSurboost.podAnnotations Annotations to add to the doc worker Pod
+  podAnnotations: {}
+
+  ## @param docWorkerSurboost.service.type Doc worker Service type
+  ## @param docWorkerSurboost.service.port Doc worker Service listening port
+  ## @param docWorkerSurboost.service.targetPort Doc worker container listening port
+  ## @param docWorkerSurboost.service.annotations Annotations to add to the doc worker Service
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 8484
+    annotations: {}
+
+  ## @param docWorkerSurboost.probes.liveness.path Configure path for doc worker HTTP liveness probe
+  ## @extra docWorkerSurboost.probes.liveness.targetPort Configure port for doc worker HTTP liveness probe
+  ## @param docWorkerSurboost.probes.liveness.initialDelaySeconds Configure initial delay for doc worker liveness probe
+  ## @extra docWorkerSurboost.probes.liveness.initialDelaySeconds Configure timeout for doc worker liveness probe
+  ## @param docWorkerSurboost.probes.startup.path Configure path for doc worker HTTP startup probe
+  ## @extra docWorkerSurboost.probes.startup.targetPort Configure port for doc worker HTTP startup probe
+  ## @param docWorkerSurboost.probes.startup.initialDelaySeconds Configure initial delay for doc worker startup probe
+  ## @extra docWorkerSurboost.probes.startup.initialDelaySeconds Configure timeout for doc worker startup probe
+  ## @extra docWorkerSurboost.probes.readiness.path Configure path for doc worker HTTP readiness probe
+  ## @extra docWorkerSurboost.probes.readiness.targetPort Configure port for doc worker HTTP readiness probe
+  ## @extra docWorkerSurboost.probes.readiness.initialDelaySeconds Configure initial delay for doc worker readiness probe
+  ## @extra docWorkerSurboost.probes.readiness.initialDelaySeconds Configure timeout for doc worker readiness probe
+  probes:
+    liveness:
+      path: /status?db=1&redis=1&docWorkerRegistered=1
+      initialDelaySeconds: 10
+    startup:
+      path: /status?db=1&redis=1&docWorkerRegistered=1
+      initialDelaySeconds: 10
+
+  ## @param docWorkerSurboost.resources Resource requirements for the doc worker container
+  resources: {}
+
+  ## @param docWorkerSurboost.nodeSelector Node selector for the doc worker Pod
+  nodeSelector: {}
+
+  ## @param docWorkerSurboost.tolerations Tolerations for the doc worker Pod
+  tolerations: []
+
+  ## @param docWorkerSurboost.affinity Affinity for the doc worker Pod
+  affinity: {}
+
+  ## @param docWorkerSurboost.persistence Additionnal volumes to create and mount on the doc worker. Used for debugging purposes
+  ## @extra docWorkerSurboost.persistence.volume-name.size Size of the additional volume
+  ## @extra docWorkerSurboost.persistence.volume-name.type Type of the additional volume, persistentVolumeClaim or emptyDir
+  ## @extra docWorkerSurboost.persistence.volume-name.mountPath Path where the volume should be mounted to
+  persistence: {}
+  #   volume-name:
+  #     type: persistentVolumeClaim
+  #     size: 8Gi
+  #     mountPath: /data
+
+  ## @param docWorkerSurboost.extraVolumes Additional volumes for the Grafana pod
+  ## Example:
+  ## extraVolumes:
+  ##   - name: my-volume
+  ##     emptyDir: {}
+  ##
+  extraVolumes: []
+  ## @param docWorkerSurboost.extraVolumeMounts Additional volume mounts for the Grafana container
+  ## Example:
+  ## extraVolumeMounts:
+  ##   - name: my-volume
+  ##     mountPath: /opt/bitnami/grafana/my-stuff
+  ##
+  extraVolumeMounts: []
+
 ## @section Grist doc worker load balancer
 
 loadBalancer:

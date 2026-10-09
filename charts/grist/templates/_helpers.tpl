@@ -127,6 +127,19 @@ Requires array with top level scope and component name
 app.kubernetes.io/component: {{ $component }}
 {{- end }}
 
+{{/*
+Doc worker pool selector labels
+
+Shared across every doc worker deployment (docWorker, docWorkerSurboost, ...) so that they can all be
+targeted by the same internal routing Service, regardless of which Deployment actually owns the Pod.
+
+Requires top level scope
+*/}}
+{{- define "grist.docworker.poolSelectorLabels" -}}
+{{- include "grist.selectorLabels" . }}
+app.kubernetes.io/part-of: doc-worker-pool
+{{- end }}
+
 {{- define "grist.probes.abstract" -}}
 {{- if .exec -}}
 exec:
