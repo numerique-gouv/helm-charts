@@ -1,0 +1,20 @@
+apiVersion: v2
+name: sites-faciles
+type: application
+version: 0.1.0
+appVersion: "2.5.2"
+description: A Helm chart to deploy sites-faciles.
+home: https://sites.beta.gouv.fr
+deprecated: false
+annotations: {}
+keywords: []
+dependencies:
+- name: postgres
+  alias: postgresql
+  version: "0.16.0"
+  repository: oci://registry-1.docker.io/cloudpirates
+  condition: postgresql.enabled
+sources:
+- https://github.com/numerique-gouv/sites-faciles
+- https://github.com/numerique-gouv/helm-charts
+maintainers: []
